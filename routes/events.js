@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var RuleEngine = require('../services/ruleengine');
-var iFluxClient = require('../../iflux-node-client').Client;
+var iFluxClient = require('iflux-node-client').Client;
 
 var iFluxClient = new iFluxClient();
 
@@ -11,7 +11,7 @@ var ruleEngine = RuleEngine.ruleEngine;
 
 /**
  * POST /events is invoked by clients to notify that a list of events have occcured.
- * the body of the request is a list of events. Every event has a timestamp, a type,
+ * The body of the request is a list of events. Every event has a timestamp, a type,
  * a source and a list of properties
  *
  * @see {@link http://www.iflux.io/api/reference/#events|REST API Specification}
