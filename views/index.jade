@@ -1,5 +1,35 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  .row
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Status
+      .panel-body
+        p There are currently <b>#{ruleEngine.getRules().length} rules</b> defined on this server:
+        ul
+          each rule in ruleEngine.getRuleDefinitions()
+            li= rule.description
+
+  .row
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Configure rules with the editor
+      .panel-body
+        | Use 
+        a(href='/editor.html') our online editor
+        |  to create JSON payloads that you can then POST to the <code>/rules</code> endpoint.
+
+  .row
+    .panel.panel-info
+      .panel-heading
+        h3.panel-title Access the REST endpoints
+      .panel-body
+        ul
+          li
+            | <b>GET</b> the rules at the  
+            a(href='/rules') <code>/rules</code>
+            |  endpoint.
+          li <b>POST</b> a new rule at the <code>/rules</code> endpoint
+          li <b>POST</b> a new event at the <code>/events</code> endpoint
+
