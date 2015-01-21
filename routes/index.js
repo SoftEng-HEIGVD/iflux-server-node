@@ -9,8 +9,8 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'iFLUX Server', ruleEngine: ruleEngine });
 });
 
-router.get('/e', function(req, res) {
-  res.render('editor', { title: 'iFLUX Rule Editor' });
+router.get('/rule-editor', function(req, res) {
+  res.render('rule-editor', { title: 'iFLUX Rule Editor' });
 });
 
 module.exports = router;
