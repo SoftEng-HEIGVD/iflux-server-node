@@ -6,6 +6,7 @@ var ruleEngine = RuleEngine.ruleEngine;
 var Rule = RuleEngine.Rule;
 var Action = RuleEngine.Action;
 
+
 /**
  * POST /rules is invoked by clients to create a new rule.
  * The body of the request is a single rule, defined by a source, an event type,

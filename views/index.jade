@@ -2,6 +2,12 @@ extends layout
 
 block content
   .row
+    .panel.panel-danger
+      .panel-heading
+        h3.panel-title Warning
+      .panel-body
+        p This is an <b>experimental</b>, <b>highly unstable environment</b>. We upgrade aggressively and do not save configuration in persistence storage yet. Use it to get familiar with iFLUX APIs, but don't rely on it for real applications. If you take the time to configure rules, <b>script or archive your HTTP requests</b> so that you can resend them after a new deployment. Watch this space for up-to-date information.
+  .row
     .panel.panel-info
       .panel-heading
         h3.panel-title Status

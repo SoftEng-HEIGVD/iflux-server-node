@@ -1,5 +1,7 @@
 var Handlebars = require('handlebars');
 
+var lastRuleId = 1;
+
 /**
  * This constructor will be used to create and export a singleton. The Rule Engine maintains a list of rules and
  * a list of actions. When events are notified, the Rule Engine is asked to evaluate the rules to decide whether
@@ -34,7 +36,7 @@ var RuleEngine = function() {
    * @returns {number} the unique id assigned to the rule
    */
   var addRule = function(rule) {
-    var ruleId = (rules.length + 1).toString();
+    var ruleId = (lastRuleId++).toString();
     rule.id = ruleId;
     rules.push(rule);
     return ruleId;
