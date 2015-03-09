@@ -1,13 +1,14 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express'),
+  router = express.Router(),
+  mongoose = require('mongoose'),
+	ruleEngine = require('../services/ruleengine').ruleEngine
 
-var RuleEngine = require('../services/ruleengine');
-var iFluxClient = require('iflux-node-client').Client;
+var iFluxClient = require('iflux-node-client').Client();
 
-var iFluxClient = new iFluxClient();
 
-var ruleEngine = RuleEngine.ruleEngine;
-                   
+module.exports = function (app) {
+  app.use('/events', router);
+};
 
 /**
  * POST /events is invoked by clients to notify that a list of events have occcured.
@@ -22,12 +23,9 @@ router.post('/', function(req, res) {
     var actions = ruleEngine.processEvent(events[i]);
     console.log("Triggered " + actions.length + " actions.");
     for (var j=0; j<actions.length; j++) {
-      var action = actions[j];      
+      var action = actions[j];
       iFluxClient.executeAction(action);
     }
   }
   res.send('respond with a resource');
 });
-
-
-module.exports = router;

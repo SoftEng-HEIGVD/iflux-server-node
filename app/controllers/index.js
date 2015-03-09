@@ -1,8 +1,10 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express'),
+  router = express.Router(),
+	ruleEngine = require('../services/ruleengine').ruleEngine;
 
-var RuleEngine = require('../services/ruleengine');
-var ruleEngine = RuleEngine.ruleEngine;
+module.exports = function (app) {
+  app.use('/', router);
+};
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -12,5 +14,3 @@ router.get('/', function(req, res) {
 router.get('/rule-editor', function(req, res) {
   res.render('rule-editor', { title: 'iFLUX Rule Editor' });
 });
-
-module.exports = router;
