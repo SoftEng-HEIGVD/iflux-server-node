@@ -8,9 +8,7 @@ var actionSchema = new Schema({
 	actionSchema: String
 });
 
-mongoose.model('Action', actionSchema);
-
-actionSchema.methods.evaluate = generate = function(event) {
+actionSchema.methods.createConcreteAction = function(event) {
 	var transformation = Handlebars.compile(this.actionSchema);
 
 	var action = transformation(event);
@@ -22,3 +20,4 @@ actionSchema.methods.evaluate = generate = function(event) {
   };
 };
 
+mongoose.model('Action', actionSchema);

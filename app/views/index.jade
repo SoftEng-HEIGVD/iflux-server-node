@@ -12,9 +12,9 @@ block content
       .panel-heading
         h3.panel-title Status
       .panel-body
-        p There are currently <b>#{ruleEngine.getRules().length} rules</b> defined on this server:
+        p There are currently <b>#{rules.length} rules</b> defined on this server:
         ul
-          each rule in ruleEngine.getRuleDefinitions()
+          each rule in rules
             li= rule.description
 
   .row
@@ -22,7 +22,7 @@ block content
       .panel-heading
         h3.panel-title Configure rules with the editor
       .panel-body
-        | Use 
+        | Use
         a(href='/rule-editor') our online editor
         |  to create JSON payloads that you can then POST to the <code>/rules</code> endpoint.
 
@@ -33,7 +33,7 @@ block content
       .panel-body
         ul
           li
-            | <b>GET</b> the rules at the  
+            | <b>GET</b> the rules at the
             a(href='/rules') <code>/rules</code>
             |  endpoint.
           li <b>POST</b> a new rule at the <code>/rules</code> endpoint

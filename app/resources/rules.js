@@ -6,7 +6,6 @@ var
 	Rule = mongoose.model('Rule'),
 	Action = mongoose.model('Action'),
 	Condition = mongoose.model('Condition'),
-	ruleEngine = require('../services/ruleengine').ruleEngine,
 	ruleDao = require('../persistence/ruleDao');
 
 module.exports = function (app) {

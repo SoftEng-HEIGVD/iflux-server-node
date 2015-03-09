@@ -1,6 +1,6 @@
 var express = require('express'),
   router = express.Router(),
-	ruleEngine = require('../services/ruleengine').ruleEngine;
+	ruleDao = require('../persistence/ruleDao');
 
 module.exports = function (app) {
   app.use('/', router);
@@ -8,7 +8,11 @@ module.exports = function (app) {
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index', { title: 'iFLUX Server', ruleEngine: ruleEngine });
+	ruleDao
+		.findAll()
+		.then(function(rules) {
+			res.render('index', { title: 'iFLUX Server', rules: rules });
+		});
 });
 
 router.get('/rule-editor', function(req, res) {

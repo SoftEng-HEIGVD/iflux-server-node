@@ -26,5 +26,12 @@ module.exports = {
 
 				return dao.save(rule);
 			});
+	},
+
+	findAll: function() {
+		return Rule
+			.find()
+			.populate('condition action')
+			.exec();
 	}
 }
