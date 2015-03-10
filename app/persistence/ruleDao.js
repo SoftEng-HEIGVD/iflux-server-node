@@ -26,6 +26,7 @@ module.exports = {
 			.then(function(conditionSaved) {
 				var rule = new Rule({
 					description: ruleDefinition.description,
+					enabled: true,
 					condition: conditionSaved,
 					action: action
 				});
@@ -52,9 +53,9 @@ module.exports = {
 	 *
 	 * @returns {Promise} A promise
 	 */
-	findAll: function() {
+	findAllEanbled: function() {
 		return Rule
-			.find()
+			.find({ enabled: true })
 			.populate('condition action')
 			.exec();
 	}

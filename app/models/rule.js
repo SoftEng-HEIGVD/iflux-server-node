@@ -12,6 +12,7 @@ var
  */
 var ruleSchema = new Schema({
   description: String,
+	enabled: Boolean,
 	condition: { type: Schema.Types.ObjectId, ref: 'Condition' },
 	action: { type: Schema.Types.ObjectId, ref: 'Action' }
 });

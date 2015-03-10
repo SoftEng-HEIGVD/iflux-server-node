@@ -17,7 +17,7 @@ module.exports = {
   */
 	processEvent: function (event) {
 		return ruleDao
-			.findAll()
+			.findAllEnabled()
 			.then(function (rules) {
 				var actions = [];
 

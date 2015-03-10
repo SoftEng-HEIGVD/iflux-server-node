@@ -94,6 +94,11 @@ router.route('/:id')
 					updated |= 1;
 				}
 
+				if (ruleDefinition.enabled !== undefined) {
+					rule.enabled = ruleDefinition.enabled;
+					updated |= 1;
+				}
+
 				if (ruleDefinition.if !== undefined) {
 					var ifPayload = ruleDefinition.if;
 
