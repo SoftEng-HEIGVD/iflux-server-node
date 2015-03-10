@@ -6,7 +6,8 @@ var
 	Rule = mongoose.model('Rule'),
 	Action = mongoose.model('Action'),
 	Condition = mongoose.model('Condition'),
-	ruleDao = require('../persistence/ruleDao');
+	ruleDao = require('../persistence/ruleDao'),
+	dao = require('../persistence/dao');
 
 module.exports = function (app) {
   app.use('/rules', router);
@@ -70,7 +71,99 @@ router.route('/')
 	});
 
 
+
 router.route('/:id')
+	/**
+	 * PATCH /rules is invoked by clients to update part of a rule.
+	 * The body of the request is a partial single rule, defined by a source, an event type,
+	 * a target and. The target is the root the API exposed by an iFLUX action
+	 * target (e.g. http://gateway.org/api/).
+	 *
+	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
+	 */
+	.patch(function(req, res, next) {
+		ruleDao
+			.findById(req.params.id)
+			.then(function(rule) {
+				var ruleDefinition = req.body;
+
+				var updated = 0;
+
+				if (ruleDefinition.description !== undefined) {
+					rule.description = ruleDefinition.description;
+					updated |= 1;
+				}
+
+				if (ruleDefinition.if !== undefined) {
+					var ifPayload = ruleDefinition.if;
+
+					if (ifPayload.eventSource !== undefined) {
+						rule.condition.source = ifPayload.eventSource;
+						updated |= 2;
+					}
+
+					if (ifPayload.eventType !== undefined) {
+						rule.condition.type = ifPayload.eventType;
+						updated |= 2;
+					}
+
+					if (ifPayload.eventProperties !== undefined) {
+						rule.condition.properties = ifPayload.eventProperties;
+						updated |= 2;
+					}
+				}
+
+				if (ruleDefinition.then !== undefined) {
+					var thenPayload = ruleDefinition.then;
+
+					if (thenPayload.actionTarget !== undefined) {
+						rule.action.target = thenPayload.actionTarget;
+						updated |= 4;
+					}
+
+					if (thenPayload.actionSchema !== undefined) {
+						rule.action.payload = thenPayload.actionSchema;
+						updated |= 4;
+					}
+				}
+
+				var promise = null;
+
+				if (updated & 1) {
+					promise = dao.save(rule);
+				}
+
+				if (updated & 2) {
+					if (promise !== null) {
+						promise = promise.then(function() {
+							return dao.save(rule.condition)
+						});
+					}
+					else {
+						promise = dao.save(rule.condition);
+					}
+				}
+
+				if (updated & 4) {
+					if (promise !== null) {
+						promise = promise.then(function() {
+							return dao.save(rule.action);
+						});
+					}
+					else {
+						promise = dao.save(rule.action);
+					}
+				}
+
+				return promise.then(function() {
+					res.status(201).location('/rules/' + rule.id).end();
+				})
+			})
+			.then(null, function(err) {
+				next(err);
+			});
+	})
+
 	/**
 	 * DELETE /rules/:id is invoked to delete one rule, identified by its unique id.
 	 *
