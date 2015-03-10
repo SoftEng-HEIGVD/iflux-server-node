@@ -13,22 +13,22 @@ html(lang='en')
       .editor {
       width: 100%;
       height: 200px;
-      }      
+      }
   body
     header#header
       h1
-        a(href='http://www.iflux.io') iFlux.io
+        a(href='#{config.siteUrl}') iFlux.io
       nav#nav
         ul
           li(style='white-space: nowrap;')
             a(href='/') Sandbox
           li(style='white-space: nowrap;')
-            a(href='http://www.iflux.io/blog.html') Blog
+            a(href='#{config.siteUrl}/blog.html') Blog
           li(style='white-space: nowrap;')
-            a(href='http://www.iflux.io/api/') API
+            a(href='#{config.siteUrl}/api/') API
     .container
       .page-header
-        h1= title        
+        h1= title
       block content
-      
+
     block scripts

@@ -1,10 +1,15 @@
 var path = require('path'),
-    rootPath = path.normalize(__dirname + '/..'),
-    env = process.env.NODE_ENV || 'development';
+	rootPath = path.normalize(__dirname + '/..'),
+	dotenv = require('dotenv'),
+	env = process.env.NODE_ENV || 'development';
+
+dotenv.load();
 
 var config = {
   development: {
     root: rootPath,
+		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
+		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
     app: {
       name: 'iFLUX-Server'
     },
@@ -14,7 +19,9 @@ var config = {
 
   test: {
     root: rootPath,
-    app: {
+		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
+		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
+		app: {
       name: 'iFLUX-Server'
     },
     port: process.env.PORT || 3000,
@@ -23,6 +30,8 @@ var config = {
 
   production: {
     root: rootPath,
+		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
+		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
     app: {
       name: 'iFLUX-Server'
     },
@@ -32,6 +41,8 @@ var config = {
 
 	docker: {
 		root: rootPath,
+		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
+		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
 		app: {
 			name: 'iFLUX-Server'
 		},

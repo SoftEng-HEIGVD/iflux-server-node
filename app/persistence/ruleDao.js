@@ -49,7 +49,19 @@ module.exports = {
 	},
 
 	/**
-	 * Find all the rules
+	 * Find all the enabled rules
+	 *
+	 * @returns {Promise} A promise
+	 */
+	findAll: function() {
+		return Rule
+			.find()
+			.populate('condition action')
+			.exec();
+	},
+
+	/**
+	 * Find all the enabled rules
 	 *
 	 * @returns {Promise} A promise
 	 */

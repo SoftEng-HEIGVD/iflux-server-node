@@ -15,7 +15,7 @@ block content
         p There are currently <b>#{rules.length} rules</b> defined on this server:
         ul
           each rule in rules
-            li= rule.description
+            li [Enabled: #{rule.enabled}] #{rule.description}
 
   .row
     .panel.panel-info
