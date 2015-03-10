@@ -5,6 +5,12 @@ var
 	dao = require('./dao');
 
 module.exports = {
+	/**
+	 * Create and save an action
+	 *
+	 * @param actionDefinition Action definition to create the action document
+	 * @returns {Promise} A promise
+	 */
 	createAndSave: function(actionDefinition) {
 		var action = new Action({
 			target: actionDefinition.actionTarget,

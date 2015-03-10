@@ -8,6 +8,12 @@ var
 	conditionDao = require('./conditionDao');
 
 module.exports = {
+	/**
+	 * Create a new rule and save it to mongo
+	 *
+	 * @param ruleDefinition The rule definition to create the document
+	 * @returns {Promise} A promise
+	 */
 	createAndSave: function(ruleDefinition) {
 		var action = null;
 
@@ -28,6 +34,24 @@ module.exports = {
 			});
 	},
 
+	/**
+	 * Find a rule by its id
+	 *
+	 * @param id The id of the rule
+	 * @returns {Promise} A promise
+	 */
+	findById: function(id) {
+		return Rule
+			.findById(id)
+			.populate('condition action')
+			.exec();
+	},
+
+	/**
+	 * Find all the rules
+	 *
+	 * @returns {Promise} A promise
+	 */
 	findAll: function() {
 		return Rule
 			.find()
