@@ -53,7 +53,7 @@ module.exports = {
 	 *
 	 * @returns {Promise} A promise
 	 */
-	findAllEanbled: function() {
+	findAllEnabled: function() {
 		return Rule
 			.find({ enabled: true })
 			.populate('condition action')

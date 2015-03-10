@@ -33,6 +33,7 @@ router.route('/')
 							return {
 								id: rule.id,
 								description: rule.description,
+								enabled: rule.enabled,
 								if: {
 									eventSource: rule.condition.source,
 									eventType: rule.condition.type,
