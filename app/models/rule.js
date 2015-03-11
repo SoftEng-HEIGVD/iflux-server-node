@@ -12,6 +12,7 @@ var
  */
 var ruleSchema = new Schema({
   description: String,
+	reference: String,
 	enabled: Boolean,
 	condition: { type: Schema.Types.ObjectId, ref: 'Condition' },
 	action: { type: Schema.Types.ObjectId, ref: 'Action' }
@@ -29,7 +30,7 @@ ruleSchema.methods.evaluate = function(event, actions) {
    * 1. Check the condition on the event source
    */
   if ("*" !== this.condition.source && event.source !== this.condition.source) {
-    console.log("Event source does not match, exit evaluation");
+    console.log("Event source does not match, exit evaluation [condition event source: %s -- event source: %s]", this.condition.source, event.source);
     return;
   }
 
@@ -37,7 +38,7 @@ ruleSchema.methods.evaluate = function(event, actions) {
    * 2. Check the condition on the event type
    */
   if ("*" !== this.condition.type && event.type !== this.condition.type) {
-    console.log("Event type does not match, exit evaluation");
+    console.log("Event type does not match, exit evaluation [condition event type: %s -- event type: %s]", this.condition.type, event.type);
     return;
   }
 

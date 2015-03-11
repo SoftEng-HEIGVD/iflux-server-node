@@ -9,7 +9,12 @@ module.exports = {
 		console.log("Triggered " + actions.length + " actions.");
 
 		_.each(actions, function(action) {
-			iFluxClient.executeAction(action);
+			try {
+				iFluxClient.executeAction(action);
+			}
+			catch (err) {
+				console.log(err);
+			}
 		});
 	}
 };

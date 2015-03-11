@@ -20,18 +20,24 @@ router.route('/')
 	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
 	 */
 	.get(function(req, res, next) {
-		Rule
-			.find()
-			.populate('condition action')
-			.exec(function(err, rules) {
-				if (err) return next(err);
+		var promise = null;
 
-				res
+		if (req.query.reference !== undefined) {
+			promise = ruleDao.findByReference(req.query.reference);
+		}
+		else {
+			promise = ruleDao.findAll();
+		}
+
+		promise
+			.then(function(rules) {
+				return res
 					.status(200)
 					.json(
 						_.map(rules, function(rule) {
 							return {
 								id: rule.id,
+								reference: rule.reference,
 								description: rule.description,
 								enabled: rule.enabled,
 								if: {
@@ -47,6 +53,9 @@ router.route('/')
 						})
 					)
 					.end();
+			})
+			.then(null, function(err) {
+				return next(err);
 			});
 	})
 
@@ -64,7 +73,7 @@ router.route('/')
 		ruleDao
 			.createAndSave(ruleDefinition)
 			.then(function(ruleSaved) {
-				res.status(201).location('/rules/' + ruleSaved.id).end();
+				return res.status(201).location('/rules/' + ruleSaved.id).end();
 			})
 			.fail(function(err) {
 				return next(err)
@@ -162,7 +171,7 @@ router.route('/:id')
 				}
 
 				return promise.then(function() {
-					res.status(201).location('/rules/' + rule.id).end();
+					res.status(200).location('/rules/' + rule.id).end();
 				})
 			})
 			.then(null, function(err) {

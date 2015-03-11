@@ -26,6 +26,7 @@ module.exports = {
 			.then(function(conditionSaved) {
 				var rule = new Rule({
 					description: ruleDefinition.description,
+					reference: ruleDefinition.reference,
 					enabled: true,
 					condition: conditionSaved,
 					action: action
@@ -44,6 +45,19 @@ module.exports = {
 	findById: function(id) {
 		return Rule
 			.findById(id)
+			.populate('condition action')
+			.exec();
+	},
+
+	/**
+	 * Find rules by reference
+	 *
+	 * @param reference Reference of the rule
+	 * @returns {Promise} A promise
+	 */
+	findByReference: function(reference) {
+		return Rule
+			.find({ reference: reference })
 			.populate('condition action')
 			.exec();
 	},
