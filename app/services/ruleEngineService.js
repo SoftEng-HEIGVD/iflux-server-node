@@ -25,7 +25,6 @@ module.exports = {
 					rule.evaluate(event, actions);
 				});
 
-
 				console.log("process actions");
 				actionService.processActions(actions);
 			});

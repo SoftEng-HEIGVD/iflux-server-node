@@ -49,8 +49,12 @@ ruleSchema.methods.evaluate = function(event, actions) {
   /*
    * All conditions are met, add an action to trigger
    */
-  console.log("All conditions are met, register action.");
-  actions.push(this.action.createConcreteAction(event));
+	console.log("All conditions are met to register the action");
+  var action = this.action.createConcreteAction(event);
+	if (action !== null) {
+		console.log("Action registered.");
+		actions.push(action);
+	}
 }
 
 mongoose.model('Rule', ruleSchema);

@@ -3,6 +3,7 @@ var
 	express = require('express'),
   router = express.Router(),
   mongoose = require('mongoose'),
+	Handlebars = require('handlebars'),
 	Rule = mongoose.model('Rule'),
 	Action = mongoose.model('Action'),
 	Condition = mongoose.model('Condition'),
@@ -80,7 +81,18 @@ router.route('/')
 			});
 	});
 
-
+router.route('/actionSchema/validate')
+	.post(function(req, res, next) {
+		try {
+			res.status(200).json(JSON.parse(Handlebars.compile(req.body.actionSchema)(req.body.sample))).end();
+		}
+		catch (err) {
+			console.log(err);
+			return res.status(422).json({
+				error: err.toString()
+			}).end();
+		}
+	});
 
 router.route('/:id')
 	/**
@@ -137,7 +149,7 @@ router.route('/:id')
 					}
 
 					if (thenPayload.actionSchema !== undefined) {
-						rule.action.payload = thenPayload.actionSchema;
+						rule.action.actionSchema = thenPayload.actionSchema;
 						updated |= 4;
 					}
 				}

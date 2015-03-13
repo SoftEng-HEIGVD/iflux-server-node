@@ -9,15 +9,22 @@ var actionSchema = new Schema({
 });
 
 actionSchema.methods.createConcreteAction = function(event) {
-	var transformation = Handlebars.compile(this.actionSchema);
+	try {
+		var transformation = Handlebars.compile(this.actionSchema);
 
-	var action = transformation(event);
+		var action = transformation(event);
 
-	var actionObject = JSON.parse(action);
-  return {
-    target : this.target,
-    payload : actionObject
-  };
+		var actionObject = JSON.parse(action);
+
+		return {
+			target: this.target,
+			payload: actionObject
+		};
+	}
+	catch (err) {
+		console.log(err);
+		return null;
+	}
 };
 
 mongoose.model('Action', actionSchema);
