@@ -3,7 +3,9 @@ var path = require('path'),
 	dotenv = require('dotenv'),
 	env = process.env.NODE_ENV || 'development';
 
-dotenv.load();
+if (process.env.NODE_ENV != 'docker') {
+	dotenv.load();
+}
 
 var config = {
   development: {
