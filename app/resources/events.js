@@ -19,6 +19,8 @@ router.route('/')
 	.post(function(req, res) {
   	var events = req.body;
 
+		console.log("%s event(s) received", events.length);
+
 		_.each(events, function(event) {
 			ruleEngineService.processEvent(event);
 		});
