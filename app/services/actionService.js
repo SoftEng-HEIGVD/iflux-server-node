@@ -1,6 +1,13 @@
 var
+	domain = require('domain'),
+	d = domain.create(),
 	_ = require('underscore'),
 	Client = require('iflux-node-client').Client;
+
+d.on('error', function(err) {
+	console.log("Unable to process the action.");
+	console.log(err);
+});
 
 var iFluxClient = new Client();
 
@@ -9,12 +16,9 @@ module.exports = {
 		console.log("Triggered " + actions.length + " actions.");
 
 		_.each(actions, function(action) {
-			try {
+			d.run(function() {
 				iFluxClient.executeAction(action);
-			}
-			catch (err) {
-				console.log(err);
-			}
+			});
 		});
 	}
 };

@@ -5,8 +5,6 @@ var
   mongoose = require('mongoose'),
 	Handlebars = require('handlebars'),
 	Rule = mongoose.model('Rule'),
-	Action = mongoose.model('Action'),
-	Condition = mongoose.model('Condition'),
 	ruleDao = require('../persistence/ruleDao'),
 	dao = require('../persistence/dao');
 
@@ -109,16 +107,16 @@ router.route('/:id')
 			.then(function(rule) {
 				var ruleDefinition = req.body;
 
-				var updated = 0;
+				var updated = false;
 
 				if (ruleDefinition.description !== undefined) {
 					rule.description = ruleDefinition.description;
-					updated |= 1;
+					updated = true;
 				}
 
 				if (ruleDefinition.enabled !== undefined) {
 					rule.enabled = ruleDefinition.enabled;
-					updated |= 1;
+					updated = true;
 				}
 
 				if (ruleDefinition.if !== undefined) {
@@ -126,17 +124,17 @@ router.route('/:id')
 
 					if (ifPayload.eventSource !== undefined) {
 						rule.condition.source = ifPayload.eventSource;
-						updated |= 2;
+						updated = true;
 					}
 
 					if (ifPayload.eventType !== undefined) {
 						rule.condition.type = ifPayload.eventType;
-						updated |= 2;
+						updated = true;
 					}
 
 					if (ifPayload.eventProperties !== undefined) {
 						rule.condition.properties = ifPayload.eventProperties;
-						updated |= 2;
+						updated = true;
 					}
 				}
 
@@ -145,41 +143,19 @@ router.route('/:id')
 
 					if (thenPayload.actionTarget !== undefined) {
 						rule.action.target = thenPayload.actionTarget;
-						updated |= 4;
+						updated = true;
 					}
 
 					if (thenPayload.actionSchema !== undefined) {
 						rule.action.actionSchema = thenPayload.actionSchema;
-						updated |= 4;
+						updated = true;
 					}
 				}
 
 				var promise = null;
 
-				if (updated & 1) {
+				if (updated) {
 					promise = dao.save(rule);
-				}
-
-				if (updated & 2) {
-					if (promise !== null) {
-						promise = promise.then(function() {
-							return dao.save(rule.condition)
-						});
-					}
-					else {
-						promise = dao.save(rule.condition);
-					}
-				}
-
-				if (updated & 4) {
-					if (promise !== null) {
-						promise = promise.then(function() {
-							return dao.save(rule.action);
-						});
-					}
-					else {
-						promise = dao.save(rule.action);
-					}
 				}
 
 				return promise.then(function() {

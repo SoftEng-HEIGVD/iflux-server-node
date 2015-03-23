@@ -3,9 +3,7 @@ var
 	Q = require('q'),
 	mongoose = require('mongoose'),
 	Rule = mongoose.model('Rule'),
-	dao = require('./dao'),
-	actionDao = require('./actionDao'),
-	conditionDao = require('./conditionDao');
+	dao = require('./dao');
 
 module.exports = {
 	/**
@@ -15,25 +13,22 @@ module.exports = {
 	 * @returns {Promise} A promise
 	 */
 	createAndSave: function(ruleDefinition) {
-		var action = null;
+		var rule = new Rule({
+			description: ruleDefinition.description,
+			reference: ruleDefinition.reference,
+			enabled: true,
+			condition: {
+				source: ruleDefinition.if.eventSource,
+				type: ruleDefinition.if.eventType,
+				properties: ruleDefinition.if.eventProperties
+			},
+			action: {
+				target: ruleDefinition.then.actionTarget,
+				actionSchema: ruleDefinition.then.actionSchema
+			}
+		});
 
-		return Q(actionDao.createAndSave(ruleDefinition.then))
-			.then(function(actionSaved) {
-				action = actionSaved;
-
-				return conditionDao.createAndSave(ruleDefinition.if);
-			})
-			.then(function(conditionSaved) {
-				var rule = new Rule({
-					description: ruleDefinition.description,
-					reference: ruleDefinition.reference,
-					enabled: true,
-					condition: conditionSaved,
-					action: action
-				});
-
-				return dao.save(rule);
-			});
+		return dao.save(rule);
 	},
 
 	/**
@@ -45,7 +40,6 @@ module.exports = {
 	findById: function(id) {
 		return Rule
 			.findById(id)
-			.populate('condition action')
 			.exec();
 	},
 
@@ -58,7 +52,6 @@ module.exports = {
 	findByReference: function(reference) {
 		return Rule
 			.find({ reference: reference })
-			.populate('condition action')
 			.exec();
 	},
 
@@ -70,7 +63,6 @@ module.exports = {
 	findAll: function() {
 		return Rule
 			.find()
-			.populate('condition action')
 			.exec();
 	},
 
@@ -82,7 +74,6 @@ module.exports = {
 	findAllEnabled: function() {
 		return Rule
 			.find({ enabled: true })
-			.populate('condition action')
 			.exec();
 	}
 }

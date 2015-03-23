@@ -14,8 +14,15 @@ var ruleSchema = new Schema({
   description: String,
 	reference: String,
 	enabled: Boolean,
-	condition: { type: Schema.Types.ObjectId, ref: 'Condition' },
-	action: { type: Schema.Types.ObjectId, ref: 'Action' }
+	condition: {
+		source: String,
+		type: String,
+		properties: Schema.Types.Mixed
+	},
+	action: {
+		target: String,
+		actionSchema: String
+	}
 });
 
 /**
