@@ -19,7 +19,7 @@ module.exports = {
 			enabled: true,
 			condition: {
 				source: ruleDefinition.if.eventSource,
-				type: ruleDefinition.if.eventType,
+				conditionType: ruleDefinition.if.eventType,
 				properties: ruleDefinition.if.eventProperties
 			},
 			action: {
@@ -76,4 +76,4 @@ module.exports = {
 			.find({ enabled: true })
 			.exec();
 	}
-}
+};

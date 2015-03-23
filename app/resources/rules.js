@@ -41,7 +41,7 @@ router.route('/')
 								enabled: rule.enabled,
 								if: {
 									eventSource: rule.condition.source,
-									eventType: rule.condition.type,
+									eventType: rule.condition.eventType,
 									eventProperties: rule.condition.properties
 								},
 								then: {
@@ -128,7 +128,7 @@ router.route('/:id')
 					}
 
 					if (ifPayload.eventType !== undefined) {
-						rule.condition.type = ifPayload.eventType;
+						rule.condition.eventType = ifPayload.eventType;
 						updated = true;
 					}
 

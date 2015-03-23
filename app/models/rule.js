@@ -16,7 +16,7 @@ var ruleSchema = new Schema({
 	enabled: Boolean,
 	condition: {
 		source: String,
-		type: String,
+		eventType: String,
 		properties: Schema.Types.Mixed
 	},
 	action: {
@@ -44,8 +44,8 @@ ruleSchema.methods.evaluate = function(event, actions) {
   /*
    * 2. Check the condition on the event type
    */
-  if ("*" !== this.condition.type && event.type !== this.condition.type) {
-    console.log("Event type does not match, exit evaluation [condition event type: %s -- event type: %s]", this.condition.type, event.type);
+  if ("*" !== this.condition.eventType && event.type !== this.condition.eventType) {
+    console.log("Event type does not match, exit evaluation [condition event type: %s -- event type: %s]", this.condition.eventType, event.type);
     return;
   }
 
@@ -62,6 +62,6 @@ ruleSchema.methods.evaluate = function(event, actions) {
 		console.log("Action registered.");
 		actions.push(action);
 	}
-}
+};
 
 mongoose.model('Rule', ruleSchema);
