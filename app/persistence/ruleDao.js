@@ -19,7 +19,7 @@ module.exports = {
 			enabled: true,
 			condition: {
 				source: ruleDefinition.if.eventSource,
-				conditionType: ruleDefinition.if.eventType,
+				eventType: ruleDefinition.if.eventType,
 				properties: ruleDefinition.if.eventProperties
 			},
 			action: {
