@@ -1,4 +1,5 @@
 var
+	Handlebars = require('handlebars'),
 	mongoose = require('mongoose'),
   Schema = mongoose.Schema;
 
@@ -36,16 +37,16 @@ ruleSchema.methods.evaluate = function(event, actions) {
   /*
    * 1. Check the condition on the event source
    */
-  if ("*" !== this.condition.source && event.source !== this.condition.source) {
-    console.log("Event source does not match, exit evaluation [condition event source: %s -- event source: %s]", this.condition.source, event.source);
+	console.log("Try to match Event source [condition event source: %s -- event source: %s]", this.condition.source, event.source);
+	if ("*" !== this.condition.source && event.source !== this.condition.source) {
     return;
   }
 
   /*
    * 2. Check the condition on the event type
    */
+	console.log("Try to match Event condition [condition event type: %s -- event type: %s]", this.condition.eventType, event.type);
   if ("*" !== this.condition.eventType && event.type !== this.condition.eventType) {
-    console.log("Event type does not match, exit evaluation [condition event type: %s -- event type: %s]", this.condition.eventType, event.type);
     return;
   }
 
@@ -57,11 +58,29 @@ ruleSchema.methods.evaluate = function(event, actions) {
    * All conditions are met, add an action to trigger
    */
 	console.log("All conditions are met to register the action");
-  var action = this.action.createConcreteAction(event);
+  var action = this.createConcreteAction(event);
 	if (action !== null) {
 		console.log("Action registered.");
 		actions.push(action);
 	}
 };
+
+ruleSchema.methods.createConcreteAction = function(event) {
+	try {
+		var transformation = Handlebars.compile(this.action.actionSchema);
+		var action = transformation(event);
+		var actionObject = JSON.parse(action);
+
+		return {
+			target: this.action.target,
+			payload: actionObject
+		};
+	}
+	catch (err) {
+		console.log(err);
+		return null;
+	}
+};
+
 
 mongoose.model('Rule', ruleSchema);
