@@ -2,10 +2,10 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
-	ruleEngineService = require('../services/ruleEngineService');
+	ruleEngineService = require('../../services/ruleEngineService');
 
 module.exports = function (app) {
-  app.use('/events', router);
+  app.use('/v1/events', router);
 };
 
 router.route('/')

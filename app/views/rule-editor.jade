@@ -6,57 +6,57 @@ block content
             .panel-heading
               h3.panel-title How to use the editor
             .panel-body
-              | The iFLUX programming model is based on 
+              | The iFLUX programming model is based on
               b Event-Condition-Action
               |  rules:
               p
               ol
                 li
                   b Event sources
-                  |  push 
+                  |  push
                   b events
-                  |  to the 
+                  |  to the
                   code /events
                   |  API endpoint (exposed by the iFLUX middleware).
                 p
                 li
-                  | The 
+                  | The
                   b rules
-                  |  which have been configured on the middleware are evaluated. Every rule specify certain 
+                  |  which have been configured on the middleware are evaluated. Every rule specify certain
                   b conditions
-                  |  (on the source, the event type, the event properties). Every rule also specify an 
+                  |  (on the source, the event type, the event properties). Every rule also specify an
                   b action
                   | , which should be triggered if all conditions are met when an event is received. Every rule also specifies how the action properties should be computed (based on the triggering event properties).
                 p
                 li
-                  | When an 
+                  | When an
                   b action
-                  |  is triggered, the iFLUX middleware issues an HTTP request to the 
+                  |  is triggered, the iFLUX middleware issues an HTTP request to the
                   code /actions
                   |  API endpoint (exposed by an iFLUX-compatible actuator or gateway.
               p
               br
-              |             The iFLUX middleware exposes the 
+              |             The iFLUX middleware exposes the
               code /rules
-              |  API endpoint, so that users can 
+              |  API endpoint, so that users can
               b create new rules
               | . The payload accepted by the endpoint can be a bit tricky to write. The objective of this editor is to address this issue and to make the process easier. Using the editor involves three steps:
               p
               ol
                 li
-                  | Specify the 
+                  | Specify the
                   b IF
                   |  clause of the rule, by defining conditions on the event source and the event type (conditions on event properties are not supported yet). In this step, also provide an example of event that would trigger the rule (this will make the next step easier).
                 p
                 li
-                  | Specify the 
+                  | Specify the
                   b THEN
                   |  clause of the rule. To do that, you will first specify an action target endpoint (this URL points to an action target component, such as an actuator or a gateway). You will also provide a schema that specifies how to generate the action payload (both the action type and the action properties).
                 p
                 li
-                  | Finally, the editor will 
+                  | Finally, the editor will
                   b generate a rule payload
-                  | . You can then grab this JSON data and POST it to the 
+                  | . You can then grab this JSON data and POST it to the
                   code /rules
                   |  API endpoint to add the rule to your iFLUX setup.
                 p
@@ -76,7 +76,7 @@ block content
         .row
           .alert.alert-info(role='alert')
             b Step 1
-            | : 
+            | :
             b IF
             |  this event happens...
         br
@@ -195,7 +195,7 @@ block content
         .row
           .alert.alert-success(role='alert')
             b Step 3
-            | : Generate and grab an 
+            | : Generate and grab an
             b API request
             |  to create the rule.
         br
@@ -224,4 +224,4 @@ block scripts
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js', type='text/javascript', charset='utf-8')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.min.js')
-    script(src='/javascripts/editor.js')
+    script(src=contextRoot + '/javascripts/editor.js')

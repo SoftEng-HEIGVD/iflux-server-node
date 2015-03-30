@@ -1,4 +1,4 @@
-code/node_modules
-code/.gitignore
-code/.git
-code/.env
+node_modules
+.gitignore
+.git
+.env

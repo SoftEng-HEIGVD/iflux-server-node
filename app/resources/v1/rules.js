@@ -5,11 +5,11 @@ var
   mongoose = require('mongoose'),
 	Handlebars = require('handlebars'),
 	Rule = mongoose.model('Rule'),
-	ruleDao = require('../persistence/ruleDao'),
-	dao = require('../persistence/dao');
+	ruleDao = require('../../persistence/ruleDao'),
+	dao = require('../../persistence/dao');
 
 module.exports = function (app) {
-  app.use('/rules', router);
+  app.use('/v1/rules', router);
 };
 
 router.route('/')

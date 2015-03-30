@@ -2,8 +2,8 @@ doctype html
 html(lang='en')
   head
     title= title
-    link(rel='stylesheet', href='stylesheets/styles.css')
-    link(rel='stylesheet', href='stylesheets/style.css')
+    link(rel='stylesheet', href=contextRoot + 'stylesheets/styles.css')
+    link(rel='stylesheet', href=contextRoot + 'stylesheets/style.css')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css')
     link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css')
     style(type='text/css', media='screen').
@@ -21,7 +21,7 @@ html(lang='en')
       nav#nav
         ul
           li(style='white-space: nowrap;')
-            a(href='/') Sandbox
+            a(href=contextRoot + '/') Sandbox
           li(style='white-space: nowrap;')
             a(href='#{config.siteUrl}/blog.html') Blog
           li(style='white-space: nowrap;')
