@@ -72,7 +72,7 @@ router.route('/')
 		ruleDao
 			.createAndSave(ruleDefinition)
 			.then(function(ruleSaved) {
-				return res.status(201).location('/rules/' + ruleSaved.id).end();
+				return res.status(201).location('/v1/rules/' + ruleSaved.id).end();
 			})
 			.fail(function(err) {
 				return next(err)
@@ -159,7 +159,7 @@ router.route('/:id')
 				}
 
 				return promise.then(function() {
-					res.status(200).location('/rules/' + rule.id).end();
+					res.status(200).location('/v1/rules/' + rule.id).end();
 				})
 			})
 			.then(null, function(err) {
