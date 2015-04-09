@@ -1,6 +1,8 @@
 var express = require('express');
 var glob = require('glob');
 
+var cors = require('cors');
+
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
@@ -17,6 +19,8 @@ module.exports = function(app, config) {
   app.locals.ENV_DEVELOPMENT = env == 'development';
 
 	app.locals.config = config;
+
+	app.use('/v1/*', cors())
 
 	app.use(function(req, res, next) {
 		var contextRoot = req.headers['x-context-root'];
