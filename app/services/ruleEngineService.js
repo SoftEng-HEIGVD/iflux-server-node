@@ -21,6 +21,7 @@ module.exports = {
 			.then(function (rules) {
 				var actions = [];
 
+				console.log(rules);
 				_.each(rules, function(rule) {
 					rule.evaluate(event, actions);
 				});

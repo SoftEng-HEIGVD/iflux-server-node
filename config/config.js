@@ -16,7 +16,28 @@ var config = {
       name: 'iFLUX-Server'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/' + (process.env.MONGO_DB || 'iflux-server-dev')
+		knex: {
+			client: 'pg',
+			connection: 	{
+				host: 'localhost',
+				post: 5432,
+				user: 'ifluxsrv',
+				password: 'ifluxsrv',
+				database: 'iflux-server-dev',
+				charset: 'utf-8'
+			},
+			pool: {
+				min: 2,
+				max: 10
+			},
+			migrations: {
+				tableName: 'migrations',
+				directory: './db/migrations'
+			},
+			seeds: {
+				directory: './db/seeds'
+			}
+		}
   },
 
   test: {
@@ -27,7 +48,28 @@ var config = {
       name: 'iFLUX-Server'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/' + (process.env.MONGO_DB || 'iflux-server-test')
+		knex: {
+			client: 'pg',
+			connection: 	{
+				host: 'localhost',
+				port: 5432,
+				user: 'ifluxsrv',
+				password: 'ifluxsrv',
+				database: 'iflux-server-test',
+				charset: 'utf-8'
+			},
+			pool: {
+				min: 2,
+				max: 10
+			},
+			migrations: {
+				tableName: 'migrations',
+				directory: './db/migrations'
+			},
+			seeds: {
+				directory: './db/seeds'
+			}
+		}
   },
 
   production: {
@@ -38,7 +80,28 @@ var config = {
       name: 'iFLUX-Server'
     },
     port: process.env.PORT || 3000,
-    db: 'mongodb://localhost/'  + (process.env.MONGO_DB || 'iflux-server-prod')
+		knex: {
+			client: 'pg',
+			connection: 	{
+				host: 'localhost',
+				port: 5432,
+				user: process.env.DB_USER,
+				password: process.env.DB_PASS,
+				database: (process.env.DB_NAME || 'iflux-server-prod'),
+				charset: 'utf-8'
+			},
+			pool: {
+				min: 2,
+				max: 10
+			},
+			migrations: {
+				tableName: 'migrations',
+				directory: './db/migrations'
+			},
+			seeds: {
+				directory: './db/seeds'
+			}
+		}
   },
 
 	docker: {
@@ -49,7 +112,28 @@ var config = {
 			name: 'iFLUX-Server'
 		},
 		port: 3000,
-		db: 'mongodb://mongo:' + process.env.MONGO_PORT_27017_TCP_PORT + '/' + (process.env.MONGO_DB || 'iflux-server-docker')
+		knex: {
+			client: 'pg',
+			connection: 	{
+				host: process.env.POSTGRES_PORT_5432_TCP_ADDR,
+				port: process.env.POSTGRES_PORT_5432_TCP_PORT,
+				user: process.env.DB_USER,
+				password: process.env.DB_PASS,
+				database: process.env.DB_NAME,
+				charset: 'utf-8'
+			},
+			pool: {
+				min: 2,
+				max: 10
+			},
+			migrations: {
+				tableName: 'migrations',
+				directory: './db/migrations'
+			},
+			seeds: {
+				directory: './db/seeds'
+			}
+		}
 	}
 };
 

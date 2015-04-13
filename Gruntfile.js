@@ -12,12 +12,6 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		migrations: {
-			path: __dirname + '/migrations',
-			template: grunt.file.read(__dirname + '/migrations/_template.js'),
-			mongo: require('./config/config').db,
-			ext: "js"
-		},
     develop: {
       server: {
         file: 'app.js'
@@ -79,8 +73,6 @@ module.exports = function (grunt) {
         });
     }, 500);
   });
-
-	grunt.loadNpmTasks('grunt-mongo-migrations');
 
   grunt.registerTask('default', [
     'stylus',

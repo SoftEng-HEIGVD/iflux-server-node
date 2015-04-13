@@ -2,15 +2,32 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
-  mongoose = require('mongoose'),
 	Handlebars = require('handlebars'),
-	Rule = mongoose.model('Rule'),
-	ruleDao = require('../../persistence/ruleDao'),
-	dao = require('../../persistence/dao');
+	models = require('../../models/models'),
+	Rule = models.rule,
+	ruleDao = require('../../persistence/ruleDao');
 
 module.exports = function (app) {
   app.use('/v1/rules', router);
 };
+
+function convertRule(rule) {
+	return {
+		id: rule.get('id'),
+		reference: rule.get('reference'),
+		description: rule.get('description'),
+		enabled: rule.get('enabled'),
+		if: {
+			eventSource: rule.get('condition').source,
+			eventType: rule.get('condition').eventType,
+			eventProperties: rule.get('condition').properties
+		},
+		then: {
+			actionTarget: rule.get('action').target,
+			actionSchema: rule.get('action').actionSchema
+		}
+	};
+}
 
 router.route('/')
 	/**
@@ -34,21 +51,7 @@ router.route('/')
 					.status(200)
 					.json(
 						_.map(rules, function(rule) {
-							return {
-								id: rule.id,
-								reference: rule.reference,
-								description: rule.description,
-								enabled: rule.enabled,
-								if: {
-									eventSource: rule.condition.source,
-									eventType: rule.condition.eventType,
-									eventProperties: rule.condition.properties
-								},
-								then: {
-									actionTarget: rule.action.target,
-									actionSchema: rule.action.actionSchema
-								}
-							};
+							return convertRule(rule);
 						})
 					)
 					.end();
@@ -71,10 +74,10 @@ router.route('/')
 
 		ruleDao
 			.createAndSave(ruleDefinition)
-			.then(function(ruleSaved) {
+			.then(function(ruleSaved, err) {
 				return res.status(201).location('/v1/rules/' + ruleSaved.id).end();
 			})
-			.fail(function(err) {
+			.error(function(err) {
 				return next(err)
 			});
 	});
@@ -94,7 +97,25 @@ router.route('/actionSchema/validate')
 
 router.route('/:id')
 	/**
-	 * PATCH /rules is invoked by clients to update part of a rule.
+	 * GET /rules is invoked by clients to retrieve a rule.
+	 *
+	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
+	 */
+	.get(function(req, res, next) {
+		return ruleDao
+			.findById(req.params.id)
+			.then(function(rule) {
+				if (rule) {
+					return res.status(200).json(convertRule(rule)).end();
+				}
+				else {
+					return res.status(404).end();
+				}
+			});
+	})
+
+	/**
+	 * PATCH /rules/:id is invoked by clients to update part of a rule.
 	 * The body of the request is a partial single rule, defined by a source, an event type,
 	 * a target and. The target is the root the API exposed by an iFLUX action
 	 * target (e.g. http://gateway.org/api/).
@@ -107,60 +128,45 @@ router.route('/:id')
 			.then(function(rule) {
 				var ruleDefinition = req.body;
 
-				var updated = false;
-
 				if (ruleDefinition.description !== undefined) {
-					rule.description = ruleDefinition.description;
-					updated = true;
+					rule.set('description', ruleDefinition.description);
 				}
 
 				if (ruleDefinition.enabled !== undefined) {
-					rule.enabled = ruleDefinition.enabled;
-					updated = true;
+					rule.set('enabled', ruleDefinition.enabled);
 				}
 
 				if (ruleDefinition.if !== undefined) {
-					var ifPayload = ruleDefinition.if;
-
-					if (ifPayload.eventSource !== undefined) {
-						rule.condition.source = ifPayload.eventSource;
-						updated = true;
-					}
-
-					if (ifPayload.eventType !== undefined) {
-						rule.condition.eventType = ifPayload.eventType;
-						updated = true;
-					}
-
-					if (ifPayload.eventProperties !== undefined) {
-						rule.condition.properties = ifPayload.eventProperties;
-						updated = true;
-					}
+					rule.set('if',
+						_.defaults({
+							source: ruleDefinition.if.eventSource,
+							eventType: ruleDefinition.if.eventType,
+							properties: ruleDefinition.if.properties
+						},
+						rule.get('if')
+					));
 				}
 
 				if (ruleDefinition.then !== undefined) {
-					var thenPayload = ruleDefinition.then;
-
-					if (thenPayload.actionTarget !== undefined) {
-						rule.action.target = thenPayload.actionTarget;
-						updated = true;
-					}
-
-					if (thenPayload.actionSchema !== undefined) {
-						rule.action.actionSchema = thenPayload.actionSchema;
-						updated = true;
-					}
+					rule.set('then',
+						_.defaults({
+							target: ruleDefinition.then.actionTarget,
+							actionSchema: ruleDefinition.actionSchema
+						},
+						rule.get('then')
+					));
 				}
 
-				var promise = null;
-
-				if (updated) {
-					promise = dao.save(rule);
+				if (rule.hasChanged()) {
+					return ruleDao
+						.save(rule)
+						.then(function() {
+							res.status(200).location('/v1/rules/' + rule.id).end();
+						});
 				}
-
-				return promise.then(function() {
-					res.status(200).location('/v1/rules/' + rule.id).end();
-				})
+				else {
+					return res.status(304).location('/v1/rules/' + rule.id).end();
+				}
 			})
 			.then(null, function(err) {
 				next(err);
@@ -173,18 +179,12 @@ router.route('/:id')
 	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
 	 */
 	.delete(function(req, res, next) {
-		Rule.findById(req.params.id, function(err, rule) {
-			if (err) return next(err);
-
-			if (rule === null) {
-				return res.status(404).end();
-			}
-			else {
-				rule.remove(function(err) {
-					if (err) return next(err);
-
-					res.status(204).end();
-				});
-			}
-		})
+		ruleDao
+			.deleteById(req.params.id)
+			.then(function() {
+				res.status(204).end();
+			})
+			.error(function(err) {
+				next(err);
+			});
 	});

@@ -1,19 +1,17 @@
 var
 	_ = require('underscore'),
-	Q = require('q'),
-	mongoose = require('mongoose'),
-	Rule = mongoose.model('Rule'),
+	Rule = require('../models/models').rule,
 	dao = require('./dao');
 
-module.exports = {
+module.exports = _.extend(new dao(Rule), {
 	/**
-	 * Create a new rule and save it to mongo
+	 * Create a new rule and save it to the databae
 	 *
 	 * @param ruleDefinition The rule definition to create the document
 	 * @returns {Promise} A promise
 	 */
 	createAndSave: function(ruleDefinition) {
-		var rule = new Rule({
+		var rule = new this.model({
 			description: ruleDefinition.description,
 			reference: ruleDefinition.reference,
 			enabled: true,
@@ -28,19 +26,7 @@ module.exports = {
 			}
 		});
 
-		return dao.save(rule);
-	},
-
-	/**
-	 * Find a rule by its id
-	 *
-	 * @param id The id of the rule
-	 * @returns {Promise} A promise
-	 */
-	findById: function(id) {
-		return Rule
-			.findById(id)
-			.exec();
+		return this.save(rule);
 	},
 
 	/**
@@ -50,20 +36,7 @@ module.exports = {
 	 * @returns {Promise} A promise
 	 */
 	findByReference: function(reference) {
-		return Rule
-			.find({ reference: reference })
-			.exec();
-	},
-
-	/**
-	 * Find all the enabled rules
-	 *
-	 * @returns {Promise} A promise
-	 */
-	findAll: function() {
-		return Rule
-			.find()
-			.exec();
+		return this.model.where({ reference: reference }).fetch();
 	},
 
 	/**
@@ -72,8 +45,8 @@ module.exports = {
 	 * @returns {Promise} A promise
 	 */
 	findAllEnabled: function() {
-		return Rule
-			.find({ enabled: true })
-			.exec();
+		return this.model.where({ enabled: true }).fetchAll().then(function(result) {
+			return result.models;
+		});
 	}
-};
+});
