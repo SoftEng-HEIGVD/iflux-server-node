@@ -2,7 +2,7 @@
 
 exports.up = function(knex, Promise) {
 	return knex.schema.createTable('rules', function(table) {
-		table.increments();
+		table.increments('id').primary();
 		table.string('description');
 		table.string('reference');
 		table.boolean('enabled');

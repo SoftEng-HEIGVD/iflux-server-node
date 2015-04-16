@@ -1,6 +1,6 @@
 var
 	_ = require('underscore'),
-	Rule = require('../models/models').rule,
+	Rule = require('../services/modelRegistry').rule,
 	dao = require('./dao');
 
 module.exports = _.extend(new dao(Rule), {

@@ -1,9 +1,9 @@
-var modelClasses = {}
+var modelRegistry = require ('../services/modelRegistry');
 
 var models = require('require-directory')(module, '.');
 
 for(var modelName in models) {
-	modelClasses[modelName] = models[modelName];
+	modelRegistry[modelName] = models[modelName];
 }
 
-module.exports = modelClasses;
+module.exports = modelRegistry;

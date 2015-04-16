@@ -25,7 +25,7 @@ module.exports = function(model) {
 		 * @returns {Promise} A promise
 		 */
 		findById: function(id) {
-			return this.model.where({ id: id }).fetch();
+			return this.model.where({ id: id }).fetch({ require: true });
 		},
 
 		/**

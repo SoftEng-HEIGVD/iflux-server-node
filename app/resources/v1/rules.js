@@ -3,8 +3,7 @@ var
 	express = require('express'),
   router = express.Router(),
 	Handlebars = require('handlebars'),
-	models = require('../../models/models'),
-	Rule = models.rule,
+	Rule = require('../../services/modelRegistry').rule,
 	ruleDao = require('../../persistence/ruleDao');
 
 module.exports = function (app) {
