@@ -13,7 +13,8 @@ var config = {
 		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
 		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
     app: {
-      name: 'iFLUX-Server'
+      name: 'iFLUX-Server',
+			jwtSecret: process.env.JWT_SECRET
     },
     port: process.env.PORT || 3000,
 		knex: {
@@ -45,7 +46,8 @@ var config = {
 		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
 		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
 		app: {
-      name: 'iFLUX-Server'
+      name: 'iFLUX-Server',
+			jwtSecret: process.env.JWT_SECRET
     },
     port: process.env.PORT || 3000,
 		knex: {
@@ -77,7 +79,8 @@ var config = {
 		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
 		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
     app: {
-      name: 'iFLUX-Server'
+      name: 'iFLUX-Server',
+			jwtSecret: process.env.JWT_SECRET
     },
     port: process.env.PORT || 3000,
 		knex: {
@@ -109,7 +112,8 @@ var config = {
 		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
 		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
 		app: {
-			name: 'iFLUX-Server'
+			name: 'iFLUX-Server',
+			jwtSecret: process.env.JWT_SECRET
 		},
 		port: 3000,
 		knex: {
