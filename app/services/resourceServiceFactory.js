@@ -16,6 +16,10 @@ module.exports = function(basePath) {
 			return res.status(404);
 		},
 
+		unauthorized: function(res) {
+			return res.status(401);
+		},
+
 		validationError: function(res, error) {
 			return res.status(422).json(error.errors);
 		}

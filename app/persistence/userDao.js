@@ -27,7 +27,8 @@ module.exports = _.extend(new dao(User), {
 			.then(function() {
 				var userModel = new self.model({
 					email: user.email,
-					password: '',
+					password: user.password,
+					passwordConfirmation: user.passwordConfirmation,
 					firstName: user.firstName,
 					lastName: user.lastName
 				});

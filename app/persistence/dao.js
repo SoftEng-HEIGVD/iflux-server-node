@@ -19,6 +19,16 @@ module.exports = function(model) {
 		},
 
 		/**
+		 * Find by attributes
+		 *
+		 * @param attributes The attributes to match
+		 * @returns {Promise} A promise
+		 */
+		findBy: function(attributes) {
+			return new this.model(attributes).fetch();
+		},
+
+		/**
 		 * Find a model by its id
 		 *
 		 * @param id The id of the model

@@ -8,7 +8,7 @@ exports.up = function(knex, Promise) {
 	}).createTable('users', function(table) {
 		table.increments('id').primary();
 		table.string('email').unique();
-		table.string('password');
+		table.string('passwordHash');
 		table.string('firstName');
 		table.string('lastName');
 		table.timestamps();

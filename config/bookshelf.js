@@ -5,12 +5,13 @@ var
 	knex = require('knex')(config.knex),
 	bookshelf = require('bookshelf')(knex),
 	checkit = require('checkit'),
-	validationPlugin = require('../app/validations/bookshelfValidationPlugin');
+	validationPlugin = require('../app/bookshelf/bookshelfiFluxPlugin');
 
+bookshelf.plugin('virtuals');
 bookshelf.plugin(validationPlugin);
 
 var
-	validatorFunctions = require('require-directory')(module, '../app/validations/validators'),
+	validatorFunctions = require('require-directory')(module, '../app/bookshelf/validators'),
 	validators = {};
 
 for(var validatorName in validatorFunctions) {

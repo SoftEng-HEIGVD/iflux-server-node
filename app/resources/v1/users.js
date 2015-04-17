@@ -44,7 +44,6 @@ router.route('/')
 				return resourceService.location(res, 201, userSaved).end();
 			})
 			.catch(ValidationError, function(e) {
-				console.log('there');
 				return resourceService.validationError(res, e);
 			})
 			.error(function(err) {

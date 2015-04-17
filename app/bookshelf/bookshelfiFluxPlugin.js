@@ -31,15 +31,40 @@ module.exports = function(Bookshelf) {
 
 	Bookshelf.Model = Bookshelf.Model.extend({
 		validations: {},
+		conditionalValidations: {},
 		validationEnabled: true,
+
+		virtualValues: {},
+
+		eventDefinitions: {},
 
 		initialize: function() {
 			this.createValidations = reducer(this.validations, 'create');
 			this.updateValidations = reducer(this.validations, 'update');
 
+			this.createConditionalValidations = [];
+			this.updateConditionalValidations = [];
+
+			_.each(this.conditionalValidations, function(conditionalValidationGroup) {
+				this.createConditionalValidations.push({
+					validations: reducer(conditionalValidationGroup.validations, 'create'),
+					handler: conditionalValidationGroup.handler
+				});
+				this.updateConditionalValidations.push({
+					validations: reducer(conditionalValidationGroup.validations, 'update'),
+					handler: conditionalValidationGroup.handler
+				});
+			}, this);
+
 			this.on('creating', this.validateCreate);
 			this.on('updating', this.validateUpdate);
 			this.on('saved', this.restoreValidation);
+
+			_.each(this.eventDefinitions, function(eventHandlers, eventName) {
+				_.each(eventHandlers, function(eventHandler) {
+					this.on(eventName, eventHandler);
+				}, this);
+			}, this);
 		},
 
 		restoreValidation: function() {
@@ -65,7 +90,13 @@ module.exports = function(Bookshelf) {
 					options.mode = 'create';
 				}
 
-				return checkit(this[options.mode + 'Validations']).run(this.attributes);
+				var validation = checkit(this[options.mode + 'Validations']);
+
+				_.each(this[options.mode + 'ConditionalValidations'], function(conditionalValidations) {
+					validation = validation.maybe(conditionalValidations.validations, conditionalValidations.handler);
+				});
+
+				return validation.run(_.extend(this, this.attributes), this);
 			}
 		}
 	});
