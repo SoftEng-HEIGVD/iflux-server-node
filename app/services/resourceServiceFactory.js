@@ -13,7 +13,7 @@ module.exports = function(basePath) {
 		},
 
 		notFound: function(res) {
-			return res.status(404);
+			return res.status(404).end();
 		},
 
 		unauthorized: function(res) {

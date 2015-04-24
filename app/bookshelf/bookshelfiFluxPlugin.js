@@ -96,7 +96,7 @@ module.exports = function(Bookshelf) {
 					validation = validation.maybe(conditionalValidations.validations, conditionalValidations.handler);
 				});
 
-				return validation.run(_.extend(this, this.attributes), this);
+				return validation.run(_.extend(_.clone(this), this.attributes), this);
 			}
 		}
 	});

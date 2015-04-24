@@ -13,5 +13,10 @@ var Organization = module.exports = bookshelf.Model.extend({
 
 	users: function() {
 		return this.belongsToMany(modelRegistry.user);
+	},
+
+	eventSourceTemplates: function() {
+		return this.hasMany(modelRegistry.eventSourceTemplate);
 	}
+
 });
