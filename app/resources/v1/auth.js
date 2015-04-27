@@ -12,7 +12,26 @@ var
 	resourceService = require('../../services/resourceServiceFactory')('/v1/auth');
 
 module.exports = function (app) {
-	app.use(expressJwt({ secret: config.app.jwtSecret }).unless({ path: ['/v1/auth/signin'] }));
+	app
+		.use(expressJwt({ secret: config.app.jwtSecret })
+		.unless({ path: ['/v1/auth/signin'] }));
+
+		app.use(function(req, res, next) {
+			if (req.user) {
+				return userDao
+					.findBy({ email: req.user.email })
+					.then(function(user) {
+						req.userModel = user;
+						return next();
+					})
+					.catch(userDao.model.NotFoundError, function(err) {
+						resourceService.unauthorized(res).end();
+					});
+			}
+			else {
+				return next();
+			}
+		});
 
 	app.use(function (err, req, res, next) {
 	  if (err.name === 'UnauthorizedError') {

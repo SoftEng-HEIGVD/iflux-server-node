@@ -5,18 +5,12 @@ var
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	organizationDao = require('../../persistence/organizationDao'),
+	organizationConverter = require('../../converters/organizationConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/organizations');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 };
-
-function convertOrganization(organization) {
-	return {
-		id: organization.get('id'),
-		name: organization.get('name')
-	};
-}
 
 router.route('/')
 	.get(function(req, res, next) {
@@ -25,7 +19,7 @@ router.route('/')
 			.then(function(organizations) {
 				return resourceService.ok(res,
 					_.map(organizations, function(organization) {
-						return convertOrganization(organization);
+						return organizationConverter.convert(organization);
 					})
 				);
 			})
@@ -56,7 +50,7 @@ router.route('/:id')
 			.findById(req.params.id)
 			.then(function(organization) {
 				if (organization) {
-					return resourceService.ok(res, convertOrganization(organization));
+					return resourceService.ok(res, organizationConverter.convert(organization));
 				}
 				else {
 					return resourceService.notFound(res);
