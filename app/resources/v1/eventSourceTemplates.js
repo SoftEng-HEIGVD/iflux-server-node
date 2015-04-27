@@ -35,7 +35,7 @@ function convertEventSourceTemplate(eventSourceTemplate) {
 router.route('/')
 	.get(function(req, res, next) {
 		eventSourceTemplateDao
-			.findAll()
+			.findAllPublic()
 			.then(function(eventSourceTemplates) {
 				return resourceService.ok(res,
 					_.map(eventSourceTemplates, function(eventSourceTemplate) {

@@ -42,5 +42,16 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 
 			return eventSourceTemplateModel.save();
 		});
+	},
+
+	findAllPublic: function() {
+		return this.model
+			.where({
+				public: true
+			})
+			.fetchAll()
+			.then(function(result) {
+				return result.models;
+			});
 	}
 });
