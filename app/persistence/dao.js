@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 /**
  * DAO factory
  *
@@ -16,6 +18,30 @@ module.exports = function(model) {
 		 */
 		save: function (obj) {
 			return obj.save();
+		},
+
+		/**
+		 * Retrieve the collection for a query represented by a promise
+		 *
+		 * @param promise The promise that do the querying job
+		 * @returns {Promise} A promise that return the collection of retrieved items
+		 */
+		collection: function(promise) {
+			if (_.isFunction(promise)) {
+				return this.model
+					.query(promise)
+					.fetchAll()
+					.then(function(result) {
+						return result.models;
+					});
+			}
+			else {
+				return promise
+					.fetchAll()
+					.then(function(result) {
+						return result.models;
+					});
+			}
 		},
 
 		/**
@@ -45,9 +71,7 @@ module.exports = function(model) {
 		 */
 		findAll: function() {
 			// TODO: Evaluate if the result should be returned or not
-			return this.model.fetchAll().then(function(result) {
-				return result.models;
-			});
+			return this.collection(this.model);
 		},
 
 		/**
@@ -57,7 +81,6 @@ module.exports = function(model) {
 		 * @returns {Promise} A promise
 		 */
 		deleteById: function (id) {
-			console.log(model);
 			return this.model.where({id: id}).destroy(id);
 		}
 	}

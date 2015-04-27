@@ -45,22 +45,27 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 	},
 
 	findAllPublic: function() {
-		return this.model
+		return this.collection(
+			this.model
 			.where({
 				public: true
 			})
-			.fetchAll()
-			.then(function(result) {
-				return result.models;
-			});
+		);
 	},
 
 	findByOrganizationId: function(organizationId) {
-		return this.model
+		return his.collection(
+			this.model
 			.where({ organization_id: organizationId })
-			.fetchAll()
-			.then(function(result) {
-				return result.models;
-			});
+		);
+	},
+
+	findAllForUser: function(user) {
+		return this.collection(function(qb) {
+			return qb
+				.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
+				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.where('organizations_users.user_id', user.get('id'));
+		});
 	}
 });

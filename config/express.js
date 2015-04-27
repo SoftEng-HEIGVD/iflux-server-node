@@ -20,6 +20,11 @@ module.exports = function(app, config) {
 
 	app.locals.config = config;
 
+  if (env == 'development') {
+    var knexLogger = require('knex-logger');
+    app.use(knexLogger(app.get('bookshelf').knex));
+  }
+
 	app.use('/v1/*', cors())
 
 	app.use(function(req, res, next) {
