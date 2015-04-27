@@ -34,9 +34,8 @@ router.route('/')
 		var eventSourceTemplate = req.body;
 
 		eventSourceTemplateDao
-			.createAndSave(eventSourceTemplate)
+			.createAndSave(req.userModel, eventSourceTemplate)
 			.then(function(eventSourceTemplateSaved) {
-				console.log('1');
 				return resourceService.location(res, 201, eventSourceTemplateSaved).end();
 			})
 			.catch(ValidationError, function(e) {

@@ -1,10 +1,14 @@
 var
 	_ = require('underscore'),
+	Handlebars = require('handlebars'),
 	bookshelf = require('../../config/bookshelf'),
 	checkit = require('checkit'),
+	ValidationError = require('checkit').ValidationError,
 	EventSourceTemplate = require('../services/modelRegistry').eventSourceTemplate,
 	dao = require('./dao'),
 	organizationDao = require('./organizationDao');
+
+var messageTemplate = Handlebars.compile('The organizationId {{id}} does not exist or the user is not from this organization.');
 
 module.exports = _.extend(new dao(EventSourceTemplate), {
 	/**
@@ -13,13 +17,20 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 	 * @param eventSourceTemplate The event source template to create and save
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(eventSourceTemplate) {
+	createAndSave: function(currentUser, eventSourceTemplate) {
 		var self = this;
 
 		return checkit({
 			organizationId: [ {
-				rule: 'existById',
-				params: [ { dao: organizationDao, label: 'organization' } ]
+				// Check that the user is part of the organization. Therefore, the check also do the job
+				// to check if the organization id exists.
+				rule: function(val) {
+					return organizationDao
+						.findByIdAndUser(eventSourceTemplate.organizationId, currentUser)
+						.catch(organizationDao.model.NotFoundError, function(err) {
+							throw new ValidationError(messageTemplate({ id: eventSourceTemplate.organizationId }));
+						});
+				}
 			} ]
 		})
 		.run(eventSourceTemplate)

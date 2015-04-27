@@ -16,5 +16,16 @@ module.exports = _.extend(new dao(Organization), {
 		});
 
 		return this.save(orga);
+	},
+
+	findByIdAndUser: function(organizationId, user) {
+		return this.model
+			.query(function(qb) {
+				return qb
+					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.where('organizations.id', organizationId)
+					.where('organizations_users.user_id', user.get('id'));
+			})
+			.fetch({require: true});
 	}
 });
