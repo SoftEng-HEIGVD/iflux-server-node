@@ -53,5 +53,14 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 			.then(function(result) {
 				return result.models;
 			});
+	},
+
+	findByOrganizationId: function(organizationId) {
+		return this.model
+			.where({ organization_id: organizationId })
+			.fetchAll()
+			.then(function(result) {
+				return result.models;
+			});
 	}
 });

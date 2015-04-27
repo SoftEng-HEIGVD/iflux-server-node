@@ -5,32 +5,14 @@ var
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
+	eventSourceTemplateConverter = require('../../converters/eventSourceTemplateConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/templates/eventSources');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 };
 
-function convertEventSourceTemplate(eventSourceTemplate) {
-	var data = {
-		id: eventSourceTemplate.get('id'),
-		name: eventSourceTemplate.get('name'),
-		public: eventSourceTemplate.get('public'),
-		organizationId: eventSourceTemplate.get('organization_id')
-	};
 
-	if (eventSourceTemplate.get('configurationSchema')) {
-		data = _.extend(data, {
-			configuration: {
-				schema: eventSourceTemplate.get('configurationSchema'),
-				callbackUrl: eventSourceTemplate.get('callbackUrl'),
-				callbackToken: eventSourceTemplate.get('callbackToken')
-			}
-		});
-	}
-
-	return data;
-}
 
 router.route('/')
 	.get(function(req, res, next) {
@@ -39,7 +21,7 @@ router.route('/')
 			.then(function(eventSourceTemplates) {
 				return resourceService.ok(res,
 					_.map(eventSourceTemplates, function(eventSourceTemplate) {
-						return convertEventSourceTemplate(eventSourceTemplate);
+						return eventSourceTemplateConverter.convert(eventSourceTemplate);
 					})
 				);
 			})
@@ -72,7 +54,7 @@ router.route('/:id')
 			.findById(req.params.id)
 			.then(function(eventSourceTemplate) {
 				if (eventSourceTemplate) {
-					return resourceService.ok(res, convertEventSourceTemplate(eventSourceTemplate));
+					return resourceService.ok(res, eventSourceTemplateConverter.convert(eventSourceTemplate));
 				}
 				else {
 					return resourceService.notFound(res);
