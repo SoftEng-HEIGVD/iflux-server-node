@@ -15,13 +15,6 @@ module.exports = function (app) {
   app.use(resourceService.basePath, router);
 };
 
-function convertOrganization(organization) {
-	return {
-		id: organization.get('id'),
-		name: organization.get('name')
-	};
-}
-
 router.route('/')
 	.get(function(req, res, next) {
 		req.userModel

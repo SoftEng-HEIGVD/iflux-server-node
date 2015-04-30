@@ -27,16 +27,16 @@ module.exports = function(model) {
 		 * @returns {Promise} A promise that return the collection of retrieved items
 		 */
 		collection: function(promise) {
-			if (_.isFunction(promise)) {
-				return this.model
-					.query(promise)
+			if (promise == this.model) {
+				return promise
 					.fetchAll()
 					.then(function(result) {
 						return result.models;
 					});
 			}
 			else {
-				return promise
+				return this.model
+					.query(promise)
 					.fetchAll()
 					.then(function(result) {
 						return result.models;

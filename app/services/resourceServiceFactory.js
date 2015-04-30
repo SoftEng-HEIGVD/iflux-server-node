@@ -12,8 +12,18 @@ module.exports = function(basePath) {
 			return res.status(200).json(obj);
 		},
 
-		notFound: function(res) {
-			return res.status(404).end();
+		notFound: function(res, message) {
+			if (message) {
+				return res
+					.status(404)
+					.json({
+						message: message
+					})
+					.end();
+			}
+			else {
+				return res.status(404).end();
+			}
 		},
 
 		unauthorized: function(res) {
