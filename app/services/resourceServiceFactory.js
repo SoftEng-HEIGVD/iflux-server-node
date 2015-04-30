@@ -4,8 +4,19 @@ module.exports = function(basePath) {
 	return {
 		basePath: s.rtrim(basePath, '/'),
 
-		location: function(res, status, obj) {
-			return res.status(status).location(this.basePath + '/' + obj.get('id'));
+		location: function(res, status, obj, prefixPath) {
+			if (prefixPath) {
+				if (!s.endsWith(prefixPath, '/')) {
+					prefixPath += '/';
+				}
+				if (!s.startsWith(prefixPath, '/')) {
+					prefixPath += '/';
+				}
+				return res.status(status).location(this.basePath + prefixPath + obj.get('id'));
+			}
+			else {
+				return res.status(status).location(this.basePath + '/' + obj.get('id'));
+			}
 		},
 
 		ok: function(res, obj) {
