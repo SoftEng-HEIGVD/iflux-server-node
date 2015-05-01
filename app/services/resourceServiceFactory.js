@@ -45,8 +45,17 @@ module.exports = function(basePath) {
 			return res.status(401);
 		},
 
+		forbiden: function(res) {
+			return res.status(403);
+		},
+
 		validationError: function(res, error) {
-			return res.status(422).json(error.errors);
+			if (error.errors) {
+				return res.status(422).json(error.errors);
+			}
+			else {
+				return res.status(422).json(error);
+			}
 		}
 	}
 };

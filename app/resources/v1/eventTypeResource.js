@@ -3,11 +3,11 @@ var
 	express = require('express'),
   router = express.Router(),
 	ValidationError = require('checkit').Error,
-	models = require('../../../models/models'),
-	eventSourceTemplateDao = require('../../../persistence/eventSourceTemplateDao'),
-	eventTypeDao = require('../../../persistence/eventTypeDao'),
-	eventTypeConverter = require('../../../converters/eventTypeConverter'),
-	resourceService = require('../../../services/resourceServiceFactory')('/v1/templates/eventSources/:estId/eventTypes');
+	models = require('../../models/models'),
+	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
+	eventTypeDao = require('../../persistence/eventTypeDao'),
+	eventTypeConverter = require('../../converters/eventTypeConverter'),
+	resourceService = require('../../services/resourceServiceFactory')('/v1/eventSourceTemplates/:estId/eventTypes');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);

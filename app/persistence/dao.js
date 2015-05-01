@@ -27,8 +27,23 @@ module.exports = function(model) {
 		 * @returns {Promise} A promise that return the collection of retrieved items
 		 */
 		collection: function(promise) {
-			if (promise == this.model) {
-				return promise
+			return this.model
+				.query(promise)
+				.fetchAll()
+				.then(function(result) {
+					return result.models;
+				});
+		},
+
+		/**
+		 * Retrieve all the elements of a collection based on the model
+		 *
+		 * @returns {Promise} A promise that return the collection of retrieved items
+		 */
+		collectionFromModel: function(whereClause) {
+			if (whereClause) {
+				return this.model
+					.where(whereClause)
 					.fetchAll()
 					.then(function(result) {
 						return result.models;
@@ -36,12 +51,23 @@ module.exports = function(model) {
 			}
 			else {
 				return this.model
-					.query(promise)
 					.fetchAll()
-					.then(function(result) {
+					.then(function (result) {
 						return result.models;
 					});
 			}
+		},
+
+		/**
+		 * Retrieve all the element from a relation
+		 *
+		 * @param relation The relation to get the elements
+		 * @returns {Promise} A promise that return the collection of retrieved items from the relation
+		 */
+		collectionFromRelation: function(relation) {
+			return relation.fetch().then(function (result) {
+				return result.models;
+			});
 		},
 
 		/**
@@ -71,7 +97,7 @@ module.exports = function(model) {
 		 */
 		findAll: function() {
 			// TODO: Evaluate if the result should be returned or not
-			return this.collection(this.model);
+			return this.collectionFromModel();
 		},
 
 		/**

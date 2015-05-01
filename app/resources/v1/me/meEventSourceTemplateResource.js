@@ -54,22 +54,6 @@ router.route('/:orgId/templates/eventSources')
 			.then(null, function(err) {
 				return next(err);
 			});
-	})
-	.post(function(req, res, next) {
-		var eventSourceTemplate = req.body;
-
-		eventSourceTemplateDao
-			.createAndSave(eventSourceTemplate, req.organization)
-			.then(function(eventSourceTemplateSaved) {
-				return resourceService.location(res, 201, eventSourceTemplateSaved, req.organization.get('id') + '/templates/eventSources').end();
-			})
-			.catch(ValidationError, function(e) {
-				return resourceService.validationError(res, e).end();
-			})
-			.catch(function(err) {
-				console.log(err);
-				return next(err)
-			});
 	});
 
 router.route('/:orgId/templates/eventSources/:estId')

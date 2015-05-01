@@ -28,26 +28,27 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 			});
 		}
 
-		return this.model(data).save();
+		var eventSourceTemplateModel = new this.model(data);
+
+		return eventSourceTemplateModel.save();
 	},
 
 	findAllPublic: function() {
-		return this.collection(
-			this.model
-			.where({
-				public: true
-			})
-		);
+		return this.collectionFromModel({ public: true });
 	},
 
 	findByOrganizationId: function(organizationId) {
-		return his.collection(
+		return this.collection(
 			this.model
 			.where({ organization_id: organizationId })
 		);
 	},
 
-	findAllForUser: function(user) {
+	findByOrganization: function(organization) {
+		return this.collectionFromRelation(organization.eventSourceTemplates());
+	},
+
+	findAllByUser: function(user) {
 		return this.collection(function(qb) {
 			return qb
 				.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
