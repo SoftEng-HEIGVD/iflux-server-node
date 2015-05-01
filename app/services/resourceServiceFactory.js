@@ -19,6 +19,10 @@ module.exports = function(basePath) {
 			}
 		},
 
+		customLocation: function(res, status, location) {
+			return res.status(status).location(location);
+		},
+
 		ok: function(res, obj) {
 			return res.status(200).json(obj);
 		},

@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+	bookshelf = require('../../config/bookshelf'),
 	Organization = require('../services/modelRegistry').organization,
 	dao = require('./dao');
 
@@ -10,12 +11,25 @@ module.exports = _.extend(new dao(Organization), {
 	 * @param organization The organization to create and save
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(organization) {
-		var orga = new this.model({
-			name: organization.name
-		});
+	createAndSave: function(organization, user) {
+		var self = this;
 
-		return this.save(orga);
+		return bookshelf.transaction(function(t) {
+			var orgaModel = new self.model({
+				name: organization.name
+			});
+
+			return orgaModel
+				.save(null, { transacting: t })
+				.then(function(orgaSaved) {
+					return orgaSaved
+						.users()
+						.attach(user.get('id'), { transacting: t })
+						.then(function() {
+							return orgaSaved;
+						});
+				});
+		});
 	},
 
 	findByIdAndUser: function(organizationId, user) {

@@ -14,7 +14,10 @@ var
 module.exports = function (app) {
 	app
 		.use(expressJwt({ secret: config.app.jwtSecret })
-		.unless({ path: ['/v1/auth/signin'] }));
+		.unless({ path: [
+			'/v1/auth/signin',
+			'/v1/auth/register'
+		]}));
 
 		app.use(function(req, res, next) {
 			if (req.user) {
@@ -42,20 +45,12 @@ module.exports = function (app) {
   app.use(resourceService.basePath, router);
 };
 
-function convertUser(user) {
-	return {
-		id: user.get('id'),
-		firstName: user.get('firstName'),
-		lastName: user.get('lastName')
-	};
-}
-
 router.route('/signin')
 	.post(function(req, res, next) {
 		userDao
 			.findBy({ email: req.body.email })
 			.then(function(user) {
-				if (securityService.verify(req.body.password, user.get('passwordHash'))) {
+				if (user && securityService.verify(req.body.password, user.get('passwordHash'))) {
 					return res.json({
 						token: jwt.sign({
 							email: user.get('email'),
@@ -65,10 +60,28 @@ router.route('/signin')
 					}).end();
 				}
 				else {
-					return resourceService.unauthorized(res);
+					return resourceService.unauthorized(res).end();
 				}
 			})
 			.catch(userDao.model.NotFoundError, function(err) {
-				return resourceService.unauthorized(res);
+				return resourceService.unauthorized(res).end();
+			});
+	});
+
+router.route('/register')
+	.post(function(req, res, next) {
+		var user = req.body;
+
+		userDao
+			.createNotLinkedAndSave(user)
+			.then(function(userSaved) {
+				return resourceService.customLocation(res, 201, '/v1/me').end();
+			})
+			.catch(ValidationError, function(e) {
+				return resourceService.validationError(res, e);
+			})
+			.error(function(err) {
+				console.log(err);
+				return next(err)
 			});
 	});

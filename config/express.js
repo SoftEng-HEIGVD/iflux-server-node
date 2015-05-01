@@ -1,3 +1,4 @@
+var s = require('underscore.string');
 var express = require('express');
 var glob = require('glob');
 
@@ -67,7 +68,9 @@ module.exports = function(app, config) {
 
 	var resources = glob.sync(config.root + '/app/resources/**/*.js');
 	resources.forEach(function (resource) {
-	 require(resource)(app);
+		if (s.endsWith(resource, 'Resource.js')) {
+			require(resource)(app);
+		}
 	});
 
   app.use(function (req, res, next) {

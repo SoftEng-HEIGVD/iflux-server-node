@@ -11,7 +11,7 @@ var User = module.exports = bookshelf.Model.extend({
 	validations: {
 		firstName: [ 'minLength:2' ],
 		lastName: [ 'minLength:2' ],
-		email: [ 'required', 'email', 'unique:users:email:Address email is already taken.' ],
+		email: [ 'required', 'unique:users:email:Address email is already taken.' ],
 		password: [ 'required' ],
 		passwordConfirmation: [ 'required' ]
 	},
