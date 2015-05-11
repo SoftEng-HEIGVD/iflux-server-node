@@ -1,7 +1,8 @@
 var
 	_ = require('underscore'),
 	knexLogger = require('knex-logger'),
-	securityService = require('../../app/services/securityService');
+	securityService = require('../../app/services/securityService'),
+	stringService = require('../../app/services/stringService');
 
 
 'use strict';
@@ -61,12 +62,13 @@ exports.seed = function(knex, Promise) {
         }
       }
     },
-    "callbackUrl": "http://some.cool.weather.service/configuration",
-    "callbackToken": "<JSON Web Token>"
+    "configurationUrl": "http://some.cool.weather.service/configuration",
+    "configurationToken": "<JSON Web Token>"
 	});
 
 	var eventType = timestamped({
 		id: 1,
+		eventTypeId: stringService.generateId(),
 		event_source_template_id: eventSourceTemplate.id,
 	  name: "ifluxTemperatureCaptor/increase",
 	  description: "Temperature increase",

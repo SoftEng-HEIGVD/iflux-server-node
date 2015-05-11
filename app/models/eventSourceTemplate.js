@@ -17,5 +17,9 @@ var EventSourceTemplate = module.exports = bookshelf.Model.extend({
 
 	eventTypes: function() {
 		return this.hasMany(modelRegistry.eventType);
+	},
+
+	eventSourceInstances: function() {
+		return this.hasMany(modelRegistry.eventSourceInstance)
 	}
 });
