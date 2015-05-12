@@ -3,7 +3,8 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "NODE_ENV=test node spec/runner.js"
   },
   "dependencies": {
     "bluebird": "^2.9.24",
