@@ -5,19 +5,12 @@ var
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	userDao = require('../../persistence/userDao'),
+	userConverter = require('../../converters/userConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/users');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 };
-
-function convertUser(user) {
-	return {
-		id: user.get('id'),
-		firstName: user.get('firstName'),
-		lastName: user.get('lastName')
-	};
-}
 
 router.route('/')
 	.get(function(req, res, next) {
@@ -26,7 +19,7 @@ router.route('/')
 			.then(function(users) {
 				return resourceService.ok(res,
 					_.map(users, function(user) {
-						return convertUser(user);
+						return userConverter.convert(user);
 					})
 				);
 			})
@@ -58,7 +51,7 @@ router.route('/:id')
 			.findById(req.params.id)
 			.then(function(user) {
 				if (user) {
-					return resourceService.ok(res, convertUser(user));
+					return resourceService.ok(res, userConverter.convert(user));
 				}
 				else {
 					return resourceService.notFound(res);

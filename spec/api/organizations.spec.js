@@ -81,4 +81,20 @@ module.exports = baseTest('Organization resource')
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(403)
+
+	.describe('Retrieve the list of users for organization where first user is a member')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToHavePath([ '0.id', '0.firstName', '0.lastName' ])
+	.expectJsonToBeAtLeast([{
+		firstName: 'Henri',
+		lastName: 'Dupont'
+	}])
+
+	.describe('User cannot retrieve users for an organization where he is not a member')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({}, function() { return { url: this.getData('locationOrganization2') + '/users' }; })
+	.expectStatusCode(403)
 ;

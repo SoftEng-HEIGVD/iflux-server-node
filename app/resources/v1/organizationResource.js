@@ -6,6 +6,7 @@ var
 	models = require('../../models/models'),
 	organizationDao = require('../../persistence/organizationDao'),
 	organizationConverter = require('../../converters/organizationConverter'),
+	userConverter = require('../../converters/userConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/organizations');
 
 module.exports = function (app) {
@@ -84,3 +85,19 @@ router.route('/:id')
 		}
 	});
 
+router.route('/:id/users')
+	.get(function(req, res, next) {
+		req.organization
+			.users()
+			.fetch()
+			.then(function(users) {
+				return resourceService.ok(res,
+					_.map(users.models, function(user) {
+						return userConverter.convert(user);
+					})
+				);
+			})
+			.then(null, function(err) {
+				return next(err);
+			});
+	});
