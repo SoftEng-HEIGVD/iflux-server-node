@@ -11,45 +11,45 @@ var scenario = new copilot.Scenario({
 });
 
 scenario
-	.step('configure base URL', function() {
-		return this.configure({
-			baseUrl: 'http://localhost:' + require('../config/config').port
-		});
-	})
-
-	.step('user does not exist and cannot signin', function() {
-		return this.post({
-			url: '/v1/auth/signin',
-			body: {
-				email: 'henri.dupont@localhost.localdomain',
-				password: 'password'
-			}
-		});
-	})
-
-	.step('check: user does not exist and cannot signin', function(response) {
-		utils.statusCode(response, 401);
-	})
-
-	.step('register user', function() {
-		return this.post({
-			url: '/v1/auth/register',
-			body: {
-				email: 'henri.dupont@localhost.localdomain',
-				firstName: 'Henri',
-				lastName: 'Dupont',
-				password: 'password',
-				passwordConfirmation: 'password'
-			}
-		});
-	})
-
-	.step('check: register user', function(response) {
-		utils.statusCode(response, 201);
-		utils.headers(response, {
-			location: '/v1/me'
-		});
-	})
+	//.step('configure base URL', function() {
+	//	return this.configure({
+	//		baseUrl: 'http://localhost:' + require('../config/config').port
+	//	});
+	//})
+	//
+	//.step('user does not exist and cannot signin', function() {
+	//	return this.post({
+	//		url: '/v1/auth/signin',
+	//		body: {
+	//			email: 'henri.dupont@localhost.localdomain',
+	//			password: 'password'
+	//		}
+	//	});
+	//})
+	//
+	//.step('check: user does not exist and cannot signin', function(response) {
+	//	utils.statusCode(response, 401);
+	//})
+	//
+	//.step('register user', function() {
+	//	return this.post({
+	//		url: '/v1/auth/register',
+	//		body: {
+	//			email: 'henri.dupont@localhost.localdomain',
+	//			firstName: 'Henri',
+	//			lastName: 'Dupont',
+	//			password: 'password',
+	//			passwordConfirmation: 'password'
+	//		}
+	//	});
+	//})
+	//
+	//.step('check: register user', function(response) {
+	//	utils.statusCode(response, 201);
+	//	utils.headers(response, {
+	//		location: '/v1/me'
+	//	});
+	//})
 
 	.step('valid authentication', function() {
 		return this.post({

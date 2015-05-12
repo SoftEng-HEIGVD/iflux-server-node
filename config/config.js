@@ -17,6 +17,7 @@ var config = {
 			jwtSecret: process.env.JWT_SECRET
     },
     port: process.env.PORT || 3000,
+	  host: process.env.HOST || 'localhost',
 		knex: {
 			client: 'pg',
 			connection: 	{
@@ -50,6 +51,7 @@ var config = {
 			jwtSecret: process.env.JWT_SECRET
     },
     port: process.env.PORT || 3001,
+	  host: process.env.HOST || 'localhost',
 		knex: {
 			client: 'pg',
 			connection: 	{
@@ -83,6 +85,7 @@ var config = {
 			jwtSecret: process.env.JWT_SECRET
     },
     port: process.env.PORT || 3000,
+	  host: process.env.HOST || 'localhost',
 		knex: {
 			client: 'pg',
 			connection: 	{
@@ -116,6 +119,7 @@ var config = {
 			jwtSecret: process.env.JWT_SECRET
 		},
 		port: 3000,
+		host: process.env.HOST || 'localhost',
 		knex: {
 			client: 'pg',
 			connection: 	{

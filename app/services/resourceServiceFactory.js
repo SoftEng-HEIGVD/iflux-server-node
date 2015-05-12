@@ -41,11 +41,11 @@ module.exports = function(basePath) {
 			}
 		},
 
-		unauthorized: function(res) {
+		notAuthorized: function(res) {
 			return res.status(401);
 		},
 
-		forbiden: function(res) {
+		forbidden: function(res) {
 			return res.status(403);
 		},
 

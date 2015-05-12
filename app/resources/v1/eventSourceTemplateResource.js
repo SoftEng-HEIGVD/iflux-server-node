@@ -23,7 +23,7 @@ router.route('/')
 					return next();
 				})
 				.catch(organizationDao.model.NotFoundError, function(err) {
-					return resourceService.forbiden(res).end();
+					return resourceService.forbidden(res).end();
 				});
 		}
 		else {
@@ -79,16 +79,11 @@ router.route('/')
 router.route('/:id')
 	.get(function(req, res, next) {
 		return eventSourceTemplateDao
-			.findById(req.params.id)
+			.findByIdAndUser(req.params.id, req.userModel)
 			.then(function(eventSourceTemplate) {
-				if (eventSourceTemplate) {
-					return resourceService.ok(res, eventSourceTemplateConverter.convert(eventSourceTemplate));
-				}
-				else {
-					return resourceService.notFound(res);
-				}
+				return resourceService.ok(res, eventSourceTemplateConverter.convert(eventSourceTemplate));
 			})
 			.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
-				return resourceService.notFound(res);
+				return resourceService.forbidden(res).end();
 			});
 	});

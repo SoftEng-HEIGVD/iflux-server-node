@@ -33,6 +33,18 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 		return eventSourceTemplateModel.save();
 	},
 
+	findByIdAndUser: function(id, user) {
+		return this.model
+			.query(function(qb) {
+				return qb
+					.leftJoin('organizations', 'event_source_templates.id', 'organizations.id')
+					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.where('event_source_templates.id', id)
+					.where('organizations_users.user_id', user.get('id'));
+			})
+			.fetch({require: true});
+	},
+
 	findAllPublic: function() {
 		return this.collectionFromModel({ public: true });
 	},

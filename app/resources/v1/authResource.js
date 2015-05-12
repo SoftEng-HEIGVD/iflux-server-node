@@ -28,7 +28,7 @@ module.exports = function (app) {
 						return next();
 					})
 					.catch(userDao.model.NotFoundError, function(err) {
-						resourceService.unauthorized(res).end();
+						resourceService.notAuthorized(res).end();
 					});
 			}
 			else {
@@ -38,7 +38,7 @@ module.exports = function (app) {
 
 	app.use(function (err, req, res, next) {
 	  if (err.name === 'UnauthorizedError') {
-			resourceService.unauthorized(res).end();
+			resourceService.notAuthorized(res).end();
 	  }
 	});
 
@@ -60,11 +60,11 @@ router.route('/signin')
 					}).end();
 				}
 				else {
-					return resourceService.unauthorized(res).end();
+					return resourceService.notAuthorized(res).end();
 				}
 			})
 			.catch(userDao.model.NotFoundError, function(err) {
-				return resourceService.unauthorized(res).end();
+				return resourceService.notAuthorized(res).end();
 			});
 	});
 
