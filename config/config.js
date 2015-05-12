@@ -48,7 +48,8 @@ var config = {
 		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
 		app: {
       name: 'iFLUX-Server',
-			jwtSecret: process.env.JWT_SECRET
+			jwtSecret: process.env.JWT_SECRET,
+			debug: process.env.DEBUG || false
     },
     port: process.env.PORT || 3001,
 	  host: process.env.HOST || 'localhost',

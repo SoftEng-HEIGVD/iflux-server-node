@@ -61,44 +61,4 @@ router.route('/:orgId/templates/eventSources/:estId')
 		return resourceService.ok(res, eventSourceTemplateConverter.convert(req.eventSourceTemplate));
 	})
 
-	.patch(function(req, res, next) {
-		var eventSourceTemplate = req.eventSourceTemplate;
-
-		var data = req.body;
-
-		if (data.name !== undefined) {
-			eventSourceTemplate.set('name', data.name);
-		}
-
-		if (data.public !== undefined) {
-			eventSourceTemplate.set('public', data.public);
-		}
-
-		if (data.configuration !== undefined) {
-			if (data.configuration.schema !== undefined) {
-				eventSourceTemplate.configurationSchema = data.configuration.schema;
-			}
-
-			if (data.configuration.callbackUrl !== undefined) {
-				eventSourceTemplate.callbackUrl = data.configuration.callbackUrl;
-			}
-
-			if (data.configuration.callbackToken !== undefined) {
-				eventSourceTemplate.callbackToken = data.configuration.callbackToken;
-			}
-		}
-
-		if (eventSourceTemplate.hasChanged()) {
-			return eventSourceTemplateDao
-				.save(eventSourceTemplate)
-				.then(function() {
-					return resourceService.location(res, 201, eventSourceTemplate).end();
-				})
-				.catch(ValidationError, function(e) {
-					return resourceService.validationError(res, e);
-				});
-		}
-		else {
-			return resourceService.location(res, 304, eventSourceTemplate, req.organization.get('id') + '/templates/eventSources').end();
-		}
-	});
+;

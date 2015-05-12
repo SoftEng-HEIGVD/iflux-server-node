@@ -33,7 +33,7 @@ module.exports = baseTest('Organization resource')
 	.describe('Retrieve unknown organization with first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: this.getData('locationOrganization1') + '100' }; })
-	.expectStatusCode(404)
+	.expectStatusCode(403)
 
 	.describe('Retrieve the first organization with first user')
 	.get({}, function() { return { url: this.getData('locationOrganization1') }; })
@@ -80,5 +80,5 @@ module.exports = baseTest('Organization resource')
 			name: 'iFlux 3'
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
-	.expectStatusCode(404)
+	.expectStatusCode(403)
 ;

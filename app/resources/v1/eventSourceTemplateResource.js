@@ -11,6 +11,18 @@ var
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
+
+	router.param('id', function (req, res, next) {
+		return eventSourceTemplateDao
+			.findByIdAndUser(req.params.id, req.userModel)
+			.then(function(eventSourceTemplate) {
+				req.eventSourceTemplate = eventSourceTemplate;
+				next();
+			})
+			.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
+				return resourceService.forbidden(res).end();
+			});
+	});
 };
 
 router.route('/')
@@ -76,14 +88,54 @@ router.route('/')
 			});
 	});
 
+
 router.route('/:id')
 	.get(function(req, res, next) {
-		return eventSourceTemplateDao
-			.findByIdAndUser(req.params.id, req.userModel)
-			.then(function(eventSourceTemplate) {
-				return resourceService.ok(res, eventSourceTemplateConverter.convert(eventSourceTemplate));
-			})
-			.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
-				return resourceService.forbidden(res).end();
-			});
+		return resourceService.ok(res, eventSourceTemplateConverter.convert(req.eventSourceTemplate));;
+	})
+
+	.patch(function(req, res, next) {
+		var eventSourceTemplate = req.eventSourceTemplate;
+
+		var data = req.body;
+
+		if (data.name !== undefined) {
+			eventSourceTemplate.set('name', data.name);
+		}
+
+		if (data.public !== undefined) {
+			eventSourceTemplate.set('public', data.public);
+		}
+
+		if (data.configuration !== undefined) {
+			if (data.configuration.schema !== undefined) {
+				eventSourceTemplate.configurationSchema = data.configuration.schema;
+			}
+
+			if (data.configuration.callbackUrl !== undefined) {
+				eventSourceTemplate.callbackUrl = data.configuration.callbackUrl;
+			}
+
+			if (data.configuration.callbackToken !== undefined) {
+				eventSourceTemplate.callbackToken = data.configuration.callbackToken;
+			}
+		}
+
+		if (data.configurationUi !== undefined) {
+			eventSourceTemplate.configurationUi = data.configurationUi;
+		}
+
+		if (eventSourceTemplate.hasChanged()) {
+			return eventSourceTemplateDao
+				.save(eventSourceTemplate)
+				.then(function() {
+					return resourceService.location(res, 201, eventSourceTemplate).end();
+				})
+				.catch(ValidationError, function(e) {
+					return resourceService.validationError(res, e);
+				});
+		}
+		else {
+			return resourceService.location(res, 304, eventSourceTemplate).end();
+		}
 	});

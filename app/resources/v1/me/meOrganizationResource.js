@@ -5,7 +5,6 @@ var
 	ValidationError = require('checkit').Error,
 	models = require('../../../models/models'),
 	organizationConverter = require('../../../converters/organizationConverter'),
-	extractors = require('../extractors'),
 	resourceService = require('../../../services/resourceServiceFactory')('/v1/me/organizations');
 
 module.exports = function (app) {

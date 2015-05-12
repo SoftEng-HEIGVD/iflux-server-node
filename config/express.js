@@ -21,12 +21,12 @@ module.exports = function(app, config) {
 
 	app.locals.config = config;
 
-  if (env == 'development') {
+  if (env == 'development' || (env == 'test' && config.app.debug)) {
     var knexLogger = require('knex-logger');
     app.use(knexLogger(app.get('bookshelf').knex));
   }
 
-	app.use('/v1/*', cors())
+	app.use('/v1/*', cors());
 
 	app.use(function(req, res, next) {
 		var contextRoot = req.headers['x-context-root'];
@@ -51,8 +51,11 @@ module.exports = function(app, config) {
 	});
 
   // app.use(favicon(config.root + '/public/img/favicon.ico'));
-  app.use(logger('dev'));
-  app.use(bodyParser.json());
+  if (env != 'test' || (config.app.debug && env == 'test')) {
+	  app.use(logger('dev'));
+  }
+
+	app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
     extended: true
   }));

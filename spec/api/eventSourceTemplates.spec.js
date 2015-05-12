@@ -132,4 +132,48 @@ module.exports = baseTest('Event source template resource')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: this.getData('locationEventSourceTemplate1') + '100' }; })
 	.expectStatusCode(403)
+
+	.describe('Try to retrieve all event source templates and all for a specific organization, only the specific organization is taken into account.')
+	.get({}, function() { return { url: '/v1/eventSourceTemplates?allOrganizations&organizationId=' + this.getData('locationOrganization2Id') }; })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Public iFLUX Thermometer in other orga',
+		public: true
+	}])
+
+	.describe('First user updates one of his event source template')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventSourceTemplate1'),
+			body: {
+				name: 'Public iFLUX Thermometer renamed'
+			}
+		}
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+
+	.describe('No update sent must let the resource unchanged')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventSourceTemplate1'),
+			body: {}
+		}
+	})
+	.expectStatusCode(304)
+	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+
+	.describe('Second user tries to update one of first user event source template')
+	.jwtAuthentication(function() { return this.getData('token2'); })
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventSourceTemplate1'),
+			body: {
+				name: 'Public iFLUX Thermometer renamed by second user'
+			}
+		}
+	})
+	.expectStatusCode(403)
 ;

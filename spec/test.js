@@ -38,6 +38,11 @@ module.exports = function(name) {
 			return this;
 		},
 
+		stop: function() {
+			this.stopProcess = true;
+			return this;
+		},
+
 		describe: function(text) {
 			this.steps.push({ name: text });
 			this.currentStep = this.steps[this.steps.length - 1];
@@ -429,6 +434,13 @@ module.exports = function(name) {
 				_.each(this.afters, function (after) {
 					promise = promise.then(after);
 				}, this);
+			}
+
+			// Stop the execution right in place
+			if (this.stopProcess) {
+				promise = promise.then(function() {
+					process.exit();
+				});
 			}
 
 			// Catch all

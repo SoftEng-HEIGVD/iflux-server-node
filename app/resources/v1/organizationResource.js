@@ -6,11 +6,22 @@ var
 	models = require('../../models/models'),
 	organizationDao = require('../../persistence/organizationDao'),
 	organizationConverter = require('../../converters/organizationConverter'),
-	extractors = require('./extractors'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/organizations');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
+
+	router.param('id', function(req, res, next) {
+		return organizationDao
+			.findByIdAndUser(req.params.id, req.userModel)
+			.then(function (organization) {
+				req.organization = organization;
+				return next();
+			})
+			.catch(organizationDao.model.NotFoundError, function (err) {
+				return resourceService.forbidden(res).end();
+			});
+	});
 };
 
 router.route('/')
@@ -45,13 +56,11 @@ router.route('/')
 	});
 
 
-router.route('/:orgId')
-	.get(extractors.organization)
+router.route('/:id')
 	.get(function(req, res, next) {
 		return resourceService.ok(res, organizationConverter.convert(req.organization));
 	})
 
-	.patch(extractors.organizationScopedToUser)
 	.patch(function(req, res, next) {
 		var organization = req.organization;
 		var data = req.body;
