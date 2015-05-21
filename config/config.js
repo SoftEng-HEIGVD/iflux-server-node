@@ -124,8 +124,8 @@ var config = {
 		knex: {
 			client: 'pg',
 			connection: 	{
-				host: process.env.POSTGRES_PORT_5432_TCP_ADDR,
-				port: process.env.POSTGRES_PORT_5432_TCP_PORT,
+				host: process.env.POSTGRESQL_PORT_5432_TCP_ADDR,
+				port: process.env.POSTGRESQL_PORT_5432_TCP_PORT,
 				user: process.env.DB_USER,
 				password: process.env.DB_PASS,
 				database: process.env.DB_NAME,
