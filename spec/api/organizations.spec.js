@@ -58,7 +58,7 @@ module.exports = baseTest('Organization resource')
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToHavePath([ '0.id', '0.name', '1.id', '1.name' ])
 	.expectJsonToBeAtLeast([{
-		name: 'iFlux'
+		name: 'iFLUX'
 	}, {
 		name: 'Another orga'
 	}])

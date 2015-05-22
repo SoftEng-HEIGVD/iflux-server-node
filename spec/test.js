@@ -19,6 +19,250 @@ function testMessage(str) {
 	return "    " + str;
 }
 
+function printJsonErrorObject(obj, lvl) {
+	var indent = lvl * 2;
+
+	_.each(obj, function(value, name) {
+		if (_.isString(value)) {
+			var msg = name + ': ' + value;
+			msg = s.pad(msg, msg.length + indent);
+			console.log(msg.red);
+		}
+		else {
+			var msg = name + ':';
+			msg = s.pad(msg, msg.length + indent);
+			console.log(msg.red);
+			printJsonErrorObject(value, lvl + 1);
+		}
+	}, this);
+}
+
+function compareExactJson(current, expected) {
+	// Expect a string
+	if (_.isString(expected)) {
+		// String is not defined in the current
+		if (!_.isString(current)) {
+			return 'Expected to have the string: "' + expected + '" , got: ' + JSON.stringify(current);
+		}
+
+		// Check if the string is the same
+		else if (current != expected) {
+			return 'Expected to have the string: "' + expected + '" , got the string: "' + current + '"';
+		}
+	}
+
+	// Expect a number
+	else if (_.isNumber(expected)) {
+		// Number is not defined in the current
+		if (!_.isNumber(current)) {
+			return 'Expected to have the number: "' + expected + '" , got: ' + JSON.stringify(current);
+		}
+
+		// Check if the number is the same
+		else if (current != expected) {
+			return 'Expected to have the number: "' + expected + '" , got the number: "' + current + '"';
+		}
+	}
+
+	// Expect an array
+	else if (_.isArray(expected)) {
+		// Array is not defined in current
+		if (!_.isArray(current)) {
+			return 'Expected to have an array, got: ' + JSON.stringify(current);
+		}
+
+		else {
+			var arrayResult = {};
+
+			// For each value in the expected array
+			_.each(expected, function (value, idx) {
+				// If it expects a string, is present and is the same
+				if (_.isString(value) && (!_.isString(current[idx]) || value !== current[idx])) {
+					arrayResult[idx] = 'Expected to have the string: "' + value + '" , got: ' + JSON.stringify(current[idx]);
+				}
+
+				// If it expects a number, is present and is the same
+				else if (_.isNumber(value) && (!_.isNumber(current[idx]) || value !== current[idx])) {
+					arrayResult[idx] = 'Expected to have the number: "' + value + '" , got: ' + JSON.stringify(current[idx]);
+				}
+
+				// If it expects an array, is an array
+				else if (_.isArray(value) && !_.isArray(current[idx])) {
+					arrayResult[idx] = 'Expected to have an array: ' + JSON.stringify(value) + ' , got: ' + JSON.stringify(current[idx]);
+				}
+
+				// Is an array or an object, should recurse
+				else {
+					var currentResult = compareExactJson(current[idx], value);
+
+					if (currentResult && !_.isEmpty(currentResult)) {
+						arrayResult[idx] = currentResult;
+					}
+				}
+			}, this);
+
+			if (!_.isEmpty(arrayResult)) {
+				return arrayResult;
+			}
+		}
+	}
+
+	else {
+		var objectResult = {};
+
+		// Check if each property expected is present
+		_.each(expected, function(value, name) {
+			// Property not found
+			if (!_.has(current, name)) {
+				objectResult[name] = 'Expected to find property "' + name + '", but was not found.';
+			}
+
+			// Property found, then compare it
+			else {
+				var currentResult = compareExactJson(current[name], expected[name]);
+
+				// Is there any error
+				if (currentResult && !_.isEmpty(currentResult)) {
+					objectResult[name] = currentResult;
+				}
+			}
+		}, this);
+
+		// Check if property are present in the current that is not present in the expected
+		_.each(current, function(value, name) {
+			// Property not found in expected
+			if (!_.has(expected, name)) {
+				objectResult[name] = 'Expected to not find property "' + name + '", but was found.';
+			}
+		}, this);
+
+		if (!_.isEmpty(objectResult)) {
+			return objectResult;
+		}
+	}
+}
+
+function compareContentJson(current, expected) {
+	// Expect a string
+	if (_.isString(expected)) {
+		// String is not defined in the current
+		if (!_.isString(current)) {
+			return 'Expected to have the string: "' + expected + '" , got: ' + JSON.stringify(current);
+		}
+
+		// Check if the string is the same
+		else if (current != expected) {
+			return 'Expected to have the string: "' + expected + '" , got the string: "' + current + '"';
+		}
+	}
+
+	// Expect a number
+	else if (_.isNumber(expected)) {
+		// Number is not defined in the current
+		if (!_.isNumber(current)) {
+			return 'Expected to have the number: "' + expected + '" , got: ' + JSON.stringify(current);
+		}
+
+		// Check if the number is the same
+		else if (current != expected) {
+			return 'Expected to have the number: "' + expected + '" , got the number: "' + current + '"';
+		}
+	}
+
+	// Expect an array
+	else if (_.isArray(expected)) {
+		// Array is not defined in current
+		if (!_.isArray(current)) {
+			return 'Expected to have an array, got: ' + JSON.stringify(current);
+		}
+
+		else {
+			var arrayResult = {};
+
+			// For each value in the expected array
+			_.each(expected, function (value, idx) {
+				// If it expects a string, is present and is the same
+				if (_.isString(value)) {
+					var found = false;
+
+					// Try to find the same string at any index in the current
+					_.each(current, function(currentValue) {
+						if (_.isString(currentValue) && value == currentValue) {
+							found = true;
+						}
+					}, this);
+
+					if (!found) {
+						arrayResult[idx] = 'Expected to have the string: "' + value + '" , but not found in: ' + JSON.stringify(current);
+					}
+				}
+
+				// If it expects a number, is present and is the same
+				else if (_.isNumber(value)) {
+					var found = false;
+
+					// Try to find the same number at any index in the current
+					_.each(current, function(currentValue) {
+						if (_.isNumber(currentValue) && value == currentValue) {
+							found = true;
+						}
+					}, this);
+
+					if (!found) {
+						arrayResult[idx] = 'Expected to have the number: "' + value + '" , but not found in: ' + JSON.stringify(current);
+					}
+				}
+
+				// If it expects an array, is an array
+				else if (_.isArray(value) && !_.isArray(current[idx])) {
+					// TODO: Find a way to improve this check. Currently, the check is absolute
+					arrayResult[idx] = 'Expected to have an array: ' + JSON.stringify(value) + ' , got: ' + JSON.stringify(current[idx]);
+				}
+
+				// Is  an object, should recurse
+				else {
+					// TODO: Find a way to improve this check. Currently, the check is absolute
+					var currentResult = compareContentJson(current[idx], value);
+
+					if (currentResult && !_.isEmpty(currentResult)) {
+						arrayResult[idx] = currentResult;
+					}
+				}
+			}, this);
+
+			if (!_.isEmpty(arrayResult)) {
+				return arrayResult;
+			}
+		}
+	}
+
+	else {
+		var objectResult = {};
+
+		// Check if each property expected is present
+		_.each(expected, function(value, name) {
+			// Property not found
+			if (!_.has(current, name)) {
+				objectResult[name] = 'Expected to find property "' + name + '", but was not found.';
+			}
+
+			// Property found, then compare it
+			else {
+				var currentResult = compareExactJson(current[name], expected[name]);
+
+				// Is there any error
+				if (currentResult && !_.isEmpty(currentResult)) {
+					objectResult[name] = currentResult;
+				}
+			}
+		}, this);
+
+		if (!_.isEmpty(objectResult)) {
+			return objectResult;
+		}
+	}
+}
+
 module.exports = function(name) {
 	return {
 		name: name,
@@ -230,7 +474,6 @@ module.exports = function(name) {
 						var key = pathParts[i];
 
 						if ((_.isArray(currentNode) && !currentNode[key]) || !_.has(currentNode, key)) {
-							console.log(key);
 							error = true;
 							console.log(testMessage('Expected to found path: %s, stopped at: %s, %s not found.').red, path, currentPath.substr(1), key);
 							break;
@@ -280,7 +523,16 @@ module.exports = function(name) {
 
 		expectJsonToBe: function(expected) {
 			addExpectation(this.currentStep, function(response) {
-				console.log(testMessage('TODO: Implement this EXACT comparison of JSON objects.').cyan);
+				var res = compareExactJson(response.body, expected);
+
+				if (res) {
+					console.log(testMessage('Expected JSON to be the same.').red);
+					printJsonErrorObject(res, 3);
+				}
+				else {
+					console.log(testMessage('Expected JSON to be the same.').green);
+				}
+
 				return response;
 			});
 
@@ -289,7 +541,16 @@ module.exports = function(name) {
 
 		expectJsonToBeAtLeast: function(expected) {
 			addExpectation(this.currentStep, function(response) {
-				console.log(testMessage('TODO: Implement this LEFT comparison of JSON objects.').cyan);
+				var res = compareContentJson(response.body, expected);
+
+				if (res) {
+					console.log(testMessage('Expected JSON to contain at least.').red);
+					printJsonErrorObject(res, 3);
+				}
+				else {
+					console.log(testMessage('Expected JSON to contain at least.').green);
+				}
+
 				return response;
 			});
 
