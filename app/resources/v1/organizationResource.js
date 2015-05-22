@@ -7,6 +7,7 @@ var
 	organizationDao = require('../../persistence/organizationDao'),
 	organizationConverter = require('../../converters/organizationConverter'),
 	userConverter = require('../../converters/userConverter'),
+	organizationActionService = require('../../services/organizationActionService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/organizations');
 
 module.exports = function (app) {
@@ -100,4 +101,20 @@ router.route('/:id/users')
 			.then(null, function(err) {
 				return next(err);
 			});
+	});
+
+router.route('/:id/actions')
+	.post(function(req, res, next) {
+		if (_.contains(_.keys(organizationActionService), req.body.type)) {
+			return organizationActionService[req.body.type](req.body, req.organization, req.userModel)
+				.then(function(){
+					return resourceService.ok(res);
+				})
+				.catch(ValidationError, function(err) {
+					return resourceService.validationError(res, err);
+				});
+		}
+		else {
+			return resourceService.validationError(res, { type: [ 'Unknown action type.' ]}).end();
+		}
 	});

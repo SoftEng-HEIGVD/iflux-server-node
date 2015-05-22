@@ -63,5 +63,15 @@ module.exports = _.extend(new dao(User), {
 		});
 
 		return userModel.save();
+	},
+
+	/**
+	 * Find a user by his email address
+	 *
+	 * @param email The email address to lookup
+	 * @returns {Promise} A promise
+	 */
+	findByEmail: function(email) {
+		return this.model.where({ email: email }).fetch({ require: true });
 	}
 });

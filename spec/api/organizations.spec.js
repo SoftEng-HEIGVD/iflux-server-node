@@ -82,8 +82,56 @@ module.exports = baseTest('Organization resource')
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(403)
 
-	.describe('Retrieve the list of users for organization where first user is a member')
+	.describe('First user tries to do an unknown action')
 	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({}, function() { return {
+		url: this.getData('locationOrganization1') + '/actions',
+		body: {
+			type: "unknown"
+		}
+	}; })
+	.expectStatusCode(422)
+	.expectJsonToBe({ type: [ 'Unknown action type.' ] })
+
+	.describe('First user add the second user into the first organization')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({}, function() { return {
+		url: this.getData('locationOrganization1') + '/actions',
+		body: {
+			type: "addUser",
+			email: "henri.dutoit@localhost.localdomain"
+		}
+	}; })
+	.expectStatusCode(200)
+
+	.describe('Retrieve the list of users for organization where first user is a member')
+	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToHavePath([ '0.id', '0.firstName', '0.lastName', '1.id', '1.firstName', '1.lastName' ])
+	.expectJsonToBeAtLeast([{
+		firstName: 'Henri',
+		lastName: 'Dupont'
+	}, {
+		firstName: 'Henri',
+		lastName: 'Dutoit'
+	}])
+
+	.describe('User cannot retrieve users for an organization where he is not a member')
+	.get({}, function() { return { url: this.getData('locationOrganization2') + '/users' }; })
+	.expectStatusCode(403)
+
+	.describe('First user remove the second user from the first organization')
+	.post({}, function() { return {
+		url: this.getData('locationOrganization1') + '/actions',
+		body: {
+			type: "removeUser",
+			email: "henri.dutoit@localhost.localdomain"
+		}
+	}; })
+	.expectStatusCode(200)
+
+	.describe('Retrieve the list of users for organization where first user is a member')
 	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
@@ -92,9 +140,4 @@ module.exports = baseTest('Organization resource')
 		firstName: 'Henri',
 		lastName: 'Dupont'
 	}])
-
-	.describe('User cannot retrieve users for an organization where he is not a member')
-	.jwtAuthentication(function() { return this.getData('token1'); })
-	.get({}, function() { return { url: this.getData('locationOrganization2') + '/users' }; })
-	.expectStatusCode(403)
 ;
