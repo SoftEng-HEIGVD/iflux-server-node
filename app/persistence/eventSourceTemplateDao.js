@@ -1,6 +1,5 @@
 var
 	_ = require('underscore'),
-	Handlebars = require('handlebars'),
 	bookshelf = require('../../config/bookshelf'),
 	EventSourceTemplate = require('../services/modelRegistry').eventSourceTemplate,
 	dao = require('./dao');
@@ -23,9 +22,13 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 		if (eventSourceTemplate.configuration) {
 			data = _.extend(data, {
 				configurationSchema: eventSourceTemplate.configuration.schema,
-				callbackUrl: eventSourceTemplate.configuration.callbackUrl,
-				callbackToken: eventSourceTemplate.configuration.callbackToken
+				configurationUrl: eventSourceTemplate.configuration.url,
+				configurationToken: eventSourceTemplate.configuration.token
 			});
+		}
+
+		if (eventSourceTemplate.configurationUi) {
+			data = _.extend(data, { configurationUi: eventSourceTemplate.configurationUi });
 		}
 
 		var eventSourceTemplateModel = new this.model(data);

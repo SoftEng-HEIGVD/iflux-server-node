@@ -18,6 +18,8 @@ function del(table) {
 }
 
 var deletes = [
+	del('action_types'),
+	del('action_target_templates'),
 	del('event_types'),
 	del('event_source_templates'),
 	del('organizations_users'),
@@ -29,8 +31,12 @@ var
 	deferred = Promise.defer(),
 	promise = deferred.promise;
 
+_.each(deletes, function(del) {
+	promise = promise.then(del);
+});
+
 _.each(specs, function(spec, specName) {
-	if (s.endsWith(specName, '.spec')) {
+	if (s.endsWith(specName, '.spec') && (process.env.RUN_SPEC === undefined || (process.env.RUN_SPEC && s.startsWith(specName, process.env.RUN_SPEC)))) {
 		if (spec.after) {
 			_.each(deletes, function(del) {
 				spec.after(del);

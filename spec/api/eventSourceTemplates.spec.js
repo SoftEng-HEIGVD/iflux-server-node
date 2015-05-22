@@ -34,7 +34,12 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'Public iFLUX Thermometer',
 				public: true,
-				organizationId: this.getData('locationOrganization1Id')
+				organizationId: this.getData('locationOrganization1Id'),
+				configuration: {
+					schema: { test: true },
+					url: 'http://somewhere.localhost.locadomain',
+					token: 'sometoken'
+				}
 			}
 		}
 	})
@@ -82,7 +87,12 @@ module.exports = baseTest('Event source template resource')
 	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Thermometer',
-		public: true
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://somewhere.localhost.locadomain',
+			token: 'sometoken'
+		}
 	}, {
 		name: 'Private iFLUX Thermometer',
 		public: false
@@ -98,7 +108,12 @@ module.exports = baseTest('Event source template resource')
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Thermometer',
-		public: true
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://somewhere.localhost.locadomain',
+			token: 'sometoken'
+		}
 	}, {
 		name: 'Private iFLUX Thermometer',
 		public: false
@@ -122,7 +137,12 @@ module.exports = baseTest('Event source template resource')
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Thermometer',
-		public: true
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://somewhere.localhost.locadomain',
+			token: 'sometoken'
+		}
 	}, {
 		name: 'Public iFLUX Thermometer in other orga',
 		public: true

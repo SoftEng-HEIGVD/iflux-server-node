@@ -13,10 +13,14 @@ module.exports = {
 			data = _.extend(data, {
 				configuration: {
 					schema: eventSourceTemplate.get('configurationSchema'),
-					callbackUrl: eventSourceTemplate.get('callbackUrl'),
-					callbackToken: eventSourceTemplate.get('callbackToken')
+					url: eventSourceTemplate.get('configurationUrl'),
+					token: eventSourceTemplate.get('configurationToken')
 				}
 			});
+		}
+
+		if (eventSourceTemplate.get('configurationUi')) {
+			data = _.extend(data, { configurationUi: eventSourceTemplate.get('configurationUi') });
 		}
 
 		return data;

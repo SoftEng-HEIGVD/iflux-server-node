@@ -219,13 +219,22 @@ function compareContentJson(current, expected) {
 					arrayResult[idx] = 'Expected to have an array: ' + JSON.stringify(value) + ' , got: ' + JSON.stringify(current[idx]);
 				}
 
-				// Is  an object, should recurse
+				// Is an array or an object, should recurse
 				else {
-					// TODO: Find a way to improve this check. Currently, the check is absolute
-					var currentResult = compareContentJson(current[idx], value);
+					var currentResult = false;
 
-					if (currentResult && !_.isEmpty(currentResult)) {
-						arrayResult[idx] = currentResult;
+					_.each(current, function(currentValue) {
+						if (!currentResult) {
+							var comparedResult = compareContentJson(currentValue, value);
+
+							if (_.isEmpty(comparedResult)) {
+								currentResult = true;
+							}
+						}
+					}, this);
+
+					if (!currentResult) {
+						arrayResult[idx] = 'Expected to find a structure to be ' + JSON.stringify(value) + ', but not found in: ' + JSON.stringify(current);
 					}
 				}
 			}, this);
@@ -248,7 +257,7 @@ function compareContentJson(current, expected) {
 
 			// Property found, then compare it
 			else {
-				var currentResult = compareExactJson(current[name], expected[name]);
+				var currentResult = compareContentJson(current[name], expected[name]);
 
 				// Is there any error
 				if (currentResult && !_.isEmpty(currentResult)) {
@@ -541,14 +550,19 @@ module.exports = function(name) {
 
 		expectJsonToBeAtLeast: function(expected) {
 			addExpectation(this.currentStep, function(response) {
-				var res = compareContentJson(response.body, expected);
-
-				if (res) {
-					console.log(testMessage('Expected JSON to contain at least.').red);
-					printJsonErrorObject(res, 3);
+				if (_.isString(response.body)) {
+					console.log(testMessage('Expected to have JSON, got: ' + response.body).red);
 				}
 				else {
-					console.log(testMessage('Expected JSON to contain at least.').green);
+					var res = compareContentJson(response.body, expected);
+
+					if (res) {
+						console.log(testMessage('Expected JSON to contain at least.').red);
+						printJsonErrorObject(res, 3);
+					}
+					else {
+						console.log(testMessage('Expected JSON to contain at least.').green);
+					}
 				}
 
 				return response;

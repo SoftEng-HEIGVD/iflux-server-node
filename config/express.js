@@ -69,6 +69,13 @@ module.exports = function(app, config) {
     require(controller)(app);
   });
 
+	var middlewares = glob.sync(config.root + '/app/resources/**/*.js');
+	middlewares.forEach(function (middleware) {
+		if (s.endsWith(middleware, 'Middleware.js')) {
+			require(middleware)(app);
+		}
+	});
+
 	var resources = glob.sync(config.root + '/app/resources/**/*.js');
 	resources.forEach(function (resource) {
 		if (s.endsWith(resource, 'Resource.js')) {
