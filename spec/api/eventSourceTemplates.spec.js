@@ -4,10 +4,10 @@ module.exports = baseTest('Event source template resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
-	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' }, 'token2')
-	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 'token1', 'locationOrganization1')
-	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 'token1', 'locationOrganization2')
-	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 'token2', 'locationOrganization3')
+	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' })
+	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 1, 1)
+	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1, 2)
+	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3)
 
 	.describe('Create new event source template in organzation where user does not have access')
 	.jwtAuthentication(function() { return this.getData('token1'); })
@@ -16,7 +16,7 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'iFLUX Thermometer',
 				public: true,
-				organizationId: this.getData('locationOrganization3Id')
+				organizationId: this.getData('organizationId3')
 			}
 		}
 	})
@@ -34,7 +34,7 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'Public iFLUX Thermometer',
 				public: true,
-				organizationId: this.getData('locationOrganization1Id'),
+				organizationId: this.getData('organizationId1'),
 				configuration: {
 					schema: { test: true },
 					url: 'http://somewhere.localhost.locadomain',
@@ -56,7 +56,7 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'Private iFLUX Thermometer',
 				public: false,
-				organizationId: this.getData('locationOrganization1Id')
+				organizationId: this.getData('organizationId1')
 			}
 		}
 	})
@@ -73,7 +73,7 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'Public iFLUX Thermometer in other orga',
 				public: true,
-				organizationId: this.getData('locationOrganization2Id')
+				organizationId: this.getData('organizationId2')
 			}
 		}
 	})
@@ -102,7 +102,7 @@ module.exports = baseTest('Event source template resource')
 	}])
 
 	.describe('Retrieve all the event source templates for first user for the first organization')
-	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('locationOrganization1Id') }; })
+	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.public', '1.public', '0.organizationId', '1.organizationId' ])
 	.expectJsonCollectionToHaveSize(2)
@@ -120,7 +120,7 @@ module.exports = baseTest('Event source template resource')
 	}])
 
 	.describe('Retrieve all the event source templates for first user for the second organization')
-	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('locationOrganization2Id') }; })
+	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
 	.expectJsonCollectionToHaveSize(1)
@@ -154,7 +154,7 @@ module.exports = baseTest('Event source template resource')
 	.expectStatusCode(403)
 
 	.describe('Try to retrieve all event source templates and all for a specific organization, only the specific organization is taken into account.')
-	.get({}, function() { return { url: '/v1/eventSourceTemplates?allOrganizations&organizationId=' + this.getData('locationOrganization2Id') }; })
+	.get({}, function() { return { url: '/v1/eventSourceTemplates?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
 	.expectJsonCollectionToHaveSize(1)

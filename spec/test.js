@@ -697,7 +697,8 @@ module.exports = function(name) {
 							console.log(response.body);
 						}
 						else {
-							console.log(response);
+							console.log(response.headers);
+							console.log(response.body);
 						}
 						console.log("##########################################".magenta);
 					});
