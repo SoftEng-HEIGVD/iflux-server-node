@@ -4,7 +4,7 @@ var
 	config = require('../config/config');
 
 module.exports = function(name) {
-	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate'], function(memo, value) {
+	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate', 'actionTargetTemplate'], function(memo, value) {
 		memo[value] = {
 			name: value,
 			count: 0
@@ -99,6 +99,33 @@ module.exports = function(name) {
 				.post({
 					url: '/v1/eventSourceTemplates',
 					_storeData: storageFactory('eventSourceTemplate')
+				},
+				function() {
+					return {
+						body: _.extend(realData, {
+							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' }))
+						})
+					}
+				})
+				.expectStatusCode(201);
+		},
+
+		createActionTargetTemplate: function(label, data, tokenIdx, organizationIdx) {
+			var realData = _.extend({
+				name: 'Public iFLUX Radiator',
+				public: true,
+				target: {
+					url: 'http://radiator.localhost.locadomain',
+					token: 'token'
+				}
+			}, data || {});
+
+			return this
+				.describe(label)
+				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
+				.post({
+					url: '/v1/actionTargetTemplates',
+					_storeData: storageFactory('actionTargetTemplate')
 				},
 				function() {
 					return {

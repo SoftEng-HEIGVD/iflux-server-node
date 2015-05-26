@@ -110,6 +110,7 @@ exports.up = function(knex, Promise) {
 		// Create the ACTION TYPE table
 		.createTable('action_types', function(table) {
 			table.increments('id').notNullable().primary();
+			table.string('actionTypeId').notNullable();
 			table.string('name').notNullable();
 			table.string('description');
 			table.json('actionTypeSchema').notNullable();
