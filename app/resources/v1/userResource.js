@@ -9,7 +9,7 @@ var
 	resourceService = require('../../services/resourceServiceFactory')('/v1/users');
 
 module.exports = function (app) {
-  app.use(resourceService.basePath, router);
+  //app.use(resourceService.basePath, router);
 };
 
 router.route('/')
