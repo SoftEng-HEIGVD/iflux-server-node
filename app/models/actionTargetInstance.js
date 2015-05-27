@@ -1,11 +1,25 @@
 var
 	bookshelf = require('../../config/bookshelf'),
-	modelRegistry = require('../services/modelRegistry'),
-	Promise  = require('bluebird');
+	stringService = require('../services/stringService'),
+	modelRegistry = require('../services/modelRegistry');
 
 var ActionTargetInstance = module.exports = bookshelf.Model.extend({
 	tableName: 'action_target_instances',
 	hasTimestamps: true,
+
+	validations: {
+		name: [ 'required', 'minLength:5', 'unique:action_target_instances:name:Name is already taken.' ]
+	},
+
+	constructor: function() {
+		bookshelf.Model.apply(this, arguments);
+
+		this.on('creating', function(model, attrs, options) {
+			if (!model.get('actionTargetInstanceId')) {
+				model.set('actionTargetInstanceId', stringService.generateId());
+			}
+		});
+	},
 
 	organization: function() {
 		return this.belongsTo(modelRegistry.organization);

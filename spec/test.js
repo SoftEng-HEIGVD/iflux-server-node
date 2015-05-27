@@ -346,6 +346,10 @@ module.exports = function(name) {
 		},
 
 		getData: function(key) {
+			if (!this.data[key]) {
+				console.log('No data found for key: %s'.red, key);
+			}
+
 			return this.data[key];
 		},
 
@@ -728,14 +732,14 @@ module.exports = function(name) {
 
 				// Print the response in light/heavy mode
 				if (step.printResponse) {
-					promise = promise.then(function(response) {
+					promise = promise.then(function() {
 						console.log("################# RESPONSE ###############".magenta);
 						if (!step.printResponse.body) {
-							console.log(response.headers);
+							console.log(this.response.headers);
 						}
 
-						if (response.body) {
-							console.log(response.body);
+						if (this.response.body) {
+							console.log(this.response.body);
 						}
 						console.log("##########################################".magenta);
 					});
@@ -766,9 +770,12 @@ module.exports = function(name) {
 			// Catch all
 			promise = promise.catch(function(err) {
 				console.log("something went wrong".red);
-				console.log(err);
-				if (err.stack) {
-					console.log(err.stack);
+
+				if (err) {
+					console.log(err);
+					if (err.stack) {
+						console.log(err.stack);
+					}
 				}
 			});
 
