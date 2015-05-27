@@ -58,7 +58,6 @@ module.exports = _.extend(new dao(EventSourceInstance), {
 				.where('organizations_users.user_id', user.get('id'))
 				.where('event_source_instances.event_source_template_id', eventSourceTemplate.get('id'));
 		});
-		//return this.collectionFromRelation(eventSourceTemplate.eventSourceInstances());
 	},
 
 	findAllByUser: function(user) {
