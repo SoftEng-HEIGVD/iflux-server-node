@@ -7,12 +7,13 @@ var
 
 //var INDEX_REGEXP = new RegExp('(0|[1-9][0-9]*)', 'g');
 
-function addExpectation(step, expectation) {
-	if (step.expectations === undefined) {
-		step.expectations = [];
+function addExpectation(test, expectation) {
+	if (test.currentStep.expectations === undefined) {
+		test.currentStep.expectations = [];
 	}
 
-	step.expectations.push(expectation);
+	test.counters.expectations++;
+	test.currentStep.expectations.push(expectation);
 }
 
 function testMessage(str) {
@@ -274,6 +275,10 @@ function compareContentJson(current, expected) {
 
 module.exports = function(name) {
 	return {
+		counters: {
+			expectations: 0,
+			failed: 0,
+		},
 		name: name,
 		steps: [],
 		afters: [],
@@ -403,25 +408,24 @@ module.exports = function(name) {
 		},
 
 		expectStatusCode: function(expectedCode) {
-			addExpectation(this.currentStep, function(response) {
-				if (expectedCode != response.statusCode) {
-					console.log(testMessage('Expected status code: %s, received: %s').red, expectedCode, response.statusCode);
+			addExpectation(this, function() {
+				if (expectedCode != this.response.statusCode) {
+					this.counters.failed++;
+					console.log(testMessage('Expected status code: %s, received: %s').red, expectedCode, this.response.statusCode);
 				}
 				else {
 					console.log(testMessage('Expected status code: %s').green, expectedCode);
 				}
-
-				return response;
 			});
 
 			return this;
 		},
 
 		expectLocationHeader: function(locationPattern) {
-			addExpectation(this.currentStep, function(response) {
+			addExpectation(this, function() {
 				// Check if the location header is present
-				if (response.headers.location) {
-					var locationParts = response.headers.location.split('/');
+				if (this.response.headers.location) {
+					var locationParts = this.response.headers.location.split('/');
 					var locationPatternParts = locationPattern.split('/');
 
 					// Check if the location has the same number of parts
@@ -434,7 +438,9 @@ module.exports = function(name) {
 								// Check default patter for ID
 								if (!new RegExp('[1-9][0-9]*', 'g').test(locationParts[i])) {
 									error = true;
-									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, response.headers.location);
+									this.counters.failed++;
+									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, this.response.headers.location);
+									break;
 								}
 							}
 
@@ -443,13 +449,15 @@ module.exports = function(name) {
 								// Check the validity against the pattern
 								if (new RegExp(locationPatternParts[i].split(':')[1], 'g').test(locationParts[i])) {
 									error = true;
-									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, response.headers.location);
+									this.counters.failed++;
+									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, this.response.headers.location);
 									break;
 								}
 							}
 							else {
 								if (locationPatternParts[i] != locationParts[i]) {
 									error = true;
+									this.counters.failed++;
 									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, response.headers.location);
 									break;
 								}
@@ -457,18 +465,18 @@ module.exports = function(name) {
 						}
 
 						if (!error) {
-							console.log(testMessage('Expected location to be %s').green, response.headers.location);
+							console.log(testMessage('Expected location to be %s').green, this.response.headers.location);
 						}
 					}
 					else {
+						this.counters.failed++;
 						console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, response.headers.location);
 					}
 				}
 				else {
+					this.counters.failed++;
 					console.log(testMessage('Expected to find location header but was not found.').red)
 				}
-
-				return response;
 			});
 
 			return this;
@@ -479,10 +487,10 @@ module.exports = function(name) {
 				paths = [ paths ];
 			}
 
-			addExpectation(this.currentStep, function(response) {
+			addExpectation(this, function() {
 				_.each(paths, function(path) {
 					var
-						currentNode = response.body,
+						currentNode = this.response.body,
 						currentPath = '',
 						error = false,
 						pathParts = path.split('.');
@@ -504,20 +512,23 @@ module.exports = function(name) {
 					if (!error) {
 						console.log(testMessage('Expected to found path: %s').green, path);
 					}
-				});
-
-				return response;
+					else {
+						this.counters.failed++;
+					}
+				}, this);
 			});
 
 			return this;
 		},
 
 		expectJsonCollectionToHaveSize: function(expectedSize) {
-			addExpectation(this.currentStep, function(response) {
+			addExpectation(this, function() {
 				// If not an array
-				if (!_.isArray(response.body)) {
+				if (!_.isArray(this.response.body)) {
+					this.counters.failed++;
+
 					// If a string
-					if (_.isString(response.body)) {
+					if (_.isString(this.response.body)) {
 						console.log(testMessage('Expected a collection, received a string'.red));
 					}
 					else {
@@ -526,24 +537,24 @@ module.exports = function(name) {
 				}
 
 				// Check size
-				else if (response.body.length != expectedSize) {
-					console.log(testMessage('Expected a collection of size: %s, received a collection of size: %s'.red), expectedSize, response.body.length);
+				else if (this.response.body.length != expectedSize) {
+					this.counters.failed++;
+					console.log(testMessage('Expected a collection of size: %s, received a collection of size: %s'.red), expectedSize, this.response.body.length);
 				}
 
 				else {
 					console.log(testMessage('Expected a collection of size: %s'.green), expectedSize);
 				}
-
-				return response;
 			});
 
 			return this;
 		},
 
 		expectJsonToBe: function(expected) {
-			addExpectation(this.currentStep, function(response) {
-				if (_.isString(response.body)) {
-					console.log(testMessage('Expected to have JSON body, but got: .' + response.body).red);
+			addExpectation(this, function() {
+				if (_.isString(this.response.body)) {
+					this.counters.failed++;
+					console.log(testMessage('Expected to have JSON body, but got: .' + this.response.body).red);
 				}
 				else {
 					var realExpected = expected;
@@ -551,9 +562,10 @@ module.exports = function(name) {
 						realExpected = _.bind(expected, this)();
 					}
 
-					var res = compareExactJson(response.body, realExpected);
+					var res = compareExactJson(this.response.body, realExpected);
 
 					if (res) {
+						this.counters.failed++;
 						console.log(testMessage('Expected JSON to be the same.').red);
 						printJsonErrorObject(res, 3);
 					}
@@ -561,17 +573,16 @@ module.exports = function(name) {
 						console.log(testMessage('Expected JSON to be the same.').green);
 					}
 				}
-
-				return response;
 			});
 
 			return this;
 		},
 
 		expectJsonToBeAtLeast: function(expected) {
-			addExpectation(this.currentStep, function(response) {
-				if (_.isString(response.body)) {
-					console.log(testMessage('Expected to have JSON body, got: ' + response.body).red);
+			addExpectation(this, function() {
+				if (_.isString(this.response.body)) {
+					this.counters.failed++;
+					console.log(testMessage('Expected to have JSON body, got: ' + this.response.body).red);
 				}
 				else {
 					var realExpected = expected;
@@ -579,9 +590,10 @@ module.exports = function(name) {
 						realExpected = _.bind(expected, this)();
 					}
 
-					var res = compareContentJson(response.body, realExpected);
+					var res = compareContentJson(this.response.body, realExpected);
 
 					if (res) {
+						this.counters.failed++;
 						console.log(testMessage('Expected JSON to contain at least.').red);
 						printJsonErrorObject(res, 3);
 					}
@@ -589,8 +601,6 @@ module.exports = function(name) {
 						console.log(testMessage('Expected JSON to contain at least.').green);
 					}
 				}
-
-				return response;
 			});
 
 			return this;
@@ -602,7 +612,7 @@ module.exports = function(name) {
 			return this;
 		},
 
-		run: function(promise) {
+		run: function(promise, options) {
 			// Be sure we have access to this in any promise handler
 			promise = promise.bind(this);
 
@@ -708,15 +718,13 @@ module.exports = function(name) {
 							if (step.storeLocationId) {
 								_.bind(step.storeLocationId, this)();
 							}
-
-							return response;
 						});
 				});
 
 				// Prepare expectation steps
 				_.each(step.expectations, function(expectation) {
 					promise = promise.then(expectation);
-				}, this);
+				});
 
 				// Print the response in light/heavy mode
 				if (step.printResponse) {
@@ -745,6 +753,13 @@ module.exports = function(name) {
 			if (this.stopProcess) {
 				promise = promise.then(function() {
 					process.exit();
+				});
+			}
+
+			if (options && options.counters) {
+				promise = promise.then(function() {
+					options.counters.expectations += this.counters.expectations;
+					options.counters.failed += this.counters.failed;
 				});
 			}
 

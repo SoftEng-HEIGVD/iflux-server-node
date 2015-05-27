@@ -31,7 +31,11 @@ var deletes = [
 
 var
 	deferred = Promise.defer(),
-	promise = deferred.promise;
+	promise = deferred.promise,
+	counters = {
+		expectations: 0,
+		failed: 0
+	};
 
 _.each(deletes, function(del) {
 	promise = promise.then(del);
@@ -44,9 +48,13 @@ _.each(specs, function(spec, specName) {
 				spec.after(del);
 			});
 
-			promise = spec.run(promise);
+			promise = spec.run(promise, { counters: counters });
 		}
 	}
+});
+
+promise = promise.then(function() {
+	console.log('\n\nResults: ' + '%s'.red + ' failed / ' + '%s'.green + ' expectations.', counters.failed, counters.expectations);
 });
 
 promise.finally(function() { process.exit(); });
