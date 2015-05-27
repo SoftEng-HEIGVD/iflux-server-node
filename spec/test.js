@@ -234,7 +234,7 @@ function compareContentJson(current, expected) {
 					}, this);
 
 					if (!currentResult) {
-						arrayResult[idx] = 'Expected to find a structure to be ' + JSON.stringify(value) + ', but not found in: ' + JSON.stringify(current);
+						arrayResult[idx] = 'Expected to find a structure ' + JSON.stringify(value) + ', but not found in: ' + JSON.stringify(current);
 					}
 				}
 			}, this);
@@ -368,6 +368,16 @@ module.exports = function(name) {
 			return this.setHeader('Authorization', function() {
 				return 'Bearer ' + _.bind(tokenFn, this)();
 			});
+		},
+
+		storeLocationAs: function(name, idx) {
+			this.currentStep.storeLocationId = function() {
+				var locationParts = this.response.headers.location.split('/');
+				this.setData(name + 'Id' + idx, parseInt(locationParts[locationParts.length - 1]));
+				this.setData('location' + s.capitalize(name) + idx, this.response.headers.location);
+			};
+
+			return this;
 		},
 
 		printRequest: function() {
@@ -532,14 +542,24 @@ module.exports = function(name) {
 
 		expectJsonToBe: function(expected) {
 			addExpectation(this.currentStep, function(response) {
-				var res = compareExactJson(response.body, expected);
-
-				if (res) {
-					console.log(testMessage('Expected JSON to be the same.').red);
-					printJsonErrorObject(res, 3);
+				if (_.isString(response.body)) {
+					console.log(testMessage('Expected to have JSON body, but got: .' + response.body).red);
 				}
 				else {
-					console.log(testMessage('Expected JSON to be the same.').green);
+					var realExpected = expected;
+					if (_.isFunction(expected)) {
+						realExpected = _.bind(expected, this)();
+					}
+
+					var res = compareExactJson(response.body, realExpected);
+
+					if (res) {
+						console.log(testMessage('Expected JSON to be the same.').red);
+						printJsonErrorObject(res, 3);
+					}
+					else {
+						console.log(testMessage('Expected JSON to be the same.').green);
+					}
 				}
 
 				return response;
@@ -551,10 +571,15 @@ module.exports = function(name) {
 		expectJsonToBeAtLeast: function(expected) {
 			addExpectation(this.currentStep, function(response) {
 				if (_.isString(response.body)) {
-					console.log(testMessage('Expected to have JSON, got: ' + response.body).red);
+					console.log(testMessage('Expected to have JSON body, got: ' + response.body).red);
 				}
 				else {
-					var res = compareContentJson(response.body, expected);
+					var realExpected = expected;
+					if (_.isFunction(expected)) {
+						realExpected = _.bind(expected, this)();
+					}
+
+					var res = compareContentJson(response.body, realExpected);
 
 					if (res) {
 						console.log(testMessage('Expected JSON to contain at least.').red);
@@ -680,6 +705,10 @@ module.exports = function(name) {
 								_.bind(step.storeData, this)();
 							}
 
+							if (step.storeLocationId) {
+								_.bind(step.storeLocationId, this)();
+							}
+
 							return response;
 						});
 				});
@@ -693,11 +722,11 @@ module.exports = function(name) {
 				if (step.printResponse) {
 					promise = promise.then(function(response) {
 						console.log("################# RESPONSE ###############".magenta);
-						if (step.printResponse.body) {
-							console.log(response.body);
-						}
-						else {
+						if (!step.printResponse.body) {
 							console.log(response.headers);
+						}
+
+						if (response.body) {
 							console.log(response.body);
 						}
 						console.log("##########################################".magenta);

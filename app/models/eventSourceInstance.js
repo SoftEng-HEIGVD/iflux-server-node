@@ -1,11 +1,25 @@
 var
 	bookshelf = require('../../config/bookshelf'),
-	modelRegistry = require('../services/modelRegistry'),
-	Promise  = require('bluebird');
+	stringService = require('../services/stringService'),
+	modelRegistry = require('../services/modelRegistry');
 
 var EventSourceInstance = module.exports = bookshelf.Model.extend({
-	tableName: 'event_source_instance',
+	tableName: 'event_source_instances',
 	hasTimestamps: true,
+
+	validations: {
+		name: [ 'required', 'minLength:5', 'unique:event_source_instances:name:Name is already taken.' ]
+	},
+
+	constructor: function() {
+		bookshelf.Model.apply(this, arguments);
+
+		this.on('creating', function(model, attrs, options) {
+			if (!model.get('eventSourceInstanceId')) {
+				model.set('eventSourceInstanceId', stringService.generateId());
+			}
+		});
+	},
 
 	organization: function() {
 		return this.belongsTo(modelRegistry.organization);

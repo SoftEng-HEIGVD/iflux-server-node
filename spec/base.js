@@ -30,7 +30,7 @@ module.exports = function(name) {
 		return function() {
 			this.setData(generateKey(key, { prefix: 'location' }), this.response.headers.location);
 			var locationParts = this.response.headers.location.split('/');
-			this.setData(regenerateKey(key, { suffix: 'Id' }), locationParts[locationParts.length - 1]);
+			this.setData(regenerateKey(key, { suffix: 'Id' }), parseInt(locationParts[locationParts.length - 1]));
 		};
 	}
 

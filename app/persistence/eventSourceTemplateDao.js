@@ -48,6 +48,22 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 			.fetch({require: true});
 	},
 
+	findByIdAndUserOrPublic: function(id, user) {
+		return this.model
+			.query(function(qb) {
+				return qb
+					.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
+					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.where('event_source_templates.id', id)
+					.where(function() {
+						return this
+							.where('organizations_users.user_id', user.get('id'))
+							.orWhere('event_source_templates.public', true);
+					})
+			})
+			.fetch({require: true});
+	},
+
 	findAllPublic: function() {
 		return this.collectionFromModel({ public: true });
 	},
