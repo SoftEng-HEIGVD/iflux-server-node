@@ -1,6 +1,6 @@
 var  baseTest = require('../base');
 
-module.exports = baseTest('Event source template resource')
+module.exports = baseTest('Event source instance resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')

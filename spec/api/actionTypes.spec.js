@@ -1,6 +1,6 @@
 var  baseTest = require('../base');
 
-module.exports = baseTest('Action target template resource')
+module.exports = baseTest('Action type resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
