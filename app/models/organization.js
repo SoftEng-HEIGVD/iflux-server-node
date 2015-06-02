@@ -29,5 +29,9 @@ var Organization = module.exports = bookshelf.Model.extend({
 
 	actionTargetInstances: function() {
 		return this.hasMany(modelRegistry.actionTargetInstance);
+	},
+
+	rules: function() {
+		return this.hasMany(modelRegistry.rule);
 	}
 });

@@ -2,16 +2,6 @@
 
 exports.up = function(knex, Promise) {
 	return knex.schema
-		// Create the RULE table
-		.createTable('rules', function(table) {
-			table.increments('id').primary();
-			table.string('description');
-			table.boolean('active');
-			table.json('conditions');
-			table.json('transformations');
-			table.timestamps();
-		})
-
 		// Create the ORGANIZATION table
 		.createTable('organizations', function(table) {
 			table.increments('id').notNullable().primary();
@@ -33,6 +23,18 @@ exports.up = function(knex, Promise) {
 		.createTable('organizations_users', function(table) {
 			table.integer('organization_id').notNullable().references('organizations.id');
 			table.integer('user_id').notNullable().references('users.id');
+		})
+
+		// Create the RULE table
+		.createTable('rules', function(table) {
+			table.increments('id').primary();
+			table.string('name');
+			table.string('description');
+			table.boolean('active');
+			table.json('conditions');
+			table.json('transformations');
+			table.integer('organization_id').notNullable().references('organizations.id');
+			table.timestamps();
 		})
 
 		// Create the EVENT SOURCE TEMPLATE table

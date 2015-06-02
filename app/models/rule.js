@@ -1,5 +1,7 @@
 var
+	_ = require('underscore'),
 	bookshelf = require('../../config/bookshelf'),
+	modelRegistry = require('../services/modelRegistry'),
 	Promise  = require('bluebird'),
 	Handlebars = require('handlebars');
 
@@ -14,6 +16,28 @@ var
 var Rule = module.exports = bookshelf.Model.extend({
 	tableName: 'rules',
 	hasTimestamps: true,
+
+	validations: {
+		name: [ 'required', 'minLength:3', 'unique:rules:name:Name is already taken.' ]
+	},
+
+	constructor: function() {
+		bookshelf.Model.apply(this, arguments);
+
+		this.on('saving', function(model, attrs, options) {
+			if (!_.isString(model.get('conditions'))) {
+				model.set('conditions', JSON.stringify(model.get('conditions')));
+			}
+
+			if (!_.isString(model.get('transformations'))) {
+				model.set('transformations', JSON.stringify(model.get('transformations')));
+			}
+		});
+	},
+
+	organization: function() {
+		return this.belongsTo(modelRegistry.organization);
+	},
 
 	/**
 	* This function evaluates a rule against an event. If the rule is evaluated positivey, then

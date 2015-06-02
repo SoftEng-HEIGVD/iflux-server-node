@@ -19,7 +19,7 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
-				eventSourceTemplateId: this.getData('locationEventSourceTemplate3Id'),
+				eventSourceTemplateId: this.getData('locationEventSourceTemplateId3'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",

@@ -41,6 +41,14 @@ module.exports = function(basePath) {
 			}
 		},
 
+		deleted: function(res) {
+			return res.status(204);
+		},
+
+		serverError: function(res, err) {
+			return res.status(500).json(err);
+		},
+
 		notAuthorized: function(res) {
 			return res.status(401);
 		},

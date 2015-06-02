@@ -18,6 +18,7 @@ function del(table) {
 }
 
 var deletes = [
+	del('rules'),
 	del('action_types'),
 	del('action_target_instances'),
 	del('action_target_templates'),

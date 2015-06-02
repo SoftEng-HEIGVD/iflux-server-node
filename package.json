@@ -26,6 +26,7 @@
     "knex": "^0.7.6",
     "method-override": "~2.3.0",
     "morgan": "~1.5.0",
+    "notevil": "^1.0.0",
     "password-hash": "^1.2.2",
     "pg": "^4.3.0",
     "random-string": "^0.1.2",

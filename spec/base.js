@@ -4,7 +4,7 @@ var
 	config = require('../config/config');
 
 module.exports = function(name) {
-	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate', 'actionTargetTemplate'], function(memo, value) {
+	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate', 'eventType', 'eventSourceInstance', 'actionTargetTemplate', 'actionType', 'actionTargetInstance'], function(memo, value) {
 		memo[value] = {
 			name: value,
 			count: 0
@@ -110,6 +110,53 @@ module.exports = function(name) {
 				.expectStatusCode(201);
 		},
 
+		createEventSourceInstance: function(label, data, tokenIdx, organizationIdx, templateIdx) {
+			var realData = _.extend({
+				name: 'iFLUX thermometer'
+			}, data || {});
+
+			return this
+				.describe(label)
+				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
+				.post({
+					url: '/v1/eventSourceInstances',
+					_storeData: storageFactory('eventSourceInstance')
+				},
+				function() {
+					return {
+						body: _.extend(realData, {
+							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' })),
+							eventSourceTemplateId: this.getData(buildKey('eventSourceTemplate', templateIdx, { suffix: 'Id' }))
+						})
+					}
+				})
+			.expectStatusCode(201);
+		},
+
+		createEventType: function(label, data, tokenIdx, templateIdx) {
+			var realData = _.extend({
+				name: 'Temperature Increase',
+				description: 'Represent an increase in the temperature.',
+				schema: {}
+			}, data || {});
+
+			return this
+				.describe(label)
+				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
+				.post({
+					url: '/v1/eventTypes',
+					_storeData: storageFactory('eventType')
+				},
+				function() {
+					return {
+						body: _.extend(realData, {
+							eventSourceTemplateId: this.getData(buildKey('eventSourceTemplate', templateIdx, { suffix: 'Id' }))
+						})
+					}
+				})
+				.expectStatusCode(201);
+		},
+
 		createActionTargetTemplate: function(label, data, tokenIdx, organizationIdx) {
 			var realData = _.extend({
 				name: 'Public iFLUX Radiator',
@@ -131,6 +178,53 @@ module.exports = function(name) {
 					return {
 						body: _.extend(realData, {
 							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' }))
+						})
+					}
+				})
+				.expectStatusCode(201);
+		},
+
+		createActionTargetInstance: function(label, data, tokenIdx, organizationIdx, templateIdx) {
+			var realData = _.extend({
+				name: 'iFLUX radiator'
+			}, data || {});
+
+			return this
+				.describe(label)
+				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
+				.post({
+					url: '/v1/actionTargetInstances',
+					_storeData: storageFactory('actionTargetInstance')
+				},
+				function() {
+					return {
+						body: _.extend(realData, {
+							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' })),
+							actionTargetTemplateId: this.getData(buildKey('actionTargetTemplate', templateIdx, { suffix: 'Id' }))
+						})
+					}
+				})
+			.expectStatusCode(201);
+		},
+
+		createActionType: function(label, data, tokenIdx, templateIdx) {
+			var realData = _.extend({
+				name: 'Decrease thermostat',
+				description: 'Action to reduce the thermostat.',
+				schema: {}
+			}, data || {});
+
+			return this
+				.describe(label)
+				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
+				.post({
+					url: '/v1/actionTypes',
+					_storeData: storageFactory('actionType')
+				},
+				function() {
+					return {
+						body: _.extend(realData, {
+							actionTargetTemplateId: this.getData(buildKey('actionTargetTemplate', templateIdx, { suffix: 'Id' }))
 						})
 					}
 				})

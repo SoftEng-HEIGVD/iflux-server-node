@@ -341,6 +341,10 @@ module.exports = function(name) {
 			return this.request(_.extend(options, { method: 'PATCH' }), optionsEnrichmentFn);
 		},
 
+		delete: function(options, optionsEnrichmentFn) {
+			return this.request(_.extend(options, { method: 'DELETE' }), optionsEnrichmentFn);
+		},
+
 		setData: function(key, value) {
 			this.data[key] = value;
 		},
@@ -348,6 +352,7 @@ module.exports = function(name) {
 		getData: function(key) {
 			if (!this.data[key]) {
 				console.log('No data found for key: %s'.red, key);
+				console.log(this.data);
 			}
 
 			return this.data[key];
@@ -381,9 +386,14 @@ module.exports = function(name) {
 
 		storeLocationAs: function(name, idx) {
 			this.currentStep.storeLocationId = function() {
-				var locationParts = this.response.headers.location.split('/');
-				this.setData(name + 'Id' + idx, parseInt(locationParts[locationParts.length - 1]));
-				this.setData('location' + s.capitalize(name) + idx, this.response.headers.location);
+				if (this.response.headers.location) {
+					var locationParts = this.response.headers.location.split('/');
+					this.setData(name + 'Id' + idx, parseInt(locationParts[locationParts.length - 1]));
+					this.setData('location' + s.capitalize(name) + idx, this.response.headers.location);
+				}
+				else {
+					console.log('Unable to store the location as there is no location header.'.red);
+				}
 			};
 
 			return this;
