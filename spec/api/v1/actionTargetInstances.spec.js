@@ -391,6 +391,7 @@ module.exports = baseTest('Action target instance resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetInstances/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('No update sent must let the resource unchanged')
 	.patch({}, function() {
@@ -401,6 +402,7 @@ module.exports = baseTest('Action target instance resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTargetInstances/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('Second user tries to update the first action target instance of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })

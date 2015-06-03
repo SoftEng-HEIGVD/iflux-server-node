@@ -433,6 +433,7 @@ module.exports = baseTest('Event source instance resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('No update sent must let the resource unchanged')
 	.patch({}, function() {
@@ -443,6 +444,7 @@ module.exports = baseTest('Event source instance resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('Second user tries to update the first event source instance of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
