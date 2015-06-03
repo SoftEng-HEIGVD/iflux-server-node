@@ -11,7 +11,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				name: 'First rule',
 				active: true
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBeAtLeast({ organizationId: [ 'Organization id is mandatory.' ] })
@@ -24,7 +24,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				active: true,
 				organizationId: this.getData('organizationId1') + 100
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBeAtLeast({ organizationId: [ 'Organization not found.' ] })
@@ -37,7 +37,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				active: true,
 				organizationId: this.getData('organizationId3')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBeAtLeast({ organizationId: [ 'Organization not found.' ] })
@@ -50,7 +50,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				active: true,
 				organizationId: this.getData('organizationId1')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: [ 'At least one condition must be defined.' ], transformations: [ 'At least one transformation must be defined.' ] })
@@ -65,7 +65,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				conditions: [],
 				transformations: []
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: [ 'At least one condition must be defined.' ], transformations: [ 'At least one transformation must be defined.' ] })
@@ -83,7 +83,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: [ 'At least one of eventSourceInstanceId, eventTypeId or fn must be provided.' ] }})
@@ -103,7 +103,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { eventSourceInstanceId: [ 'Event source instance not found.' ] }}})
@@ -123,7 +123,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { eventSourceInstanceId: [ 'Event source instance not found.' ] }}})
@@ -144,7 +144,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
@@ -165,7 +165,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
@@ -187,7 +187,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Expression is mandatory.' ], sampleEvent: [ 'Sample event is mandatory.' ] }}}})
@@ -216,7 +216,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Expression is mandatory.' ] }}}})
@@ -240,7 +240,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { sampleEvent: [ 'Sample event is mandatory.' ] }}}})
@@ -270,7 +270,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'An error occurred during expression evaluation: Line 1: Unexpected identifier' ] }}}})
@@ -300,7 +300,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }}}})
@@ -319,7 +319,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance id is mandatory.' ] }}})
@@ -338,7 +338,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTargetInstanceId: this.getData('actionTargetInstanceId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type id is mandatory.' ] }}})
@@ -358,7 +358,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance not found.' ] }}})
@@ -378,7 +378,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance not found.' ] }}})
@@ -399,7 +399,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId1') + 100
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}})
@@ -420,7 +420,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					actionTypeId: this.getData('actionTypeId4')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}})
@@ -442,7 +442,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					eventTypeId: this.getData('eventTypeId1') + 100
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
@@ -464,7 +464,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					eventTypeId: this.getData('eventTypeId4')
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
@@ -487,7 +487,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					fn: {}
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'Expression is mandatory.' ], sample: [ 'Sample is mandatory.' ] }}}})
@@ -519,7 +519,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'Expression is mandatory.' ] }}}})
@@ -544,7 +544,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { fn: { sample: [ 'Sample is mandatory.' ] }}}})
@@ -570,7 +570,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { fn: { sample: { event: [ 'Event is mandatory.' ] }}}}})
@@ -600,7 +600,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'An error occurred during expression evaluation: Line 1: Unexpected string' ] }}}})

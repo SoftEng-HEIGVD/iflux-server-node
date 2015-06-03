@@ -1,7 +1,7 @@
 var
 	_ = require('underscore'),
 	testFactory = require('./test'),
-	config = require('../config/config');
+	config = require('../../config/config');
 
 module.exports = function(name) {
 	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate', 'eventType', 'eventSourceInstance', 'actionTargetTemplate', 'actionType', 'actionTargetInstance'], function(memo, value) {
@@ -105,7 +105,7 @@ module.exports = function(name) {
 						body: _.extend(realData, {
 							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' }))
 						})
-					}
+					};
 				})
 				.expectStatusCode(201);
 		},
@@ -128,7 +128,7 @@ module.exports = function(name) {
 							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' })),
 							eventSourceTemplateId: this.getData(buildKey('eventSourceTemplate', templateIdx, { suffix: 'Id' }))
 						})
-					}
+					};
 				})
 			.expectStatusCode(201);
 		},
@@ -152,7 +152,7 @@ module.exports = function(name) {
 						body: _.extend(realData, {
 							eventSourceTemplateId: this.getData(buildKey('eventSourceTemplate', templateIdx, { suffix: 'Id' }))
 						})
-					}
+					};
 				})
 				.expectStatusCode(201);
 		},
@@ -179,7 +179,7 @@ module.exports = function(name) {
 						body: _.extend(realData, {
 							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' }))
 						})
-					}
+					};
 				})
 				.expectStatusCode(201);
 		},
@@ -202,7 +202,7 @@ module.exports = function(name) {
 							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' })),
 							actionTargetTemplateId: this.getData(buildKey('actionTargetTemplate', templateIdx, { suffix: 'Id' }))
 						})
-					}
+					};
 				})
 			.expectStatusCode(201);
 		},
@@ -226,7 +226,7 @@ module.exports = function(name) {
 						body: _.extend(realData, {
 							actionTargetTemplateId: this.getData(buildKey('actionTargetTemplate', templateIdx, { suffix: 'Id' }))
 						})
-					}
+					};
 				})
 				.expectStatusCode(201);
 		}

@@ -18,7 +18,7 @@ module.exports = baseTest('Event source template resource')
 				public: true,
 				organizationId: this.getData('organizationId3')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
@@ -41,7 +41,7 @@ module.exports = baseTest('Event source template resource')
 					token: 'sometoken'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceTemplates/:id')
@@ -58,7 +58,7 @@ module.exports = baseTest('Event source template resource')
 				public: false,
 				organizationId: this.getData('organizationId1')
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceTemplates/:id')
@@ -75,7 +75,7 @@ module.exports = baseTest('Event source template resource')
 				public: true,
 				organizationId: this.getData('organizationId2')
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceTemplates/:id')
@@ -170,7 +170,7 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'Public iFLUX Thermometer renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceTemplates/:id')
@@ -180,7 +180,7 @@ module.exports = baseTest('Event source template resource')
 		return {
 			url: this.getData('locationEventSourceTemplate1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/eventSourceTemplates/:id')
@@ -193,7 +193,7 @@ module.exports = baseTest('Event source template resource')
 			body: {
 				name: 'Public iFLUX Thermometer renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
 ;

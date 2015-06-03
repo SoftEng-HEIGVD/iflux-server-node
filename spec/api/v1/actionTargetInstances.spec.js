@@ -37,7 +37,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId3'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId3')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
@@ -51,7 +51,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId1'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId3')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('actionTargetTemplateId.0')
@@ -68,7 +68,7 @@ module.exports = baseTest('Action target instance resource')
 					wrongProperty: 'anyValue'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('configuration')
@@ -88,7 +88,7 @@ module.exports = baseTest('Action target instance resource')
 					botId: 'amazingCaptor'
 				}
 			}
-		}
+		};
 	})
 	.storeLocationAs('actionTargetInstance', 1)
 	.expectStatusCode(201)
@@ -102,7 +102,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId2'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId2')
 			}
-		}
+		};
 	})
 	.storeLocationAs('actionTargetInstance', 2)
 	.expectStatusCode(201)
@@ -116,7 +116,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId1'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId2')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('actionTargetTemplateId.0')
@@ -130,7 +130,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId1'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 			}
-		}
+		};
 	})
 	.storeLocationAs('actionTargetInstance', 3)
 	.expectStatusCode(201)
@@ -145,7 +145,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId3'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 			}
-		}
+		};
 	})
 	.storeLocationAs('actionTargetInstance', 4)
 	.expectStatusCode(201)
@@ -159,7 +159,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId3'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId3')
 			}
-		}
+		};
 	})
 	.storeLocationAs('actionTargetInstance', 5)
 	.expectStatusCode(201)
@@ -179,10 +179,10 @@ module.exports = baseTest('Action target instance resource')
 	.describe('First user tries to mix different way to retrieve action target instances (actionTargetTemplateId is used).')
 	.get({}, function() {
 		return {
-			url: '/v1/actionTargetInstances?allOrganizations&organizationId='
-				+ this.getData('organizationId1')
-				+ '&actionTargetTemplateId='
-				+ this.getData('actionTargetTemplateId1')
+			url: '/v1/actionTargetInstances?allOrganizations&organizationId=' +
+				this.getData('organizationId1') +
+				'&actionTargetTemplateId=' +
+				this.getData('actionTargetTemplateId1')
 		};
 	})
 	.expectStatusCode(200)
@@ -386,7 +386,7 @@ module.exports = baseTest('Action target instance resource')
 			body: {
 				name: 'Slack Message target renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetInstances/:id')
@@ -396,7 +396,7 @@ module.exports = baseTest('Action target instance resource')
 		return {
 			url: this.getData('locationActionTargetInstance1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTargetInstances/:id')
@@ -409,7 +409,7 @@ module.exports = baseTest('Action target instance resource')
 			body: {
 				name: 'Slack Message target renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
 ;

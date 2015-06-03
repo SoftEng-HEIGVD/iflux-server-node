@@ -22,7 +22,7 @@ module.exports = baseTest('Action target template resource')
 					token: 'token'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
@@ -49,7 +49,7 @@ module.exports = baseTest('Action target template resource')
 					token: 'token'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
@@ -70,7 +70,7 @@ module.exports = baseTest('Action target template resource')
 					token: 'token'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
@@ -91,7 +91,7 @@ module.exports = baseTest('Action target template resource')
 					token: 'token'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
@@ -218,7 +218,7 @@ module.exports = baseTest('Action target template resource')
 			body: {
 				name: 'Public iFLUX Radiator renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
@@ -228,7 +228,7 @@ module.exports = baseTest('Action target template resource')
 		return {
 			url: this.getData('locationActionTargetTemplate1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
@@ -241,7 +241,7 @@ module.exports = baseTest('Action target template resource')
 			body: {
 				name: 'Public iFLUX Radiator renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
 ;

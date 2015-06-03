@@ -38,7 +38,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.storeLocationAs('rule', 1)
 	.expectStatusCode(201)
@@ -66,7 +66,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.storeLocationAs('rule', 2)
 	.expectStatusCode(201)
@@ -95,7 +95,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 					}
 				}]
 			}
-		}
+		};
 	})
 	.storeLocationAs('rule', 3)
 	.expectStatusCode(201)
@@ -355,7 +355,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			body: {
 				name: 'First rule renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/rules/:id')
@@ -365,7 +365,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 		return {
 			url: this.getData('locationRule1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/rules/:id')
@@ -378,7 +378,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			body: {
 				name: 'First rule renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
 

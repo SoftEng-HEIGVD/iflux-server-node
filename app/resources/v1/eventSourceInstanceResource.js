@@ -2,6 +2,7 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
+	Connector = require('../../../lib/ioc').create('connector'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
@@ -107,6 +108,11 @@ router.route('/')
 							else {
 								return eventSourceInstanceDao
 									.createAndSave(eventSourceInstance, organization, eventSourceTemplate)
+									.then(function(eventSourceInstanceSaved) {
+										return new Connector()
+											.configureEventSourceInstance(eventSourceTemplate, eventSourceInstanceSaved)
+											.then(function() { return eventSourceInstanceSaved; });
+									})
 									.then(function(eventSourceInstanceSaved) {
 										return resourceService.location(res, 201, eventSourceInstanceSaved).end();
 									})

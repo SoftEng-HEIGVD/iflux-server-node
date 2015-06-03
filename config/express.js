@@ -6,6 +6,7 @@ var cors = require('cors');
 
 var favicon = require('serve-favicon');
 var logger = require('morgan');
+var npmlog = require('npmlog');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var compress = require('compression');
@@ -54,6 +55,10 @@ module.exports = function(app, config) {
   if (env != 'test' || (config.app.debug && env == 'test')) {
 	  app.use(logger('dev'));
   }
+
+	if (!config.app.debug && env == 'test') {
+		npmlog.level = 'silent';
+	}
 
 	app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({

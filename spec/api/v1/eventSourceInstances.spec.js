@@ -1,4 +1,6 @@
-var  baseTest = require('../base');
+var
+	config = require('../../../config/config'),
+	baseTest = require('../base');
 
 module.exports = baseTest('Event source instance resource')
 	.createUser('Register first user')
@@ -24,9 +26,48 @@ module.exports = baseTest('Event source instance resource')
 				"required": [ "captorId" ]
 			}
 		}
-	}, 1, 1 )
-	.createEventSourceTemplate('Create second event source template for first user', { name: 'Event source template 2', public: false }, 1, 2 )
-	.createEventSourceTemplate('Create first event source template for second user', { name: 'Event source template 3', public: false }, 2, 3 )
+	}, 1, 1)
+	.createEventSourceTemplate('Create second event source template for first user', { name: 'Event source template 2', public: false }, 1, 2)
+	.createEventSourceTemplate('Create first event source template for second user', { name: 'Event source template 3', public: false }, 2, 3)
+
+	.createEventSourceTemplate('Create configurable event source template for first user', {
+		name: 'Configurable event source template',
+		public: true,
+		configuration: {
+			url: 'http://localhost:' + config.mockServer.serverPort + '/configure',
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					test: {
+						type: "string"
+					}
+				},
+				"additionalProperties": false,
+				"required": [ "test" ]
+			}
+		}
+	}, 1, 1)
+	.createEventSourceTemplate('Create configurable with token event source template for first user', {
+		name: 'Configurable event source template with token',
+		public: true,
+		configuration: {
+			url: 'http://localhost:' + config.mockServer.serverPort + '/configure',
+			token: 'jwtToken',
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					test: {
+						type: "string"
+					}
+				},
+				"additionalProperties": false,
+				"required": [ "test" ]
+			}
+		}
+	}, 1, 1)
+	.noAfter()
 
 	.describe('First user tries to creates an event source instance in an organization he has no access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
@@ -37,7 +78,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
@@ -51,7 +92,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('eventSourceTemplateId.0')
@@ -68,7 +109,7 @@ module.exports = baseTest('Event source instance resource')
 					wrongProperty: 'anyValue'
 				}
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('configuration')
@@ -88,7 +129,7 @@ module.exports = baseTest('Event source instance resource')
 					captorId: 'amazingCaptor'
 				}
 			}
-		}
+		};
 	})
 	.storeLocationAs('eventSourceInstance', 1)
 	.expectStatusCode(201)
@@ -102,7 +143,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId2'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 			}
-		}
+		};
 	})
 	.storeLocationAs('eventSourceInstance', 2)
 	.expectStatusCode(201)
@@ -116,7 +157,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('eventSourceTemplateId.0')
@@ -130,7 +171,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 			}
-		}
+		};
 	})
 	.storeLocationAs('eventSourceInstance', 3)
 	.expectStatusCode(201)
@@ -145,7 +186,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 			}
-		}
+		};
 	})
 	.storeLocationAs('eventSourceInstance', 4)
 	.expectStatusCode(201)
@@ -159,7 +200,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 			}
-		}
+		};
 	})
 	.storeLocationAs('eventSourceInstance', 5)
 	.expectStatusCode(201)
@@ -179,10 +220,10 @@ module.exports = baseTest('Event source instance resource')
 	.describe('First user tries to mix different way to retrieve event source instances (eventSourceTemplateId is used).')
 	.get({}, function() {
 		return {
-			url: '/v1/eventSourceInstances?allOrganizations&organizationId='
-				+ this.getData('organizationId1')
-				+ '&eventSourceTemplateId='
-				+ this.getData('eventSourceTemplateId1')
+			url: '/v1/eventSourceInstances?allOrganizations&organizationId=' +
+				this.getData('organizationId1') +
+				'&eventSourceTemplateId=' +
+				this.getData('eventSourceTemplateId1')
 		};
 	})
 	.expectStatusCode(200)
@@ -214,7 +255,7 @@ module.exports = baseTest('Event source instance resource')
 	.describe('First user retrieves all event source instances.')
 	.get({ url: '/v1/eventSourceInstances?allOrganizations' })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.organizationId', '0.eventSourceTemplateId', '0.configuration' ])
+	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
@@ -222,7 +263,9 @@ module.exports = baseTest('Event source instance resource')
 			name: 'iFLUX Thermometer instance',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
-			configuration: {captorId: 'amazingCaptor'}
+			configuration: {
+				captorId: 'amazingCaptor'
+			}
 		}, {
 			id: this.getData('eventSourceInstanceId2'),
 			name: 'iFLUX Thermometer second instance',
@@ -386,7 +429,7 @@ module.exports = baseTest('Event source instance resource')
 			body: {
 				name: 'iFLUX Thermometer instance renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceInstances/:id')
@@ -396,7 +439,7 @@ module.exports = baseTest('Event source instance resource')
 		return {
 			url: this.getData('locationEventSourceInstance1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/eventSourceInstances/:id')
@@ -409,7 +452,109 @@ module.exports = baseTest('Event source instance resource')
 			body: {
 				name: 'iFLUX Thermometer instance renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
+
+	.describe('First user creates an event source instance with a configuration call to remote system.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.post({ url: '/v1/eventSourceInstances' }, function() {
+		return {
+			body: {
+				name: 'Instance with configuration',
+				organizationId: this.getData('organizationId1'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId4'),
+				configuration: {
+					test: 'niceStoryBro'
+				}
+			}
+		};
+	})
+	.storeLocationAs('eventSourceInstance', 1)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'niceStoryBro'
+					}
+				})
+			}
+		};
+	})
+
+	.describe('First user creates an event source instance with a configuration and a token call to remote system.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.post({ url: '/v1/eventSourceInstances' }, function() {
+		return {
+			body: {
+				name: 'Instance with configuration and token',
+				organizationId: this.getData('organizationId1'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId5'),
+				configuration: {
+					test: 'niceStoryBro'
+				}
+			}
+		};
+	})
+	.storeLocationAs('eventSourceInstance', 1)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			headers: [{
+				name: 'Authorization',
+				values: [ 'bearer jwtToken' ]
+			}],
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'niceStoryBro'
+					}
+				})
+			}
+		};
+	})
 ;

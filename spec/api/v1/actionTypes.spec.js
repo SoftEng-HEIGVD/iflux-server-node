@@ -30,7 +30,7 @@ module.exports = baseTest('Action type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('actionTargetTemplateId.0')
@@ -57,7 +57,7 @@ module.exports = baseTest('Action type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
@@ -83,7 +83,7 @@ module.exports = baseTest('Action type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
@@ -109,7 +109,7 @@ module.exports = baseTest('Action type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
@@ -136,7 +136,7 @@ module.exports = baseTest('Action type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
@@ -230,7 +230,7 @@ module.exports = baseTest('Action type resource')
 			body: {
 				name: 'Increase thermostat renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
@@ -240,7 +240,7 @@ module.exports = baseTest('Action type resource')
 		return {
 			url: this.getData('locationActionType1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTypes/:id')
@@ -253,7 +253,7 @@ module.exports = baseTest('Action type resource')
 			body: {
 				name: 'Increase thermostat renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
 ;

@@ -84,24 +84,28 @@ module.exports = baseTest('Organization resource')
 
 	.describe('First user tries to do an unknown action')
 	.jwtAuthentication(function() { return this.getData('token1'); })
-	.post({}, function() { return {
-		url: this.getData('locationOrganization1') + '/actions',
-		body: {
-			type: "unknown"
-		}
-	}; })
+	.post({}, function() {
+		return {
+			url: this.getData('locationOrganization1') + '/actions',
+			body: {
+				type: "unknown"
+			}
+		};
+	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ type: [ 'Unknown action type.' ] })
 
 	.describe('First user add the second user into the first organization')
 	.jwtAuthentication(function() { return this.getData('token1'); })
-	.post({}, function() { return {
-		url: this.getData('locationOrganization1') + '/actions',
-		body: {
-			type: "addUser",
-			email: "henri.dutoit@localhost.localdomain"
-		}
-	}; })
+	.post({}, function() {
+		return {
+			url: this.getData('locationOrganization1') + '/actions',
+			body: {
+				type: "addUser",
+				email: "henri.dutoit@localhost.localdomain"
+			}
+		};
+	})
 	.expectStatusCode(200)
 
 	.describe('Retrieve the list of users for organization where first user is a member')
@@ -122,13 +126,15 @@ module.exports = baseTest('Organization resource')
 	.expectStatusCode(403)
 
 	.describe('First user remove the second user from the first organization')
-	.post({}, function() { return {
-		url: this.getData('locationOrganization1') + '/actions',
-		body: {
-			type: "removeUser",
-			email: "henri.dutoit@localhost.localdomain"
-		}
-	}; })
+	.post({}, function() {
+		return {
+			url: this.getData('locationOrganization1') + '/actions',
+			body: {
+				type: "removeUser",
+				email: "henri.dutoit@localhost.localdomain"
+			}
+		};
+	})
 	.expectStatusCode(200)
 
 	.describe('Retrieve the list of users for organization where first user is a member')

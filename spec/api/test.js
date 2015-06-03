@@ -24,13 +24,15 @@ function printJsonErrorObject(obj, lvl) {
 	var indent = lvl * 2;
 
 	_.each(obj, function(value, name) {
+		var msg;
+
 		if (_.isString(value)) {
-			var msg = name + ': ' + value;
+			msg = name + ': ' + value;
 			msg = s.pad(msg, msg.length + indent);
 			console.log(msg.red);
 		}
 		else {
-			var msg = name + ':';
+			msg = name + ':';
 			msg = s.pad(msg, msg.length + indent);
 			console.log(msg.red);
 			printJsonErrorObject(value, lvl + 1);
@@ -182,10 +184,10 @@ function compareContentJson(current, expected) {
 
 			// For each value in the expected array
 			_.each(expected, function (value, idx) {
+				var found = false;
+
 				// If it expects a string, is present and is the same
 				if (_.isString(value)) {
-					var found = false;
-
 					// Try to find the same string at any index in the current
 					_.each(current, function(currentValue) {
 						if (_.isString(currentValue) && value == currentValue) {
@@ -200,8 +202,6 @@ function compareContentJson(current, expected) {
 
 				// If it expects a number, is present and is the same
 				else if (_.isNumber(value)) {
-					var found = false;
-
 					// Try to find the same number at any index in the current
 					_.each(current, function(currentValue) {
 						if (_.isNumber(currentValue) && value == currentValue) {
@@ -285,6 +285,7 @@ module.exports = function(name) {
 		currentStep: null,
 		headers: {},
 		data: {},
+		mockServerClient: null,
 
 		baseUrl: function(baseUrl) {
 			this.baseUrl = baseUrl;
@@ -293,6 +294,28 @@ module.exports = function(name) {
 
 		setJson: function() {
 			this.json = true;
+			return this;
+		},
+
+		setMockServerClient: function(mockServerClient) {
+			this.mockServerClient = mockServerClient;
+			return this;
+		},
+
+		mockRequest: function(request, response, times) {
+			var config = {
+				httpRequest: request,
+				httpResponse: response
+			};
+
+			if (times) {
+				config = _.extend(config, {
+					times: times
+				});
+			}
+
+			this.currentStep.mockRequest = config;
+
 			return this;
 		},
 
@@ -489,7 +512,7 @@ module.exports = function(name) {
 				}
 				else {
 					this.counters.failed++;
-					console.log(testMessage('Expected to find location header but was not found.').red)
+					console.log(testMessage('Expected to find location header but was not found.').red);
 				}
 			});
 
@@ -620,6 +643,26 @@ module.exports = function(name) {
 			return this;
 		},
 
+		expectMockServerToHaveReceived: function(expected) {
+			addExpectation(this, function() {
+				var realExpected = expected;
+				if (_.isFunction(expected)) {
+					realExpected = _.bind(expected, this)();
+				}
+
+				return this.mockServerClient
+					.verify(realExpected)
+					.then(function() {
+						console.log(testMessage('Expected Mock Server to have received request.').green);
+					})
+					.catch(function(err) {
+						console.log(testMessage('Expected Mock Server to have received request but not received.').red);
+					});
+			});
+
+			return this;
+		},
+
 		after: function(fn) {
 			this.afters.push(fn);
 
@@ -701,6 +744,13 @@ module.exports = function(name) {
 						console.log("################# REQUEST ################".magenta);
 						console.log(step.request);
 						console.log("##########################################".magenta);
+					});
+				}
+
+				// If mock request is present
+				if (step.mockRequest) {
+					promise = promise.then(function() {
+						this.mockServerClient.mockAnyResponse(step.mockRequest);
 					});
 				}
 
@@ -791,5 +841,5 @@ module.exports = function(name) {
 
 			return promise;
 		}
-	}
+	};
 };

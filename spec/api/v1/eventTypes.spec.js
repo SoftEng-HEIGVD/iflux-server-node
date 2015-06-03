@@ -41,7 +41,7 @@ module.exports = baseTest('Event type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('eventSourceTemplateId.0')
@@ -79,7 +79,7 @@ module.exports = baseTest('Event type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
@@ -116,7 +116,7 @@ module.exports = baseTest('Event type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
@@ -153,7 +153,7 @@ module.exports = baseTest('Event type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
@@ -191,7 +191,7 @@ module.exports = baseTest('Event type resource')
 			    }
 			  }
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
@@ -329,7 +329,7 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increased renamed'
 			}
-		}
+		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
@@ -339,7 +339,7 @@ module.exports = baseTest('Event type resource')
 		return {
 			url: this.getData('locationEventType1'),
 			body: {}
-		}
+		};
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/eventTypes/:id')
@@ -352,7 +352,7 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase renamed by second user'
 			}
-		}
+		};
 	})
 	.expectStatusCode(403)
 ;

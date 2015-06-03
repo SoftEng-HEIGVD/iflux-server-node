@@ -1,20 +1,22 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../../.env' });
 
 var
 	_ = require('underscore'),
 	s = require('underscore.string'),
 	Promise = require('bluebird'),
 	colors = require('colors'),
-	knex = require('../config/bookshelf').knex;
+	knex = require('../../config/bookshelf').knex,
+	config = require('../../config/config'),
+	mockServerClient = require('mockserver-client').mockServerClient;
 
-require('../app.js');
+require('../../app.js');
 
-var specs = require('require-directory')(module, './api');
+var specs = require('require-directory')(module, './v1');
 
 function del(table) {
 	return function() {
 		return knex(table).del();
-	}
+	};
 }
 
 var deletes = [
@@ -49,6 +51,14 @@ _.each(specs, function(spec, specName) {
 				spec.after(del);
 			});
 
+			var mockClient = mockServerClient('localhost', config.mockServer.serverPort);
+
+			promise = promise.then(function() {
+				mockClient.reset();
+			});
+
+			spec.setMockServerClient(mockClient);
+
 			promise = spec.run(promise, { counters: counters });
 		}
 	}
@@ -58,6 +68,8 @@ promise = promise.then(function() {
 	console.log('\n\nResults: ' + '%s'.red + ' failed / ' + '%s'.green + ' expectations.', counters.failed, counters.expectations);
 });
 
-promise.finally(function() { process.exit(); });
+promise.finally(function() {
+	process.exit();
+});
 
 deferred.resolve();

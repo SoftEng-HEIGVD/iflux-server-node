@@ -53,6 +53,9 @@ var config = {
     },
     port: process.env.PORT || 3001,
 	  host: process.env.HOST || 'localhost',
+	  mockServer: {
+		  serverPort: 1080
+	  },
 		knex: {
 			client: 'pg',
 			connection: 	{
