@@ -3,6 +3,7 @@ var
 	express = require('express'),
   router = express.Router(),
 	ValidationError = require('checkit').Error,
+	Connector = require('../../../lib/ioc').create('connector'),
 	models = require('../../models/models'),
 	actionTargetTemplateDao = require('../../persistence/actionTargetTemplateDao'),
 	actionTargetInstanceDao = require('../../persistence/actionTargetInstanceDao'),
@@ -107,6 +108,11 @@ router.route('/')
 							else {
 								return actionTargetInstanceDao
 									.createAndSave(actionTargetInstance, organization, actionTargetTemplate)
+									.then(function(actionTargetInstanceSaved) {
+										return new Connector()
+											.configureEventSourceInstance(actionTargetTemplate, actionTargetInstanceSaved)
+											.then(function() { return actionTargetInstanceSaved; });
+									})
 									.then(function(actionTargetInstanceSaved) {
 										return resourceService.location(res, 201, actionTargetInstanceSaved).end();
 									})

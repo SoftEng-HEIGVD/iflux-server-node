@@ -8,9 +8,9 @@ module.exports = baseTest('Event type resource')
 	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 1)
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1)
 	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2)
-	.createEventSourceTemplate('Create first event source template for first user', { name: 'Event source template 1' }, 1, 1 )
-	.createEventSourceTemplate('Create second event source template for first user', { name: 'Event source template 2' }, 1, 2 )
-	.createEventSourceTemplate('Create first event source template for second user', { name: 'Event source template 3' }, 2, 3 )
+	.createEventSourceTemplate('Create first event source template for first user', { name: 'Event source template 1' }, 1, 1)
+	.createEventSourceTemplate('Create second event source template for first user', { name: 'Event source template 2' }, 1, 2)
+	.createEventSourceTemplate('Create first event source template for second user', { name: 'Event source template 3' }, 2, 3)
 
 	.describe('Create new event type in event source template where user does not have access')
 	.jwtAuthentication(function() { return this.getData('token1'); })
@@ -19,7 +19,7 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
-				eventSourceTemplateId: this.getData('locationEventSourceTemplateId3'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",

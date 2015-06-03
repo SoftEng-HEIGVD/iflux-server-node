@@ -19,7 +19,7 @@ module.exports = baseTest('Action type resource')
 			body: {
 				name: 'Decrease thermostat',
 				description: 'Action to reduce the thermostat.',
-				actionTargetTemplateId: this.getData('locationActionTargetTemplate3Id'),
+				actionTargetTemplateId: this.getData('actionTargetTemplate3Id'),
 				schema: {
 		      $schema: "http://json-schema.org/draft-04/schema#",
 	        type: "object",

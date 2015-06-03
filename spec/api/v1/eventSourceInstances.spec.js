@@ -508,7 +508,6 @@ module.exports = baseTest('Event source instance resource')
 	})
 
 	.describe('First user creates an event source instance with a configuration and a token call to remote system.')
-	.jwtAuthentication(function() { return this.getData('token1'); })
 	.mockRequest({
 		method: 'POST',
 		path: '/configure',

@@ -1,4 +1,6 @@
-var  baseTest = require('../base');
+var
+	config = require('../../../config/config'),
+	baseTest = require('../base');
 
 module.exports = baseTest('Action target instance resource')
 	.createUser('Register first user')
@@ -27,6 +29,45 @@ module.exports = baseTest('Action target instance resource')
 	}, 1, 1 )
 	.createActionTargetTemplate('Create second action target template for first user', { name: 'Action target template 2', public: false }, 1, 2 )
 	.createActionTargetTemplate('Create first action target template for second user', { name: 'Action target template 3', public: false }, 2, 3 )
+
+	.createActionTargetTemplate('Create action target template with url for first user', {
+		name: 'Action target template with url',
+		public: true,
+		configuration: {
+			url: 'http://localhost:' + config.mockServer.serverPort + '/configure',
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					test: {
+						type: "string"
+					}
+				},
+				"additionalProperties": false,
+				"required": [ "test" ]
+			}
+		}
+	}, 1, 1 )
+
+	.createActionTargetTemplate('Create action target template with url and token for first user', {
+		name: 'Action target template with url and token',
+		public: true,
+		configuration: {
+			url: 'http://localhost:' + config.mockServer.serverPort + '/configure',
+			token: 'jwtToken',
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					test: {
+						type: "string"
+					}
+				},
+				"additionalProperties": false,
+				"required": [ "test" ]
+			}
+		}
+	}, 1, 1 )
 
 	.describe('First user tries to creates an action target instance in an organization he has no access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
@@ -415,4 +456,105 @@ module.exports = baseTest('Action target instance resource')
 		};
 	})
 	.expectStatusCode(403)
+
+	.describe('First user creates an action target instance with a configuration call to remote system.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.post({ url: '/v1/actionTargetInstances' }, function() {
+		return {
+			body: {
+				name: 'Instance with configuration',
+				organizationId: this.getData('organizationId1'),
+				actionTargetTemplateId: this.getData('actionTargetTemplateId4'),
+				configuration: {
+					test: 'niceStoryBro'
+				}
+			}
+		};
+	})
+	.storeLocationAs('actionTargetInstance', 1)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargetInstances/:id')
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'niceStoryBro'
+					}
+				})
+			}
+		};
+	})
+
+	.describe('First user creates an action target instance with a configuration and a token call to remote system.')
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.post({ url: '/v1/actionTargetInstances' }, function() {
+		return {
+			body: {
+				name: 'Instance with configuration and token',
+				organizationId: this.getData('organizationId1'),
+				actionTargetTemplateId: this.getData('actionTargetTemplateId5'),
+				configuration: {
+					test: 'niceStoryBro'
+				}
+			}
+		};
+	})
+	.storeLocationAs('actionTargetInstance', 1)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargetInstances/:id')
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			headers: [{
+				name: 'Authorization',
+				values: [ 'bearer jwtToken' ]
+			}],
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'niceStoryBro'
+					}
+				})
+			}
+		};
+	})
 ;
