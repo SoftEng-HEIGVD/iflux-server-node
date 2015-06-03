@@ -21,6 +21,10 @@ var EventSourceInstance = module.exports = bookshelf.Model.extend({
 		});
 	},
 
+	generatedId: function() {
+		return this.get('eventSourceInstanceId');
+	},
+
 	organization: function() {
 		return this.belongsTo(modelRegistry.organization);
 	},

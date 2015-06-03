@@ -21,6 +21,10 @@ var ActionTargetInstance = module.exports = bookshelf.Model.extend({
 		});
 	},
 
+	generatedId: function() {
+		return this.get('actionTargetInstanceId');
+	},
+
 	organization: function() {
 		return this.belongsTo(modelRegistry.organization);
 	},

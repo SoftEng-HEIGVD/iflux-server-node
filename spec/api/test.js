@@ -519,6 +519,25 @@ module.exports = function(name) {
 			return this;
 		},
 
+		expectHeaderToBePresent: function(headerNameExpected) {
+			addExpectation(this, function() {
+				var realHeaderNameExpected = headerNameExpected;
+				if (!_.isString(realHeaderNameExpected)) {
+					realHeaderNameExpected = realHeaderNameExpected();
+				}
+
+				if (this.response.headers[realHeaderNameExpected]) {
+					console.log(testMessage('Expected to find header: ' + realHeaderNameExpected).green);
+				}
+				else {
+					this.counters.failed++;
+					console.log(testMessage('Expected to find header: ' + realHeaderNameExpected + ", but not found.").red);
+				}
+			});
+
+			return this;
+		},
+
 		expectJsonToHavePath: function(paths) {
 			if (_.isString(paths)) {
 				paths = [ paths ];

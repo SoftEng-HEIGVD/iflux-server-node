@@ -83,6 +83,7 @@ module.exports = baseTest('Event type resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('Create a second event type for first user in his first event source template')
 	.post({

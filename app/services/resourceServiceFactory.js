@@ -1,10 +1,16 @@
-var s = require('underscore.string');
+var
+	_ = require('underscore'),
+	s = require('underscore.string');
 
 module.exports = function(basePath) {
 	return {
 		basePath: s.rtrim(basePath, '/'),
 
 		location: function(res, status, obj, prefixPath) {
+			if (obj.generatedId) {
+				res.set('x-iflux-generated-id', obj.generatedId());
+			}
+
 			if (prefixPath) {
 				if (!s.endsWith(prefixPath, '/')) {
 					prefixPath += '/';

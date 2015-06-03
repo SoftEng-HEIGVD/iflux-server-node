@@ -61,6 +61,7 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('Create a second action type for first user in his first action target template')
 	.post({

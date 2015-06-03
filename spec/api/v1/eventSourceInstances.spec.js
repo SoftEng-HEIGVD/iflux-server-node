@@ -67,7 +67,6 @@ module.exports = baseTest('Event source instance resource')
 			}
 		}
 	}, 1, 1)
-	.noAfter()
 
 	.describe('First user tries to creates an event source instance in an organization he has no access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
@@ -134,6 +133,7 @@ module.exports = baseTest('Event source instance resource')
 	.storeLocationAs('eventSourceInstance', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('First user creates a second event source instance for his second organization and second event source template.')
 	.post({ url: '/v1/eventSourceInstances' }, function() {

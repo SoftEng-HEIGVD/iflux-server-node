@@ -93,6 +93,7 @@ module.exports = baseTest('Action target instance resource')
 	.storeLocationAs('actionTargetInstance', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetInstances/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('First user creates a second action target instance for his second organization and second action target template.')
 	.post({ url: '/v1/actionTargetInstances' }, function() {
