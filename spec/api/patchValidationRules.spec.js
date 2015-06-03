@@ -243,6 +243,34 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }}}})
 
+	.describe('First user tries to update a rule with a transformation with missing action target instance id.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationRule1'),
+			body: {
+				transformations: [{
+					actionTypeId: this.getData('actionTypeId1')
+				}]
+			}
+		}
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance id is mandatory.' ] }}})
+
+	.describe('First user tries to update a rule with a transformation with missing action type id.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationRule1'),
+			body: {
+				transformations: [{
+					actionTargetInstanceId: this.getData('actionTargetInstanceId1')
+				}]
+			}
+		}
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type id is mandatory.' ] }}})
+
 	.describe('First user tries to update a rule with a transformation where the action target instance does not exists.')
 	.patch({}, function() {
 		return {

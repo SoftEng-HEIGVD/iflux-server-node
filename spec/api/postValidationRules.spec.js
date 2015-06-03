@@ -3,8 +3,20 @@ var
 	baseTest = require('../base');
 
 module.exports = helpers.setup(baseTest('Validations on rule resource'))
-	.describe('First user tries to create a rule with wrong organization.')
+	.describe('First user tries to create a rule with missing organization.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({ url: '/v1/rules'}, function() {
+		return {
+			body: {
+				name: 'First rule',
+				active: true
+			}
+		}
+	})
+	.expectStatusCode(422)
+	.expectJsonToBeAtLeast({ organizationId: [ 'Organization id is mandatory.' ] })
+
+	.describe('First user tries to create a rule with wrong organization.')
 	.post({ url: '/v1/rules'}, function() {
 		return {
 			body: {
@@ -15,7 +27,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		}
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ organizationId: [ 'Organization not found.' ] })
+	.expectJsonToBeAtLeast({ organizationId: [ 'Organization not found.' ] })
 
 	.describe('First user tries to create a rule with in an organization where he is not a member.')
 	.post({ url: '/v1/rules'}, function() {
@@ -28,7 +40,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		}
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ organizationId: [ 'Organization not found.' ] })
+	.expectJsonToBeAtLeast({ organizationId: [ 'Organization not found.' ] })
 
 	.describe('First user tries to create a rule without conditions.')
 	.post({ url: '/v1/rules'}, function() {
@@ -292,6 +304,44 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }}}})
+
+	.describe('First user tries to create a rule with a transformation with missing action target instance id.')
+	.post({ url: '/v1/rules'}, function() {
+		return {
+			body: {
+				name: 'First rule',
+				active: true,
+				organizationId: this.getData('organizationId1'),
+				conditions: [{
+					eventSourceInstanceId: this.getData('eventSourceInstanceId1')
+				}],
+				transformations: [{
+					actionTypeId: this.getData('actionTypeId1')
+				}]
+			}
+		}
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance id is mandatory.' ] }}})
+
+	.describe('First user tries to create a rule with a transformation with missing action type id.')
+	.post({ url: '/v1/rules'}, function() {
+		return {
+			body: {
+				name: 'First rule',
+				active: true,
+				organizationId: this.getData('organizationId1'),
+				conditions: [{
+					eventSourceInstanceId: this.getData('eventSourceInstanceId1')
+				}],
+				transformations: [{
+					actionTargetInstanceId: this.getData('actionTargetInstanceId1')
+				}]
+			}
+		}
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type id is mandatory.' ] }}})
 
 	.describe('First user tries to create a rule with a transformation where the action target instance does not exists.')
 	.post({ url: '/v1/rules'}, function() {

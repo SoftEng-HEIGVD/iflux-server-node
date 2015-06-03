@@ -3,17 +3,13 @@ var
 	express = require('express'),
   router = express.Router(),
 	Promise = require('bluebird'),
-	safeEval = require('notevil'),
 	ValidationError = require('checkit').Error,
 	Handlebars = require('handlebars'),
 	Rule = require('../../services/modelRegistry').rule,
-	actionTargetInstanceDao = require('../../persistence/actionTargetInstanceDao'),
-	actionTypeDao = require('../../persistence/actionTypeDao'),
-	eventSourceInstanceDao = require('../../persistence/eventSourceInstanceDao'),
-	eventTypeDao = require('../../persistence/eventTypeDao'),
 	organizationDao = require('../../persistence/organizationDao'),
 	ruleDao = require('../../persistence/ruleDao'),
 	ruleConverter = require('../../converters/ruleConverter'),
+	ruleResourceService = require('../../services/ruleResourceService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/rules');
 
 module.exports = function (app) {
@@ -32,277 +28,51 @@ module.exports = function (app) {
 	});
 };
 
-function RuleValidationError(errors) {
-  this.name = 'RuleValidationError';
-  this.message = 'Rule validation errors';
-	this.errors = errors;
-}
-
-RuleValidationError.prototype = Object.create(Error.prototype);
-RuleValidationError.prototype.constructor = RuleValidationError;
-
-function evaluateCondition(expression, eventSourceInstance, eventType, sample) {
-	var fn = safeEval.Function('event', 'eventSourceInstance', 'eventType', expression);
-
-	return fn(sample, eventSourceInstance, eventType);
-}
-
-function evaluateTransformation(expression, actionTargetInstance, actionType, eventSourceInstance, eventType, sample) {
-	var fn = safeEval.Function('event', 'actionTargetInstance', 'actionType', 'eventSourceInstance', 'eventType', expression);
-
-	return fn(sample, actionTargetInstance, actionType, eventSourceInstance, eventType);
-}
-
-function initCheckChain() {
-	return Promise
-		.resolve({
-			actionTargetInstances: {},
-			eventSourceInstances: {},
-			eventTypes: {},
-			actionTypes: {},
-			errors: {
-				conditions: {},
-				transformations: {}
-			}
-		});
-}
-
-function checkConditionsIntegrity(req) {
-	return function(entities) {
-		return Promise
-			.reduce(req.body.conditions, function (entities, condition, idx) {
-				if (!condition.eventSourceInstanceId && !condition.eventTypeId && !condition.fn) {
-					entities.errors.conditions[idx] = [ 'At least one of eventSourceInstanceId, eventTypeId or fn must be provided.' ];
-				}
-
-				return entities;
-			}, entities);
-	};
-}
-
-function checkEventSourceInstances(req) {
-	return function(entities) {
-		return Promise
-			.reduce(req.body.conditions, function (entities, condition, idx) {
-				if (condition.eventSourceInstanceId && !entities.eventSourceInstances[condition.eventSourceInstanceId]) {
-					return eventSourceInstanceDao
-						.findByIdAndUser(condition.eventSourceInstanceId, req.userModel)
-						.then(function (eventSourceInstance) {
-							entities.eventSourceInstances[condition.eventSourceInstanceId] = eventSourceInstance;
-							return entities;
-						})
-						.catch(eventSourceInstanceDao.model.NotFoundError, function (err) {
-							entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, {eventSourceInstanceId: ['Event source instance not found.']});
-							return entities;
-						});
-				}
-				else {
-					return entities;
-				}
-			}, entities);
-	};
-}
-
-function checkEventTypes(req, collectionName) {
-	return function (entities) {
-		return Promise
-			.reduce(req.body[collectionName], function (entities, item, idx) {
-				if (item.eventTypeId && !entities.eventTypes[item.eventTypeId]) {
-					return eventTypeDao
-						.findByIdAndUser(item.eventTypeId, req.userModel)
-						.then(function (eventType) {
-							entities.eventTypes[item.eventTypeId] = eventType;
-							return entities;
-						})
-						.catch(eventTypeDao.model.NotFoundError, function (err) {
-							entities.errors[collectionName][idx] = _.extend(entities.errors[collectionName][idx] || {}, { eventTypeId: [ 'Event type not found.' ]});
-							return entities;
-						});
-				}
-				else {
-					return entities;
-				}
-			}, entities);
-	};
-}
-
-function checkConditions(req) {
-	return function(entities) {
-		return Promise
-			.reduce(req.body.conditions, function(entities, condition, idx) {
-				if (condition.fn) {
-					if (!condition.fn.expression || !condition.fn.sampleEvent) {
-						entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, { fn: {} });
-
-						if (!condition.fn.expression) {
-							entities.errors.conditions[idx].fn.expression = [ 'Expression is mandatory.' ];
-						}
-
-						if (!condition.fn.sampleEvent) {
-							entities.errors.conditions[idx].fn.sampleEvent = [ 'Sample event is mandatory.' ];
-						}
-					}
-					else {
-						try {
-							var eventSourceInstance = condition.eventSourceInstanceId ? entities.eventSourceInstances[condition.eventSourceInstanceId] : null;
-							var eventType = condition.eventTypeId ? entities.eventTypes[condition.eventTypeId] : null;
-
-							if (!evaluateCondition(condition.fn.expression, eventSourceInstance, eventType, condition.fn.sampleEvent)) {
-								entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }});
-							}
-						}
-						catch (err) {
-							entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, { fn: { expression: [ 'An error occurred during expression evaluation: ' + err.message ] }});
-						}
-					}
-				}
-
-				return entities;
-			}, entities);
-	};
-}
-
-function checkActionTargetInstance(req) {
-	return function(entities) {
-		return Promise
-			.reduce(req.body.transformations, function (entities, condition, idx) {
-				if (condition.actionTargetInstanceId && !entities.actionTargetInstances[condition.actionTargetInstanceId]) {
-					return actionTargetInstanceDao
-						.findByIdAndUser(condition.actionTargetInstanceId, req.userModel)
-						.then(function (actionTargetInstance) {
-							entities.actionTargetInstances[condition.actionTargetInstanceId] = actionTargetInstance;
-							return entities;
-						})
-						.catch(actionTargetInstanceDao.model.NotFoundError, function (err) {
-							entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTargetInstanceId: [ 'Action target instance not found.' ]});
-							return entities;
-						});
-				}
-				else if (condition.actionTargetInstanceId) {
-					entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTargetInstanceId: [ 'Action target instance id is mandatory.' ]});
-					return entities;
-				}
-				else {
-					return entities;
-				}
-			}, entities);
-	};
-}
-
-function checkActionTypes(req) {
-	return function (entities) {
-		return Promise
-			.reduce(req.body.transformations, function (entities, transformation, idx) {
-				if (transformation.actionTypeId && !entities.actionTypes[transformation.actionTypeId]) {
-					return actionTypeDao
-						.findByIdAndUser(transformation.actionTypeId, req.userModel)
-						.then(function (actionType) {
-							entities.actionTypes[transformation.actionTypeId] = actionType;
-							return entities;
-						})
-						.catch(eventTypeDao.model.NotFoundError, function (err) {
-							entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTypeId: [ 'Action type not found.' ]});
-							return entities;
-						});
-				}
-				else {
-					return entities;
-				}
-			}, entities);
-	};
-}
-
-function checkTransformations(req) {
-	return function(entities) {
-		return Promise
-			.reduce(req.body.transformations, function(entities, transformation, idx) {
-				if (transformation.fn) {
-					if (!transformation.fn.expression || !transformation.fn.sample) {
-						entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { fn: {} });
-
-						if (!transformation.fn.expression) {
-							entities.errors.transformations[idx].fn.expression = [ 'Expression is mandatory.' ];
-						}
-
-						if (!transformation.fn.sample) {
-							entities.errors.transformations[idx].fn.sample = [ 'Sample is mandatory.' ];
-						}
-					}
-					else if (!transformation.fn.sample.event) {
-						entities.errors.transformations[idx] = { fn: { sample: { event: [ 'Event is mandatory.' ] }}};
-					}
-					else {
-						var eventSourceInstance = transformation.fn.sample.eventSourceInstanceId ? entities.eventSourceInstances[transformation.fn.sample.eventSourceInstanceId] : null;
-						var eventType = transformation.fn.sample.eventTypeId ? entities.eventTypes[transformation.fn.sample.eventTypeId] : null;
-						var actionTargetInstance = transformation.actionTargetInstanceID ? entities.actionTargetInstances[transformation.actionTargetInstanceId] : null;
-						var actionType = entities.actionTypes[transformation.actionTypeId];
-
-						try {
-							var res = evaluateTransformation(transformation.fn.expression, actionTargetInstance, actionType, eventSourceInstance, eventType, transformation.fn.sample);
-							if (_.isUndefined(res) || _.isNull(res)) {
-								entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { fn: { expression: [ 'Sample evaluation against expression did not return anything.' ] }});
-							}
-						}
-						catch (err) {
-							entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { fn: { expression: [ 'An error occurred during expression evaluation: ' + err.message ] }});
-						}
-					}
-				}
-
-				return entities;
-			}, entities);
-	};
-}
-
-function checkErrors(res, next) {
-	return function(entities) {
-		var errors = {};
-
-		if (_.size(entities.errors.conditions) > 0) {
-			errors.conditions = entities.errors.conditions;
-		}
-
-		if (_.size(entities.errors.transformations) > 0) {
-			errors.transformations = entities.errors.transformations;
-		}
-
-		if (errors.conditions || errors.transformations) {
-			throw new RuleValidationError(errors);
-		}
-
-		return entities;
-	}
-}
-
+/**
+ * From the data collected and checked, build a condition array with
+ * valid data ready to be persisted.
+ *
+ * @param entities The data collected through the check chain
+ * @param rule The rule to enrich
+ * @param conditions The conditions
+ */
 function populateConditions(entities, rule, conditions) {
 	_.each(conditions, function(condition) {
+		// Base condition
 		var realCondition = { description: condition.description ? condition.description : null };
 
+		// Event source instance present
 		if (condition.eventSourceInstanceId) {
 			var eventSourceInstance = entities.eventSourceInstances[condition.eventSourceInstanceId];
 
+			// Store id + generated string id
 			realCondition = _.extend(realCondition, {
 				eventSourceInstanceId: eventSourceInstance.get('id'),
 				eventSourceInstanceKey: eventSourceInstance.get('eventSourceInstanceId')
 			});
 		}
 
+		// Event type present
 		if (condition.eventTypeId) {
 			var eventType = entities.eventTypes[condition.eventTypeId];
 
+			// Store id + generated string id
 			realCondition = _.extend(realCondition, {
 				eventTypeId: eventType.get('id'),
 				eventTypeKey: eventType.get('eventTypeId')
 			});
 		}
 
+		// Expression present
 		if (condition.fn) {
+			// Store expression and sample event
 			realCondition = _.extend(realCondition, {
 				fn: condition.fn.expression,
 				sampleEvent: condition.fn.sampleEvent
 			});
 		}
 
+		// Collect condition
 		rule.conditions.push(realCondition);
 	});
 }
@@ -435,76 +205,35 @@ router.route('/')
 	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
 	 */
 	.post(function(req, res, next) {
-		if (req.body.organizationId) {
-			return organizationDao
-				.findByIdAndUser(req.body.organizationId, req.userModel)
-				.then(function(organization) {
-					req.organization = organization;
-					return next();
-				})
-				.catch(organizationDao.model.NotFoundError, function(err) {
-					return resourceService.validationError(res, { organizationId: [ 'Organization not found.' ]}).end();
-				});
-		}
-		else {
-			return resourceService.validationError(res, { organizationId: [ 'Field organizationId is mandatory.' ]}).end();
-		}
-	})
-	.post(function(req, res, next) {
-		var errors = {};
+		return new ruleResourceService.RuleProcessingChain(req, true)
+			.checkOrganization()
+			.checkConditions()
+			.checkTransformations()
+			.checkErrors()
+			.success(function (entities) {
+				var newRuleDefinition = createRuleDefinition('post', entities, req);
 
-		// Check there is at least one condition
-		if (_.isUndefined(req.body.conditions) || req.body.conditions.length == 0) {
-			errors.conditions = [ 'At least one condition must be defined.' ];
-		}
-
-		// Check there is at least one transformation
-		if (_.isUndefined(req.body.transformations) || req.body.transformations.length == 0) {
-			errors.transformations = [ 'At least one transformation must be defined.' ];
-		}
-
-		// Check if there is errors
-		if (_.size(errors) > 0) {
-			return resourceService.validationError(res, errors).end();
-		}
-
-		// Process additional checks
-		else {
-			return initCheckChain()
-				.then(checkConditionsIntegrity(req))
-				.then(checkEventSourceInstances(req))
-				.then(checkEventTypes(req, 'conditions'))
-				.then(checkConditions(req))
-				.then(checkActionTargetInstance(req))
-				.then(checkActionTypes(req))
-				.then(checkEventTypes(req, 'transformations'))
-				.then(checkTransformations(req))
-				.then(checkErrors(res, next))
-				.then(function (entities) {
-					var newRuleDefinition = createRuleDefinition('post', entities, req);
-
-					return ruleDao
-						.createAndSave(newRuleDefinition, req.organization)
-						.then(function(ruleSaved) {
-							return resourceService.location(res, 201, ruleSaved).end();
-						})
-						.catch(ValidationError, function(e) {
-							return resourceService.validationError(res, e);
-						})
-						.error(function(err) {
-							if (err.stack(err)) {
-								console.log(err.stack);
-							}
-							return next(err)
-						});
-				})
-				.catch(RuleValidationError, function(e) {
-					if (e.stack) {
-						console.log(e.stack);
-					}
-					return resourceService.validationError(res, e.errors);
-				});
-		}
+				return ruleDao
+					.createAndSave(newRuleDefinition, entities.organization)
+					.then(function(ruleSaved) {
+						return resourceService.location(res, 201, ruleSaved).end();
+					})
+					.catch(ValidationError, function(e) {
+						return resourceService.validationError(res, e);
+					})
+					.error(function(err) {
+						if (err.stack(err)) {
+							console.log(err.stack);
+						}
+						return next(err)
+					});
+			})
+			.validationError(function(e) {
+				if (e.stack) {
+					console.log(e.stack);
+				}
+				return resourceService.validationError(res, e.errors);
+			});
 	});
 
 router.route('/:id')
@@ -526,91 +255,71 @@ router.route('/:id')
 	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
 	 */
 	.patch(function(req, res, next) {
-		var errors = {};
+		var ruleProcessingChain = new ruleResourceService.RuleProcessingChain(req, false);
 
-		// Check there is at least one condition
-		if (req.body.conditions && req.body.conditions.length == 0) {
-			errors.conditions = [ 'At least one condition must be defined.' ];
+		if (req.body.conditions) {
+			ruleProcessingChain = ruleProcessingChain
+				.checkConditionsIntegrity()
+				.checkEventSourceInstances()
+				.checkEventTypes('conditions')
+				.checkConditions();
 		}
 
-		// Check there is at least one transformation
-		if (req.body.transformations && req.body.transformations.length == 0) {
-			errors.transformations = [ 'At least one transformation must be defined.' ];
+		if (req.body.transformations) {
+			ruleProcessingChain = ruleProcessingChain
+				.checkActionTargetInstance()
+				.checkActionTypes()
+				.checkEventTypes('transformations')
+				.checkTransformations();
 		}
 
-		// Check if there is errors
-		if (_.size(errors) > 0) {
-			return resourceService.validationError(res, errors).end();
-		}
+		ruleProcessingChain
+			.checkErrors()
+			.success(function (entities) {
+				var updatedRuleDefinition = createRuleDefinition('patch', entities, req);
 
-		// Process additional checks
-		else {
-			var promise = initCheckChain();
+				var rule = req.rule;
 
-			if (req.body.conditions) {
-				promise = promise
-					.then(checkConditionsIntegrity(req))
-					.then(checkEventSourceInstances(req))
-					.then(checkEventTypes(req, 'conditions'))
-					.then(checkConditions(req));
-			}
+				if (updatedRuleDefinition.name) {
+					rule.set('name', updatedRuleDefinition.name);
+				}
 
-			if (req.body.transformations) {
-				promise = promise
-					.then(checkActionTargetInstance(req))
-					.then(checkActionTypes(req))
-					.then(checkEventTypes(req, 'transformations'))
-					.then(checkTransformations(req));
-			}
+				if (updatedRuleDefinition.description) {
+					rule.set('description', updatedRuleDefinition.description);
+				}
 
-			promise
-				.then(checkErrors(res, next))
-				.then(function (entities) {
-					var updatedRuleDefinition = createRuleDefinition('patch', entities, req);
+				if (updatedRuleDefinition.active) {
+					rule.set('active', updatedRuleDefinition.active);
+				}
 
-					var rule = req.rule;
+				if (!_.isEmpty(updatedRuleDefinition.conditions)) {
+					rule.set('conditions', updatedRuleDefinition.conditions);
+				}
 
-					if (updatedRuleDefinition.name) {
-						rule.set('name', updatedRuleDefinition.name);
-					}
+				if (!_.isEmpty(updatedRuleDefinition.transformations)) {
+					rule.set('transformations', updatedRuleDefinition.transformations);
+				}
 
-					if (updatedRuleDefinition.description) {
-						rule.set('description', updatedRuleDefinition.description);
-					}
-
-					if (updatedRuleDefinition.active) {
-						rule.set('active', updatedRuleDefinition.active);
-					}
-
-					if (!_.isEmpty(updatedRuleDefinition.conditions)) {
-						rule.set('conditions', updatedRuleDefinition.conditions);
-					}
-
-					if (!_.isEmpty(updatedRuleDefinition.transformations)) {
-						rule.set('transformations', updatedRuleDefinition.transformations);
-					}
-
-					if (rule.hasChanged()) {
-						return ruleDao
-							.save(rule)
-							.then(function() {
-								return resourceService.location(res, 201, rule).end();
-							})
-							.catch(ValidationError, function(e) {
-								return resourceService.validationError(res, e);
-							});
-					}
-					else {
-						return resourceService.location(res, 304, rule).end();
-					}
-				})
-				.catch(RuleValidationError, function(e) {
-					if (e.stack) {
-						console.log(e.stack);
-					}
-					return resourceService.validationError(res, e.errors);
-				});
-		}
+				if (rule.hasChanged()) {
+					return ruleDao
+						.save(rule)
+						.then(function() {
+							return resourceService.location(res, 201, rule).end();
+						})
+						.catch(ValidationError, function(e) {
+							return resourceService.validationError(res, e);
+						});
+				}
+				else {
+					return resourceService.location(res, 304, rule).end();
+				}
+			})
+			.validationError(function(e) {
+				if (e.stack) {
+					console.log(e.stack);
+				}
+				return resourceService.validationError(res, e.errors);
+			});
 	})
 
 	/**

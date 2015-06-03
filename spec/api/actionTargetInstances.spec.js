@@ -235,7 +235,6 @@ module.exports = baseTest('Action target instance resource')
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
 	})
-	.printResponse()
 
 	.describe('First user retrieves all action target instances for his first organization.')
 	.get({}, function() { return { url: '/v1/actionTargetInstances?organizationId=' + this.getData('organizationId1') }; })
