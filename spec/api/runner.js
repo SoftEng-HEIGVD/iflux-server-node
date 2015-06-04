@@ -37,7 +37,9 @@ var
 	promise = deferred.promise,
 	counters = {
 		expectations: 0,
-		failed: 0
+		failed: 0,
+		tests: 0,
+		failedTests: 0
 	};
 
 _.each(deletes, function(del) {
@@ -65,7 +67,8 @@ _.each(specs, function(spec, specName) {
 });
 
 promise = promise.then(function() {
-	console.log('\n\nResults: ' + '%s'.red + ' failed / ' + '%s'.green + ' expectations.', counters.failed, counters.expectations);
+	console.log('\n\nResults: ' + '%s'.red + ' / ' + '%s'.green + ' tests, ' + '%s'.red + ' / ' + '%s'.green + ' expectations.',
+		counters.failedTests, counters.tests, counters.failed, counters.expectations);
 });
 
 promise.finally(function() {

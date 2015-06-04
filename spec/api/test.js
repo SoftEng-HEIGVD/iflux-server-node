@@ -12,7 +12,7 @@ function addExpectation(test, expectation) {
 		test.currentStep.expectations = [];
 	}
 
-	test.counters.expectations++;
+	test.counters.addExpectation();
 	test.currentStep.expectations.push(expectation);
 }
 
@@ -273,12 +273,44 @@ function compareContentJson(current, expected) {
 	}
 }
 
+function Counters() {
+	this.expectations = 0;
+	this.failedExpectations = 0;
+	this.tests = 0;
+	this.failedTests = 0;
+	this.currentTestFailedExpectations = 0;
+}
+
+_.extend(Counters.prototype, {
+	addTest: function() {
+		this.tests++;
+	},
+
+	addExpectation: function() {
+		this.expectations++;
+	},
+
+	failExpectation: function() {
+		this.failedExpectations++;
+		this.currentTestFailedExpectations++;
+	},
+
+	failTest: function() {
+		this.failedTests++;
+	},
+
+	isCurrentTestFailing: function() {
+		return this.currentTestFailedExpectations > 0;
+	},
+
+	resetCurrentTestFailing: function() {
+		this.currentTestFailedExpectations = 0;
+	}
+});
+
 module.exports = function(name) {
 	return {
-		counters: {
-			expectations: 0,
-			failed: 0,
-		},
+		counters: new Counters(),
 		name: name,
 		steps: [],
 		afters: [],
@@ -327,6 +359,7 @@ module.exports = function(name) {
 		describe: function(text) {
 			this.steps.push({ name: text });
 			this.currentStep = this.steps[this.steps.length - 1];
+			this.counters.addTest();
 
 			return this;
 		},
@@ -447,7 +480,7 @@ module.exports = function(name) {
 		expectStatusCode: function(expectedCode) {
 			addExpectation(this, function() {
 				if (expectedCode != this.response.statusCode) {
-					this.counters.failed++;
+					this.counters.failExpectation();
 					console.log(testMessage('Expected status code: %s, received: %s').red, expectedCode, this.response.statusCode);
 				}
 				else {
@@ -475,7 +508,7 @@ module.exports = function(name) {
 								// Check default patter for ID
 								if (!new RegExp('[1-9][0-9]*', 'g').test(locationParts[i])) {
 									error = true;
-									this.counters.failed++;
+									this.counters.failExpectation();
 									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, this.response.headers.location);
 									break;
 								}
@@ -486,7 +519,7 @@ module.exports = function(name) {
 								// Check the validity against the pattern
 								if (new RegExp(locationPatternParts[i].split(':')[1], 'g').test(locationParts[i])) {
 									error = true;
-									this.counters.failed++;
+									this.counters.failExpectation();
 									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, this.response.headers.location);
 									break;
 								}
@@ -494,8 +527,8 @@ module.exports = function(name) {
 							else {
 								if (locationPatternParts[i] != locationParts[i]) {
 									error = true;
-									this.counters.failed++;
-									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, response.headers.location);
+									this.counters.failExpectation();
+									console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, this.response.headers.location);
 									break;
 								}
 							}
@@ -506,12 +539,12 @@ module.exports = function(name) {
 						}
 					}
 					else {
-						this.counters.failed++;
-						console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, response.headers.location);
+						this.counters.failExpectation();
+						console.log(testMessage('Expected location pattern: %s does not match the location retrieved: %s').red, locationPattern, this.response.headers.location);
 					}
 				}
 				else {
-					this.counters.failed++;
+					this.counters.failExpectation();
 					console.log(testMessage('Expected to find location header but was not found.').red);
 				}
 			});
@@ -530,7 +563,7 @@ module.exports = function(name) {
 					console.log(testMessage('Expected to find header: ' + realHeaderNameExpected).green);
 				}
 				else {
-					this.counters.failed++;
+					this.counters.failExpectation();
 					console.log(testMessage('Expected to find header: ' + realHeaderNameExpected + ", but not found.").red);
 				}
 			});
@@ -569,7 +602,7 @@ module.exports = function(name) {
 						console.log(testMessage('Expected to found path: %s').green, path);
 					}
 					else {
-						this.counters.failed++;
+						this.counters.failExpectation();
 					}
 				}, this);
 			});
@@ -581,7 +614,7 @@ module.exports = function(name) {
 			addExpectation(this, function() {
 				// If not an array
 				if (!_.isArray(this.response.body)) {
-					this.counters.failed++;
+					this.counters.failExpectation();
 
 					// If a string
 					if (_.isString(this.response.body)) {
@@ -594,7 +627,7 @@ module.exports = function(name) {
 
 				// Check size
 				else if (this.response.body.length != expectedSize) {
-					this.counters.failed++;
+					this.counters.failExpectation();
 					console.log(testMessage('Expected a collection of size: %s, received a collection of size: %s'.red), expectedSize, this.response.body.length);
 				}
 
@@ -609,7 +642,7 @@ module.exports = function(name) {
 		expectJsonToBe: function(expected) {
 			addExpectation(this, function() {
 				if (_.isString(this.response.body)) {
-					this.counters.failed++;
+					this.counters.failExpectation();
 					console.log(testMessage('Expected to have JSON body, but got: .' + this.response.body).red);
 				}
 				else {
@@ -621,7 +654,7 @@ module.exports = function(name) {
 					var res = compareExactJson(this.response.body, realExpected);
 
 					if (res) {
-						this.counters.failed++;
+						this.counters.failExpectation();
 						console.log(testMessage('Expected JSON to be the same.').red);
 						printJsonErrorObject(res, 3);
 					}
@@ -637,7 +670,7 @@ module.exports = function(name) {
 		expectJsonToBeAtLeast: function(expected) {
 			addExpectation(this, function() {
 				if (_.isString(this.response.body)) {
-					this.counters.failed++;
+					this.counters.failExpectation();
 					console.log(testMessage('Expected to have JSON body, got: ' + this.response.body).red);
 				}
 				else {
@@ -649,7 +682,7 @@ module.exports = function(name) {
 					var res = compareContentJson(this.response.body, realExpected);
 
 					if (res) {
-						this.counters.failed++;
+						this.counters.failExpectation();
 						console.log(testMessage('Expected JSON to contain at least.').red);
 						printJsonErrorObject(res, 3);
 					}
@@ -809,6 +842,14 @@ module.exports = function(name) {
 					promise = promise.then(expectation);
 				});
 
+				// Update the counters
+				promise = promise.then(function() {
+					if (this.counters.isCurrentTestFailing()) {
+						this.counters.failTest();
+						this.counters.resetCurrentTestFailing();
+					}
+				});
+
 				// Print the response in light/heavy mode
 				if (step.printResponse) {
 					promise = promise.then(function() {
@@ -842,7 +883,9 @@ module.exports = function(name) {
 			if (options && options.counters) {
 				promise = promise.then(function() {
 					options.counters.expectations += this.counters.expectations;
-					options.counters.failed += this.counters.failed;
+					options.counters.failed += this.counters.failedExpectations;
+					options.counters.tests += this.counters.tests;
+					options.counters.failedTests += this.counters.failedTests;
 				});
 			}
 
