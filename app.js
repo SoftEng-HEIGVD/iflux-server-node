@@ -11,5 +11,7 @@ app.set('bookshelf', bookshelf);
 
 require('./config/express')(app, config);
 
+require('./app/services/kafkaService').listen();
+
 app.listen(config.port);
 

@@ -18,6 +18,15 @@ var config = {
     },
     port: process.env.PORT || 3000,
 	  host: process.env.HOST || 'localhost',
+	  mockServer: {
+		  serverPort: 1080
+	  },
+	  kafka: {
+		  enable: true,
+		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
+		  clientId: 'iflux-kafka',
+		  eventTopic: 'iflux-events'
+	  },
 		knex: {
 			client: 'pg',
 			connection: 	{
@@ -56,6 +65,12 @@ var config = {
 	  mockServer: {
 		  serverPort: 1080
 	  },
+	  kafka: {
+		  enable: false,
+		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
+		  clientId: 'iflux-kafka',
+      eventTopic: 'iflux-events'
+	  },
 		knex: {
 			client: 'pg',
 			connection: 	{
@@ -90,6 +105,12 @@ var config = {
     },
     port: process.env.PORT || 3000,
 	  host: process.env.HOST || 'localhost',
+	  kafka: {
+		  enable: true,
+		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
+		  clientId: 'iflux-kafka',
+      eventTopic: 'iflux-events'
+	  },
 		knex: {
 			client: 'pg',
 			connection: 	{
@@ -124,6 +145,12 @@ var config = {
 		},
 		port: 3000,
 		host: process.env.HOST || 'localhost',
+		kafka: {
+			enable: true,
+		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
+		  clientId: 'iflux-kafka',
+      eventTopic: 'iflux-events'
+	  },
 		knex: {
 			client: 'pg',
 			connection: 	{

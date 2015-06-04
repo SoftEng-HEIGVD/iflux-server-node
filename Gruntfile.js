@@ -73,13 +73,6 @@ module.exports = function (grunt) {
 					'app/views/**/*.jade'
 				],
 				options: {livereload: reloadPort}
-			},
-			tests: {
-				files: [
-					'lib/**/*.js',
-					'spec/unit/**.js'
-				],
-				tasks: ['test']
 			}
 		},
 
@@ -125,7 +118,6 @@ module.exports = function (grunt) {
 
 	grunt.registerTask('default', [
 		'stylus',
-		'test',
 		'develop',
 		'watch'
 	]);
