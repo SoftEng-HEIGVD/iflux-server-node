@@ -4,6 +4,7 @@ var
 	expressJwt = require('express-jwt'),
 	config = require('../../../config/config'),
 	express = require('express'),
+	npmlog = require('npmlog'),
   router = express.Router(),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
@@ -51,7 +52,7 @@ router.route('/register')
 				return resourceService.validationError(res, e);
 			})
 			.error(function(err) {
-				console.log(err);
+				npmlog.error(err);
 				return next(err)
 			});
 	});

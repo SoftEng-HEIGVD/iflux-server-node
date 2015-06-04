@@ -2,6 +2,7 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
+	npmlog = require('npmlog'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
@@ -69,7 +70,7 @@ router.route('/')
 						return resourceService.validationError(res, e).end();
 					})
 					.catch(function(err) {
-						console.log(err);
+						npmlog.error(err);
 						return next(err)
 					});
 			})

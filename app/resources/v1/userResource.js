@@ -2,6 +2,7 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
+	npmlog = require('npmlog'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	userDao = require('../../persistence/userDao'),
@@ -40,7 +41,7 @@ router.route('/')
 				return resourceService.validationError(res, e);
 			})
 			.error(function(err) {
-				console.log(err);
+				npmlog.error(err);
 				return next(err)
 			});
 	});

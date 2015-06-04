@@ -2,6 +2,7 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
+	npmlog = require('npmlog'),
 	ruleEngineService = require('../../services/ruleEngineService');
 
 module.exports = function (app) {
@@ -19,7 +20,7 @@ router.route('/')
 	.post(function(req, res) {
   	var events = req.body;
 
-		console.log("%s event(s) received", events.length);
+		npmlog.info("%s event(s) received", events.length);
 
 		_.each(events, function(event) {
 			ruleEngineService.processEvent(event);

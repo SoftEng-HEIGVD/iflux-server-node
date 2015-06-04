@@ -2,6 +2,7 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
+	npmlog = require('npmlog'),
 	Promise = require('bluebird'),
 	ValidationError = require('checkit').Error,
 	Handlebars = require('handlebars'),
@@ -230,7 +231,7 @@ router.route('/')
 			})
 			.validationError(function(e) {
 				if (e.stack) {
-					console.log(e.stack);
+					npmlog.info(e);
 				}
 				return resourceService.validationError(res, e.errors);
 			});
@@ -316,7 +317,7 @@ router.route('/:id')
 			})
 			.validationError(function(e) {
 				if (e.stack) {
-					console.log(e.stack);
+					npmlog.info(e);
 				}
 				return resourceService.validationError(res, e.errors);
 			});
@@ -335,7 +336,7 @@ router.route('/:id')
 			})
 			.error(function(err) {
 				if (err.stack) {
-					console.log(err.stack);
+					npmlog.info(err);
 				}
 
 				return resourceService.serverError(res, { message: err.message }).end();
