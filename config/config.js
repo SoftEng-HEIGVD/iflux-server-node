@@ -21,6 +21,11 @@ var config = {
 	  mockServer: {
 		  serverPort: 1080
 	  },
+	  elasticSearch: {
+			enable: true,
+		  host: process.env.ELASTICSEARCH_HOST,
+		  port: process.env.ELASTICSEARCH_PORT
+	  },
 	  kafka: {
 		  enable: true,
 		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
@@ -65,6 +70,11 @@ var config = {
 	  mockServer: {
 		  serverPort: 1080
 	  },
+	  elasticSearch: {
+			enable: true,
+		  host: process.env.ELASTICSEARCH_HOST,
+		  port: process.env.ELASTICSEARCH_PORT
+	  },
 	  kafka: {
 		  enable: false,
 		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
@@ -105,6 +115,11 @@ var config = {
     },
     port: process.env.PORT || 3000,
 	  host: process.env.HOST || 'localhost',
+	  elasticSearch: {
+			enable: true,
+		  host: process.env.ELASTICSEARCH_HOST,
+		  port: process.env.ELASTICSEARCH_PORT
+	  },
 	  kafka: {
 		  enable: true,
 		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
@@ -145,6 +160,11 @@ var config = {
 		},
 		port: 3000,
 		host: process.env.HOST || 'localhost',
+		elasticSearch: {
+			enable: true,
+		  host: process.env.ELASTICSEARCH_HOST,
+		  port: process.env.ELASTICSEARCH_PORT
+	  },
 		kafka: {
 			enable: true,
 		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,

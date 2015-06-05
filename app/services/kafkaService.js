@@ -3,13 +3,14 @@ var
 	config = require('../../config/config'),
 	kafka = require('kafka-node'),
 	Consumer = kafka.Consumer,
-	Producer = kafka.Producer,
-	KeyedMessage = kafka.KeyedMessage;
+	elasticSearchService = require('./elasticSearchService');
 
 var client, consumer, producer;
 
 function messageHandler(message) {
   console.log(message);
+
+	elasticSearchService.saveEvent(JSON.parse(message.value));
 }
 
 function consumerErrorHandler(error) {
