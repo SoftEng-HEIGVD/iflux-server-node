@@ -39,6 +39,7 @@
     "kafka-node": "^0.2.27",
     "knex": "^0.7.6",
     "method-override": "~2.3.0",
+    "moment": "^2.10.3",
     "morgan": "~1.5.0",
     "node-rest-client": "^1.5.1",
     "notevil": "^1.0.0",

@@ -11,6 +11,7 @@ var
 	ruleDao = require('../../persistence/ruleDao'),
 	ruleConverter = require('../../converters/ruleConverter'),
 	ruleResourceService = require('../../services/ruleResourceService'),
+	ruleEngineService = require('../../services/ruleEngineService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/rules');
 
 module.exports = function (app) {
@@ -216,6 +217,7 @@ router.route('/')
 
 				return ruleDao
 					.createAndSave(newRuleDefinition, entities.organization)
+					.then(ruleEngineService.populate())
 					.then(function(ruleSaved) {
 						return resourceService.location(res, 201, ruleSaved).end();
 					})
@@ -304,6 +306,7 @@ router.route('/:id')
 				if (rule.hasChanged()) {
 					return ruleDao
 						.save(rule)
+						.then(ruleEngineService.populate())
 						.then(function() {
 							return resourceService.location(res, 201, rule).end();
 						})

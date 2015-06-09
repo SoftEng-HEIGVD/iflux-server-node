@@ -55,7 +55,7 @@ module.exports = _.extend(new dao(Rule), {
 	 * @returns {Promise} A promise
 	 */
 	findAllEnabled: function() {
-		return this.model.where({ enabled: true }).fetchAll().then(function(result) {
+		return this.model.where({ active: true }).fetchAll().then(function(result) {
 			return result.models;
 		});
 	}

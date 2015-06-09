@@ -12,6 +12,7 @@ app.set('bookshelf', bookshelf);
 require('./config/express')(app, config);
 
 require('./app/services/kafkaService').listen();
+require('./app/services/ruleEngineService').populate();
 
 app.listen(config.port);
 

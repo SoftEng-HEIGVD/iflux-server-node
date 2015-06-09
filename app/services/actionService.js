@@ -1,23 +1,24 @@
 var
+	_ = require('underscore'),
+	Promise = require('bluebird'),
 	domain = require('domain'),
 	d = domain.create(),
-	_ = require('underscore'),
-	Client = require('iflux-node-client').Client;
+	Connector = require('../../lib/ioc').create('connector');
 
 d.on('error', function(err) {
-	console.log("Unable to process the action.");
+	console.log("Unable to process the actions.");
 	console.log(err);
 });
 
-var iFluxClient = new Client();
+var connector = new Connector();
 
 module.exports = {
 	processActions: function (actions) {
-		console.log("Triggered " + actions.length + " actions.");
+		return Promise.resolve().then(function() {
+			console.log("Triggered " + actions.length + " actions.");
 
-		_.each(actions, function(action) {
-			d.run(function() {
-				iFluxClient.executeAction(action);
+			d.run(function () {
+				connector.executeActions(actions);
 			});
 		});
 	}

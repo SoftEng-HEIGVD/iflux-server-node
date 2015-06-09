@@ -91,6 +91,19 @@ module.exports = function(model) {
 		},
 
 		/**
+		 * Find models by the ids provided.
+		 *
+		 * @param ids The array of ids.
+		 * @returns {Promise}
+		 */
+		findByIds: function(ids) {
+			return this.collection(function(qb) {
+				return qb
+					.whereIn('id', ids);
+			});
+		},
+
+		/**
 		 * Find all models
 		 *
 		 * @returns {Promise} A promise

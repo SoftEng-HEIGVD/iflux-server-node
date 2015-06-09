@@ -3,18 +3,23 @@ var
 	config = require('../../config/config'),
 	kafka = require('kafka-node'),
 	Consumer = kafka.Consumer,
-	elasticSearchService = require('./elasticSearchService');
+	elasticSearchService = require('./elasticSearchService'),
+	ruleEngineService = require('./ruleEngineService'),
+	timeService = require('./timeService');
 
 var client, consumer, producer;
 
 function messageHandler(message) {
-  console.log(message);
-
-	elasticSearchService.saveEvent(JSON.parse(message.value));
+	var event = JSON.parse(message.value);
+	event.receivedAt = timeService.timestamp();
+	elasticSearchService.saveEvent(event);
+	ruleEngineService.match(event);
 }
 
 function consumerErrorHandler(error) {
-	console.log(error);
+	if (!_.isUndefined(error)) {
+		console.log(error);
+	}
 	setTimeout(setup, 5000);
 }
 
@@ -23,17 +28,6 @@ function consumerSetup() {
 	consumer.on('message', messageHandler);
 	consumer.on('error', consumerErrorHandler);
 }
-
-//function producerErrorHandler(error) {
-//	console.log(error);
-//  setTimeout(setup, 5000);
-//}
-//
-//function producerSetup() {
-//	producer = new Producer(client);
-//	producer.on('ready', consumerSetup);
-//	producer.on('error', producerErrorHandler);
-//}
 
 function setup() {
 	if (client) {
@@ -44,15 +38,6 @@ function setup() {
 			console.log(err);
 		}
 	}
-
-	//if (producer) {
-	//	try {
-	//		producer.close();
-	//	}
-	//	catch (err) {
-	//		console.log(err);
-	//	}
-	//}
 
 	if (consumer) {
 		try {
@@ -65,7 +50,6 @@ function setup() {
 
 	client = kafka.Client(config.kafka.connectionString, config.kafka.clientId);
 
-	//producerSetup();
 	consumerSetup();
 }
 
