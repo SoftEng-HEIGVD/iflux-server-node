@@ -32,7 +32,6 @@
     "express-jwt": "^3.0.0",
     "glob": "~4.4.1",
     "handlebars": "^2.0.0",
-    "iflux-node-client": "~0.2.0",
     "jade": "~1.9.1",
     "jsonschema": "^1.0.1",
     "jsonwebtoken": "^5.0.0",

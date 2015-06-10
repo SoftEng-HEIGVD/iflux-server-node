@@ -162,12 +162,12 @@ var config = {
 		host: process.env.HOST || 'localhost',
 		elasticSearch: {
 			enable: true,
-		  host: process.env.ELASTICSEARCH_HOST,
-		  port: process.env.ELASTICSEARCH_PORT
+		  host: process.env.ES_PORT_9200_TCP_ADDR,
+		  port: process.env.ES_PORT_9200_TCP_ADDR
 	  },
 		kafka: {
 			enable: true,
-		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
+		  connectionString: process.env.ZK_PORT_2181_TCP_ADDR + ':' + process.env.ZK_PORT_2181_TCP_PORT,
 		  clientId: 'iflux-kafka',
       eventTopic: 'iflux-events'
 	  },
