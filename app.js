@@ -12,7 +12,14 @@ app.set('bookshelf', bookshelf);
 require('./config/express')(app, config);
 
 require('./app/services/kafkaService').listen();
-require('./app/services/ruleEngineService').populate();
+
+try {
+	require('./app/services/ruleEngineService').populate();
+}
+catch (err) {
+	console.log("Unable to early load the rules.");
+	console.log(err);
+}
 
 app.listen(config.port);
 

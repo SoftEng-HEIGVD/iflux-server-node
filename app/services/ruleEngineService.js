@@ -49,6 +49,10 @@ module.exports = {
 						rules.push(ruleConverted);
 					});
 			})
+			.catch(function(err) {
+				console.log("Unable to populate the rules.");
+				console.log(err);
+			})
 			//.then(function() {
 			//	console.log(cache);
 			//	console.log(rules);
@@ -64,93 +68,104 @@ module.exports = {
 	match: function(events) {
 		var actions = [];
 
-		// Analyze each received events
-		_.each(_.isArray(events) ? events : [ events ], function(event) {
-			var eventMatchingResults = {};
+		var promise = Promise.resolve();
 
-			// Analyze each active rule
-			_.each(rules, function(rule) {
-
-				// Analyze each condition in the rule
-				_.each(rule.conditions, function(condition) {
-					// Define the fields that can be evaluated
-					var matchingBy = {
-						source: !_.isUndefined(condition.eventSourceInstanceKey),
-						type: !_.isUndefined(condition.eventTypeKey),
-						function: !_.isUndefined(condition.fn)
-					};
-
-					// Retrieve the evaluator function
-					var evaluationFn = eventMatchEngine[(matchingBy.source ? 's' : '') + (matchingBy.type ? 't' : '') + (matchingBy.function ? 'f' : '')];
-
-					// Evaluate the condition
-					if (evaluationFn(condition, event)) {
-						// First match
-						if (!eventMatchingResults[rule.id]) {
-							event.matchedAt = timeService.timestamp();
-
-							eventMatchingResults[rule.id] = {
-								rule: rule,
-								event: event,
-								matchedConditions: [],
-								transformations: []
-							};
-						}
-
-						// Store match
-						eventMatchingResults[rule.id].matchedConditions.push(_.extend({ matchingBy: matchingBy }, condition));
-					}
-				}, this);
-			}, this);
-
-			// Evaluate the matches
-			_.each(eventMatchingResults, function(eventMatchingResult) {
-				var transformations = {};
-
-				// Evaluate the transformations
-				_.each(eventMatchingResult.rule.transformations, function(transformation) {
-					// Define the fields that can be evaluated
-					var matchingBy = {
-						targetAndType: true, // Mandatory evaluation
-						evenType: !_.isUndefined(transformation.eventTypeKey)
-					};
-
-					// Evaluate the transformation
-					if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
-						var actionTargetInstance = cache.actionTargetInstances[transformation.actionTargetInstanceKey];
-						var actionTargetTemplate = cache.actionTargetTemplates[actionTargetInstance.get('action_target_template_id')];
-						var actionType = cache.actionTypes[transformation.actionTypeKey];
-
-						// Process the transformation of the event to the target format
-						var transformed = transformation.fn.compiled(
-							event,
-							actionTargetInstance,
-							actionType,
-							cache.eventSourceInstances[event.sourceId],
-							cache.eventTypes[event.typeId]
-						);
-
-						// Store transformation
-						eventMatchingResult.transformations.push(_.extend({ matchingBy: matchingBy, transformed: transformed }, transformation));
-
-						actions.push({
-							targetUrl: actionTargetTemplate.get('targetUrl'),
-							targetToken: actionTargetTemplate.get('targetToken'),
-							typeId: actionType.get('actionTypeId'),
-							payload: transformed
-						});
-					}
-				}, this);
-
-				// Save in elastic search the event matching result
-				elasticSearch.saveMatch(eventMatchingResult);
-			}, this);
-		}, this);
-
-		// Finally process the actions
-		if (!_.isEmpty(actions)) {
-			actionService.processActions(actions);
+		if (_.isUndefined(rules) || _.isNull(rules) || _.isEmpty(rules)) {
+			promise = promise.then(this.populate());
 		}
+
+		return promise.then(function() {
+			// Analyze each received events
+			_.each(_.isArray(events) ? events : [events], function (event) {
+				var eventMatchingResults = {};
+
+				// Analyze each active rule
+				_.each(rules, function (rule) {
+
+					// Analyze each condition in the rule
+					_.each(rule.conditions, function (condition) {
+						// Define the fields that can be evaluated
+						var matchingBy = {
+							source: !_.isUndefined(condition.eventSourceInstanceKey),
+							type: !_.isUndefined(condition.eventTypeKey),
+							function: !_.isUndefined(condition.fn)
+						};
+
+						// Retrieve the evaluator function
+						var evaluationFn = eventMatchEngine[(matchingBy.source ? 's' : '') + (matchingBy.type ? 't' : '') + (matchingBy.function ? 'f' : '')];
+
+						// Evaluate the condition
+						if (evaluationFn(condition, event)) {
+							// First match
+							if (!eventMatchingResults[rule.id]) {
+								event.matchedAt = timeService.timestamp();
+
+								eventMatchingResults[rule.id] = {
+									rule: rule,
+									event: event,
+									matchedConditions: [],
+									transformations: []
+								};
+							}
+
+							// Store match
+							eventMatchingResults[rule.id].matchedConditions.push(_.extend({matchingBy: matchingBy}, condition));
+						}
+					}, this);
+				}, this);
+
+				// Evaluate the matches
+				_.each(eventMatchingResults, function (eventMatchingResult) {
+					var transformations = {};
+
+					// Evaluate the transformations
+					_.each(eventMatchingResult.rule.transformations, function (transformation) {
+						// Define the fields that can be evaluated
+						var matchingBy = {
+							targetAndType: true, // Mandatory evaluation
+							evenType: !_.isUndefined(transformation.eventTypeKey)
+						};
+
+						// Evaluate the transformation
+						if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
+							var actionTargetInstance = cache.actionTargetInstances[transformation.actionTargetInstanceKey];
+							var actionTargetTemplate = cache.actionTargetTemplates[actionTargetInstance.get('action_target_template_id')];
+							var actionType = cache.actionTypes[transformation.actionTypeKey];
+
+							// Process the transformation of the event to the target format
+							var transformed = transformation.fn.compiled(
+								event,
+								actionTargetInstance,
+								actionType,
+								cache.eventSourceInstances[event.sourceId],
+								cache.eventTypes[event.typeId]
+							);
+
+							// Store transformation
+							eventMatchingResult.transformations.push(_.extend({
+								matchingBy: matchingBy,
+								transformed: transformed
+							}, transformation));
+
+							actions.push({
+								targetUrl: actionTargetTemplate.get('targetUrl'),
+								targetToken: actionTargetTemplate.get('targetToken'),
+								typeId: actionType.get('actionTypeId'),
+								payload: transformed
+							});
+						}
+					}, this);
+
+					// Save in elastic search the event matching result
+					elasticSearch.saveMatch(eventMatchingResult);
+				}, this);
+			}, this);
+
+			// Finally process the actions
+			if (!_.isEmpty(actions)) {
+				actionService.processActions(actions);
+			}
+		});
 	}
 };
 
