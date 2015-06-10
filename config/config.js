@@ -163,7 +163,7 @@ var config = {
 		elasticSearch: {
 			enable: true,
 		  host: process.env.ES_PORT_9200_TCP_ADDR,
-		  port: process.env.ES_PORT_9200_TCP_ADDR
+		  port: process.env.ES_PORT_9200_TCP_PORT
 	  },
 		kafka: {
 			enable: true,
