@@ -10,10 +10,21 @@ var
 var client, consumer, producer;
 
 function messageHandler(message) {
-	var event = JSON.parse(message.value);
-	event.receivedAt = timeService.timestamp();
-	elasticSearchService.saveEvent(event);
-	ruleEngineService.match(event);
+	var time = timeService.timestamp();
+	var events = JSON.parse(message.value);
+
+	if (!_.isArray(events)) {
+		events = [ events ];
+	}
+
+	console.log("Received %s event(s).", events.length);
+
+	_.each(events, function(event) {
+		event.receivedAt = time;
+	});
+
+	elasticSearchService.saveEvent(events);
+	ruleEngineService.match(events);
 }
 
 function consumerErrorHandler(error) {

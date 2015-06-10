@@ -22,6 +22,9 @@ module.exports = {
 				if (!_.isUndefined(error)) {
 					console.log(error);
 				}
+				else {
+					console.log("Saved event in Elastic Search");
+				}
 			});
 		}
 	},
@@ -37,6 +40,9 @@ module.exports = {
 			function (error, response) {
 				if (!_.isUndefined(error)) {
 					console.log(error);
+				}
+				else {
+					console.log("Saved matched event in Elastic Search.");
 				}
 			});
 		}
