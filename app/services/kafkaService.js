@@ -21,9 +21,9 @@ function messageHandler(message) {
 
 	_.each(events, function(event) {
 		event.receivedAt = time;
+		elasticSearchService.saveEvent(event);
 	});
 
-	elasticSearchService.saveEvent(events);
 	ruleEngineService.match(events);
 }
 
