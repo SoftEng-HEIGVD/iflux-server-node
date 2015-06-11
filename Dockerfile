@@ -12,7 +12,7 @@ RUN mkdir -p /nodejs/iflux && cp -a /tmp/node_modules /nodejs/iflux
 ADD . /nodejs/iflux
 
 RUN useradd -m -r -U iflux \
-	&& chown -R iflux:iflux /nodejs/iflux
+	&& chown -R iflux:iflux /nodejs/iflux \
 	&& chmod +x /nodejs/iflux/start.sh
 
 USER iflux
