@@ -150,6 +150,7 @@ module.exports = {
 							actions.push({
 								targetUrl: actionTargetTemplate.get('targetUrl'),
 								targetToken: actionTargetTemplate.get('targetToken'),
+								instanceId: actionTargetInstance.get('actionTargetInstanceId'),
 								typeId: actionType.get('actionTypeId'),
 								payload: transformed
 							});
