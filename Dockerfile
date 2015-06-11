@@ -13,6 +13,7 @@ ADD . /nodejs/iflux
 
 RUN useradd -m -r -U iflux \
 	&& chown -R iflux:iflux /nodejs/iflux
+	&& chmod +x /nodejs/iflux/start.sh
 
 USER iflux
 
@@ -20,4 +21,4 @@ WORKDIR /nodejs/iflux
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD start.sh

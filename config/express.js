@@ -69,10 +69,11 @@ module.exports = function(app, config) {
   app.use(express.static(config.root + '/public'));
   app.use(methodOverride());
 
-  var controllers = glob.sync(config.root + '/app/controllers/*.js');
-  controllers.forEach(function (controller) {
-    require(controller)(app);
-  });
+	// No more controllers
+  //var controllers = glob.sync(config.root + '/app/controllers/*.js');
+  //controllers.forEach(function (controller) {
+  //  require(controller)(app);
+  //});
 
 	var middlewares = glob.sync(config.root + '/app/resources/**/*.js');
 	middlewares.forEach(function (middleware) {
