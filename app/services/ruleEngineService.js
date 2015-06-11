@@ -152,6 +152,7 @@ module.exports = {
 								targetToken: actionTargetTemplate.get('targetToken'),
 								instanceId: actionTargetInstance.get('actionTargetInstanceId'),
 								typeId: actionType.get('actionTypeId'),
+								type: actionType.get('name'),
 								payload: transformed
 							});
 						}
