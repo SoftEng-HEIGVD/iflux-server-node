@@ -1,5 +1,5 @@
 #!/bin/bash
 
-knex migate:latest
+knex migrate:latest
 
 npm start
