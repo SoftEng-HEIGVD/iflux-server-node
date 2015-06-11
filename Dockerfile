@@ -21,4 +21,4 @@ WORKDIR /nodejs/iflux
 
 EXPOSE 3000
 
-CMD start.sh
+CMD ./start.sh
