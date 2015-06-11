@@ -170,6 +170,12 @@ router.route('/:id')
 		if (eventSourceInstance.hasChanged()) {
 			return eventSourceInstanceDao
 				.save(eventSourceInstance)
+				.then(eventSourceInstance.eventSourceTemplate().fetch())
+				.then(function(eventSourceTemplate) {
+					return new Connector()
+						.configureEventSourceInstance(eventSourceTemplate, eventSourceInstance)
+						.then(function() { return eventSourceInstance; });
+				})
 				.then(function() {
 					return resourceService.location(res, 201, eventSourceInstance).end();
 				})

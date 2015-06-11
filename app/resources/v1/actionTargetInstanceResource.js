@@ -111,7 +111,7 @@ router.route('/')
 									.createAndSave(actionTargetInstance, organization, actionTargetTemplate)
 									.then(function(actionTargetInstanceSaved) {
 										return new Connector()
-											.configureEventSourceInstance(actionTargetTemplate, actionTargetInstanceSaved)
+											.configureActionTargetInstance(actionTargetTemplate, actionTargetInstanceSaved)
 											.then(function() { return actionTargetInstanceSaved; });
 									})
 									.then(function(actionTargetInstanceSaved) {
@@ -170,6 +170,12 @@ router.route('/:id')
 		if (actionTargetInstance.hasChanged()) {
 			return actionTargetInstanceDao
 				.save(actionTargetInstance)
+				.then(actionTargetInstance.actionTargetTemplate().fetch())
+				.then(function(actionTargetTemplate) {
+					return new Connector()
+						.configureActionTargetInstance(actionTargetTemplate, actionTargetInstance)
+						.then(function() { return actionTargetInstance; });
+				})
 				.then(function() {
 					return resourceService.location(res, 201, actionTargetInstance).end();
 				})
