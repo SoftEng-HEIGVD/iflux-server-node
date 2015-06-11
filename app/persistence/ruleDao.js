@@ -1,69 +1,52 @@
 var
 	_ = require('underscore'),
-	Q = require('q'),
-	mongoose = require('mongoose'),
-	Rule = mongoose.model('Rule'),
+	Rule = require('../services/modelRegistry').rule,
 	dao = require('./dao');
 
-module.exports = {
+module.exports = _.extend(new dao(Rule), {
 	/**
-	 * Create a new rule and save it to mongo
+	 * Create a new rule and save it to the databae
 	 *
 	 * @param ruleDefinition The rule definition to create the document
+	 * @param organization The organization where to assign the rule
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(ruleDefinition) {
-		var rule = new Rule({
+	createAndSave: function(ruleDefinition, organization) {
+		var rule = new this.model({
+			organization_id: organization.get('id'),
+			name: ruleDefinition.name,
 			description: ruleDefinition.description,
-			reference: ruleDefinition.reference,
-			enabled: true,
-			condition: {
-				source: ruleDefinition.if.eventSource,
-				eventType: ruleDefinition.if.eventType,
-				properties: ruleDefinition.if.eventProperties
-			},
-			action: {
-				target: ruleDefinition.then.actionTarget,
-				actionSchema: ruleDefinition.then.actionSchema
-			}
+			active: ruleDefinition.active,
+			conditions: ruleDefinition.conditions,
+			transformations: ruleDefinition.transformations
 		});
 
-		return dao.save(rule);
+		return this.save(rule);
 	},
 
-	/**
-	 * Find a rule by its id
-	 *
-	 * @param id The id of the rule
-	 * @returns {Promise} A promise
-	 */
-	findById: function(id) {
-		return Rule
-			.findById(id)
-			.exec();
+	findByIdAndUser: function(id, user) {
+		return this.model
+			.query(function(qb) {
+				return qb
+					.leftJoin('organizations', 'rules.organization_id', 'organizations.id')
+					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.where('rules.id', id)
+					.where('organizations_users.user_id', user.get('id'));
+			})
+			.fetch({require: true});
 	},
 
-	/**
-	 * Find rules by reference
-	 *
-	 * @param reference Reference of the rule
-	 * @returns {Promise} A promise
-	 */
-	findByReference: function(reference) {
-		return Rule
-			.find({ reference: reference })
-			.exec();
+	findByOrganization: function(organization) {
+		return this.collectionFromRelation(organization.rules());
 	},
 
-	/**
-	 * Find all the enabled rules
-	 *
-	 * @returns {Promise} A promise
-	 */
-	findAll: function() {
-		return Rule
-			.find()
-			.exec();
+	findAllByUser: function(user) {
+		return this.collection(function(qb) {
+			return qb
+				.leftJoin('organizations', 'rules.organization_id', 'organizations.id')
+				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.where('organizations_users.user_id', user.get('id'));
+		});
 	},
 
 	/**
@@ -72,8 +55,8 @@ module.exports = {
 	 * @returns {Promise} A promise
 	 */
 	findAllEnabled: function() {
-		return Rule
-			.find({ enabled: true })
-			.exec();
+		return this.model.where({ active: true }).fetchAll().then(function(result) {
+			return result.models;
+		});
 	}
-};
+});

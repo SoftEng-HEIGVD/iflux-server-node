@@ -15,7 +15,12 @@ block content
         p There are currently <b>#{rules.length} rules</b> defined on this server:
         ul
           each rule in rules
-            li [Enabled: #{rule.enabled}] #{rule.description}
+            li
+              if rule.get('enabled')
+                span.label.label-success On
+              else
+                span.label.label-danger Off
+              &nbsp;#{rule.get('description')}
 
   .row
     .panel.panel-info
