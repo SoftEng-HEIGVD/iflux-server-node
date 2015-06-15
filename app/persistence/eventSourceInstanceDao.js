@@ -46,26 +46,48 @@ module.exports = _.extend(new dao(EventSourceInstance), {
 		);
 	},
 
-	findByOrganization: function(organization) {
-		return this.collectionFromRelation(organization.eventSourceInstances());
+	findByOrganization: function(organization, criteria) {
+		return this.collection(function(qb) {
+			var qb = qb
+				.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
+				.where('organizations.id', organization.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('event_source_instances.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
 	},
 
-	findByEventSourceTemplateAndUser: function(eventSourceTemplate, user) {
+	findByEventSourceTemplateAndUser: function(eventSourceTemplate, user, criteria) {
 		return this.collection(function(qb) {
-			return qb
+			qb = qb
 				.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'))
 				.where('event_source_instances.event_source_template_id', eventSourceTemplate.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('event_source_instances.name', 'like', criteria.name);
+			}
+
+			return qb;
 		});
 	},
 
-	findAllByUser: function(user) {
+	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
-			return qb
+			qb = qb
 				.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('event_source_instances.name', 'like', criteria.name);
+			}
+
+			return qb;
 		});
 	}
 });

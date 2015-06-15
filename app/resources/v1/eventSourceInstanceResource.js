@@ -61,14 +61,14 @@ router.route('/')
 		var promise = null;
 
 		if (req.eventSourceTemplate) {
-			promise = eventSourceInstanceDao.findByEventSourceTemplateAndUser(req.eventSourceTemplate, req.userModel);
+			promise = eventSourceInstanceDao.findByEventSourceTemplateAndUser(req.eventSourceTemplate, req.userModel, { name: req.query.name });
 		}
 
 		else if (req.organization) {
-			promise = eventSourceInstanceDao.findByOrganization(req.organization);
+			promise = eventSourceInstanceDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
-			promise = eventSourceInstanceDao.findAllByUser(req.userModel);
+			promise = eventSourceInstanceDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 
 		if (promise) {
