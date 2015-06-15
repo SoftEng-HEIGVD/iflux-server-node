@@ -67,7 +67,7 @@ module.exports = baseTest('Organization resource')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({
 		body: {
-			name: 'iFlux 2'
+			name: 'iFLUX 2'
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(201)
@@ -77,7 +77,7 @@ module.exports = baseTest('Organization resource')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({
 		body: {
-			name: 'iFlux 3'
+			name: 'iFLUX 3'
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(403)
@@ -146,4 +146,14 @@ module.exports = baseTest('Organization resource')
 		firstName: 'Henri',
 		lastName: 'Dupont'
 	}])
+
+	.describe('Retrieve organizations filtered by name for first user')
+	.get({ url: '/v1/organizations?name=iFL%' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToHavePath([ '0.id', '0.name' ])
+	.expectJsonToBeAtLeast([{
+		name: 'iFLUX 2'
+	}])
+
 ;

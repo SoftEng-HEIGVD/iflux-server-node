@@ -28,8 +28,16 @@ module.exports = function (app) {
 
 router.route('/')
 	.get(function(req, res, next) {
-		organizationDao
-			.findAll()
+		var promise;
+
+		if (req.query.name) {
+			promise = organizationDao.findByName(req.query.name);
+		}
+		else {
+			promise = organizationDao.findAll();
+		}
+
+		return promise
 			.then(function(organizations) {
 				return resourceService.ok(res,
 					_.map(organizations, function(organization) {

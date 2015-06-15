@@ -22,22 +22,28 @@ function testMessage(str) {
 
 function printJsonErrorObject(obj, lvl) {
 	var indent = lvl * 2;
+	var msg;
 
-	_.each(obj, function(value, name) {
-		var msg;
 
-		if (_.isString(value)) {
-			msg = name + ': ' + value;
-			msg = s.pad(msg, msg.length + indent);
-			console.log(msg.red);
-		}
-		else {
-			msg = name + ':';
-			msg = s.pad(msg, msg.length + indent);
-			console.log(msg.red);
-			printJsonErrorObject(value, lvl + 1);
-		}
-	}, this);
+	if (_.isString(obj)) {
+		msg = s.pad(obj, obj.length + indent);
+		console.log(msg.red);
+	}
+	else {
+		_.each(obj, function (value, name) {
+			if (_.isString(value)) {
+				msg = name + ': ' + value;
+				msg = s.pad(msg, msg.length + indent);
+				console.log(msg.red);
+			}
+			else {
+				msg = name + ':';
+				msg = s.pad(msg, msg.length + indent);
+				console.log(msg.red);
+				printJsonErrorObject(value, lvl + 1);
+			}
+		}, this);
+	}
 }
 
 function compareExactJson(current, expected) {
