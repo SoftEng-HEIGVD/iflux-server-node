@@ -1,4 +1,6 @@
-var _ = require('underscore');
+var
+	_ = require('underscore'),
+	color = require('colors');
 
 /**
  * DAO factory
@@ -42,12 +44,37 @@ module.exports = function(model) {
 		 */
 		collectionFromModel: function(whereClause) {
 			if (whereClause) {
-				return this.model
-					.where(whereClause)
-					.fetchAll()
-					.then(function(result) {
-						return result.models;
+				if (_.isArray(whereClause)) {
+					var qb = this.model;
+
+					_.each(whereClause, function(clause) {
+						if (_.isArray(clause)) {
+							if (clause.length == 3) {
+								qb = qb.where(clause[0], clause[1], clause[2]);
+							}
+							else {
+								console.log('Unable to use the clause: %s'.red, clause);
+							}
+						}
+						else {
+							qb = qb.where(clause);
+						}
 					});
+
+					return qb
+						.fetchAll()
+						.then(function (result) {
+							return result.models;
+						});
+				}
+				else {
+					return this.model
+						.where(whereClause)
+						.fetchAll()
+						.then(function (result) {
+							return result.models;
+						});
+				}
 			}
 			else {
 				return this.model

@@ -47,13 +47,13 @@ router.route('/')
 		var promise = null;
 
 		if (req.organization) {
-			promise = eventSourceTemplateDao.findByOrganization(req.organization);
+			promise = eventSourceTemplateDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
-			promise = eventSourceTemplateDao.findAllByUser(req.userModel);
+			promise = eventSourceTemplateDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 		else {
-			promise = eventSourceTemplateDao.findAllPublic();
+			promise = eventSourceTemplateDao.findAllPublic({ name: req.query.name });
 		}
 
 		return promise.then(function(eventSourceTemplates) {

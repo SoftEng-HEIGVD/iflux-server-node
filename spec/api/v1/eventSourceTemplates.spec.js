@@ -101,6 +101,23 @@ module.exports = baseTest('Event source template resource')
 		public: true
 	}])
 
+	.describe('Retrieve all the event source templates for first user filtered by name')
+	.get({ url: '/v1/eventSourceTemplates?allOrganizations&name=Public%' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast([{
+		name: 'Public iFLUX Thermometer',
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://somewhere.localhost.locadomain',
+			token: 'sometoken'
+		}
+	}, {
+		name: 'Public iFLUX Thermometer in other orga',
+		public: true
+	}])
+
 	.describe('Retrieve all the event source templates for first user for the first organization')
 	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -117,6 +134,20 @@ module.exports = baseTest('Event source template resource')
 	}, {
 		name: 'Private iFLUX Thermometer',
 		public: false
+	}])
+
+	.describe('Retrieve all the event source templates for first user for the first organization filtered by name')
+	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId1') + '&name=Public%' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Public iFLUX Thermometer',
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://somewhere.localhost.locadomain',
+			token: 'sometoken'
+		}
 	}])
 
 	.describe('Retrieve all the event source templates for first user for the second organization')
@@ -146,6 +177,20 @@ module.exports = baseTest('Event source template resource')
 	}, {
 		name: 'Public iFLUX Thermometer in other orga',
 		public: true
+	}])
+
+	.describe('Retrieve all the event source templates for second user filtered by name')
+	.get({ url: '/v1/eventSourceTemplates?name=%25iFLUX Thermometer' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Public iFLUX Thermometer',
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://somewhere.localhost.locadomain',
+			token: 'sometoken'
+		}
 	}])
 
 	.describe('Try to retrieve event source templates where the user is not member of the organization')
