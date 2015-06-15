@@ -45,7 +45,7 @@ router.route('/')
 	})
 	.get(function(req, res, next) {
 		return eventTypeDao
-			.findByEventSourceTemplate(req.eventSourceTemplate)
+			.findByEventSourceTemplate(req.eventSourceTemplate, { name: req.query.name })
 			.then(function (eventTypes) {
 				return resourceService.ok(res,
 					_.map(eventTypes, function (eventType) {

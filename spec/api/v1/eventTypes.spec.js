@@ -261,6 +261,35 @@ module.exports = baseTest('Event type resource')
 	  }
 	}])
 
+	.describe('Retrieve all the event types of first event source template for first user filtered by name')
+	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') + '&name=%Increase' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Temperature Increase',
+		description: 'Represent an increase in the temperature.',
+		schema: {
+	    $schema: "http://json-schema.org/draft-04/schema#",
+	    type: "object",
+	    properties: {
+	      captorId: {
+	        type: "string"
+	      },
+	      temperature: {
+	        type: "object",
+	        properties: {
+	          old: {
+	            type: "number"
+	          },
+	          new: {
+	            type: "number"
+	          }
+	        }
+	      }
+	    }
+	  }
+	}])
+
 	.describe('Retrieve all the event types of second event source template for first user')
 	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + this.getData('eventSourceTemplateId2') }; })
 	.expectStatusCode(200)

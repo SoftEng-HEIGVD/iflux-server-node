@@ -35,8 +35,18 @@ module.exports = _.extend(new dao(EventType), {
 			.fetch({require: true});
 	},
 
-	findByEventSourceTemplate: function(eventSourceTemplate) {
-		return this.collectionFromRelation(eventSourceTemplate.eventTypes());
+	findByEventSourceTemplate: function(eventSourceTemplate, criteria) {
+		return this.collection(function(qb) {
+			qb = qb
+				.leftJoin('event_source_templates', 'event_types.event_source_template_id', 'event_source_templates.id')
+				.where('event_types.event_source_template_id', eventSourceTemplate.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('event_types.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
 	}
 
 });
