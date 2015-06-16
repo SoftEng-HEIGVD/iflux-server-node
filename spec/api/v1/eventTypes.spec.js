@@ -490,6 +490,56 @@ module.exports = baseTest('Event type resource')
 	.expectLocationHeader('/v1/eventTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
+	.describe('First user updates his first event type with the same type')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventType1'),
+			body: {
+				type: 'http://iflux.io/schemas/eventTypes/1'
+			}
+		};
+	})
+	.expectStatusCode(304)
+	.expectLocationHeader('/v1/eventTypes/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates his first event type with invalid type')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventType1'),
+			body: {
+				type: '1234'
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
+
+	.describe('First user updates his first event type with different type but not unique')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventType1'),
+			body: {
+				type: 'http://iflux.io/schemas/eventTypes/2'
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
+
+	.describe('First user updates his first event type with valid and unique different type')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventType1'),
+			body: {
+				type: 'http://iflux.io/schemas/eventTypes/11'
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventTypes/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
+
 	.describe('Second user tries to update first event type of first user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {

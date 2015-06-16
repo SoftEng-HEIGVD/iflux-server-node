@@ -2,13 +2,17 @@ var ValidationError = require('checkit').ValidationError;
 
 module.exports = function(options) {
 	return function(value, tableName, columnName, message) {
-		var where = {};
+		var whereClause = {};
 
-		where[columnName] = value;
+		whereClause[columnName] = value;
 
-		return options.bookshelf
-			.knex(tableName)
-			.where(where)
+		var qb = options.bookshelf.knex(tableName);
+
+		if (this._target.get('id')) {
+			qb = qb.where('id', '!=', this._target.get('id'));
+		}
+
+		return qb.where(whereClause)
 			.count('* AS count')
 			.then(function (results) {
 				if (results[0].count > 0) {

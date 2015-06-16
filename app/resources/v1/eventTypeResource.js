@@ -56,7 +56,7 @@ router.route('/')
 			});
 	})
 
-	.post(function(req, res, next) {
+	.post(function validateType(req, res, next) {
 		if (!req.body.type) {
 			return resourceService.validationError(res, { type: [ 'Type is mandatory.' ] }).end();
 		}
@@ -68,7 +68,7 @@ router.route('/')
 			}
 		}
 
-		next();
+		return next();
 	})
 	.post(function(req, res, next) {
 		var eventType = req.body;
@@ -109,6 +109,36 @@ router.route('/:id')
 	})
 
 	.patch(function(req, res, next) {
+		if (req.body.type) {
+			var url = validUrl.is_web_uri(req.body.type);
+
+			if (!url) {
+				return resourceService.validationError(res, { type: [ 'Type must be a valid URL.' ] }).end();
+			}
+			else {
+				if (req.body.type == req.eventType.get('type')) {
+					delete req.body.type;
+					return next();
+				}
+				else {
+					return eventTypeDao
+						.findByType(req.body.type)
+						.then(function(eventTypeFound) {
+							if (eventTypeFound) {
+								return resourceService.validationError(res, {type: ['Type must be unique.']}).end();
+							}
+							else {
+								return next();
+							}
+						});
+				}
+			}
+		}
+		else {
+			return next();
+		}
+	})
+	.patch(function(req, res, next) {
 		var eventType = req.eventType;
 
 		var data = req.body;
@@ -123,6 +153,10 @@ router.route('/:id')
 
 		if (data.schema !== undefined) {
 			eventType.set('eventTypeSchema', data.schema);
+		}
+
+		if (data.type !== undefined) {
+			eventType.set('type', data.type);
 		}
 
 		if (eventType.hasChanged()) {
