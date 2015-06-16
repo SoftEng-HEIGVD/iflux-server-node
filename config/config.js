@@ -10,11 +10,9 @@ if (process.env.NODE_ENV != 'docker') {
 var config = {
   development: {
     root: rootPath,
-		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
-		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
     app: {
       name: 'iFLUX-Server',
-			jwtSecret: process.env.JWT_SECRET
+			jwtSecret: process.env.IFLUX_SERVER_JWT_SECRET
     },
     port: process.env.PORT || 3000,
 	  host: process.env.HOST || 'localhost',
@@ -58,11 +56,10 @@ var config = {
 
   test: {
     root: rootPath,
-		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
-		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
+		baseUrl: process.env.IFLUX_SERVER_URL,
 		app: {
       name: 'iFLUX-Server',
-			jwtSecret: process.env.JWT_SECRET,
+			jwtSecret: process.env.IFLUX_SERVER_JWT_SECRET,
 			debug: process.env.DEBUG || false
     },
     port: process.env.PORT || 3001,
@@ -107,11 +104,9 @@ var config = {
 
   production: {
     root: rootPath,
-		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
-		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
     app: {
       name: 'iFLUX-Server',
-			jwtSecret: process.env.JWT_SECRET
+			jwtSecret: process.env.IFLUX_SERVER_JWT_SECRET
     },
     port: process.env.PORT || 3000,
 	  host: process.env.HOST || 'localhost',
@@ -131,9 +126,9 @@ var config = {
 			connection: 	{
 				host: 'localhost',
 				port: 5432,
-				user: process.env.DB_USER,
-				password: process.env.DB_PASS,
-				database: (process.env.DB_NAME || 'iflux-server-prod'),
+				user: process.env.IFLUX_PG_DB_USER,
+				password: process.env.IFLUX_PG_DB_PASS,
+				database: (process.env.IFLUX_PG_DB_NAME || 'iflux-server-prod'),
 				charset: 'utf-8'
 			},
 			pool: {
@@ -152,11 +147,9 @@ var config = {
 
 	docker: {
 		root: rootPath,
-		baseUrl: process.env.IFLUX_SERVER_URL || 'http://www.iflux.io',
-		siteUrl: process.env.IFLUX_SITE_URL || 'http://www.iflux.io',
 		app: {
 			name: 'iFLUX-Server',
-			jwtSecret: process.env.JWT_SECRET
+			jwtSecret: process.env.IFLUX_SERVER_JWT_SECRET
 		},
 		port: 3000,
 		host: process.env.HOST || 'localhost',
@@ -176,9 +169,9 @@ var config = {
 			connection: 	{
 				host: process.env.POSTGRESQL_PORT_5432_TCP_ADDR,
 				port: process.env.POSTGRESQL_PORT_5432_TCP_PORT,
-				user: process.env.DB_USER,
-				password: process.env.DB_PASS,
-				database: process.env.DB_NAME,
+				user: process.env.IFLUX_PG_DB_USER,
+				password: process.env.IFLUX_PG_DB_PASS,
+				database: process.env.IFLUX_PG_DB_NAME,
 				charset: 'utf-8'
 			},
 			pool: {
