@@ -151,7 +151,47 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 		}];
 	})
 
-	.describe('First user retrieve rules in his first organization.')
+	.describe('First user retrieve rules in his first organization filtered by name.')
+	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') + '&name=First%' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			id: this.getData('ruleId1'),
+			name: 'First rule',
+			description: null,
+			active: true,
+			organizationId: this.getData('organizationId1'),
+			conditions: [{
+				eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+				eventTypeId: this.getData('eventTypeId1'),
+				fn: {
+					expression: 'return event.temperature.old != event.temperature.new',
+					sampleEvent: {
+						temperature: {
+							old: 10,
+							new: 11
+						}
+					}
+				}
+			}],
+			transformations: [{
+				actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+				actionTypeId: this.getData('actionTypeId1'),
+				eventTypeId: this.getData('eventTypeId1'),
+				fn: {
+					expression: 'return "The new temperature is: " + event.temperature;',
+					sample: {
+						event: {
+							temperature: 12
+						}
+					}
+				}
+			}]
+		}];
+	})
+
+	.describe('First user retrieve rules in his second organization.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
@@ -238,6 +278,32 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 		}];
 	})
 
+	.describe('First user retrieve rules in all his organizations filtered by name.')
+	.get({ url: '/v1/rules?name=Second%' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			id: this.getData('ruleId2'),
+			name: 'Second rule',
+			active: true,
+			organizationId: this.getData('organizationId2'),
+			conditions: [{
+				eventSourceInstanceId: this.getData('eventSourceInstanceId2')
+			}],
+			transformations: [{
+				actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+				actionTypeId: this.getData('actionTypeId1'),
+				fn: {
+					expression: 'return "Received event: " + event.name;',
+					sample: {
+						event: {
+						}
+					}
+				}
+			}]
+		}];
+	})
 
 	.describe('Second user tries to retrieve rules in an organization where he is not a member.')
 	.jwtAuthentication(function() { return this.getData('token2'); })

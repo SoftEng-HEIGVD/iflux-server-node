@@ -36,16 +36,32 @@ module.exports = _.extend(new dao(Rule), {
 			.fetch({require: true});
 	},
 
-	findByOrganization: function(organization) {
-		return this.collectionFromRelation(organization.rules());
+	findByOrganization: function(organization, criteria) {
+		return this.collection(function(qb) {
+			qb = qb
+				.leftJoin('organizations', 'rules.organization_id', 'organizations.id')
+				.where('organizations.id', organization.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('rules.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
 	},
 
-	findAllByUser: function(user) {
+	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
-			return qb
+			qb = qb
 				.leftJoin('organizations', 'rules.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('rules.name', 'like', criteria.name);
+			}
+
+			return qb;
 		});
 	},
 

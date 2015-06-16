@@ -182,10 +182,10 @@ router.route('/')
 		var promise = null;
 
 		if (req.organization) {
-			promise = ruleDao.findByOrganization(req.organization);
+			promise = ruleDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 		else {
-			promise = ruleDao.findAllByUser(req.userModel);
+			promise = ruleDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 
 		promise
