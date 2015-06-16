@@ -18,12 +18,12 @@ module.exports = baseTest('Event source instance resource')
 				$schema: "http://json-schema.org/draft-04/schema#",
 				type: "object",
 				properties: {
-					captorId: {
+					sensorId: {
 						type: "string"
 					}
 				},
 				"additionalProperties": false,
-				"required": [ "captorId" ]
+				"required": [ "sensorId" ]
 			}
 		}
 	}, 1, 1)
@@ -114,7 +114,7 @@ module.exports = baseTest('Event source instance resource')
 	.expectJsonToHavePath('configuration')
 	.expectJsonToBe({ configuration: [{
 		wrongProperty: [ "additionalProperty 'wrongProperty' exists in instance when not allowed" ],
-		captorId: [ "requires property \"captorId\"" ]
+		sensorId: [ "requires property \"sensorId\"" ]
 	}]})
 
 	.describe('First user creates a first event source instance for his second organization and first event source template.')
@@ -125,7 +125,7 @@ module.exports = baseTest('Event source instance resource')
 				organizationId: this.getData('organizationId2'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				configuration: {
-					captorId: 'amazingCaptor'
+					sensorId: 'amazingSensor'
 				}
 			}
 		};
@@ -264,7 +264,7 @@ module.exports = baseTest('Event source instance resource')
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {
-				captorId: 'amazingCaptor'
+				sensorId: 'amazingSensor'
 			}
 		}, {
 			id: this.getData('eventSourceInstanceId2'),
@@ -290,7 +290,7 @@ module.exports = baseTest('Event source instance resource')
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {
-				captorId: 'amazingCaptor'
+				sensorId: 'amazingSensor'
 			}
 		}];
 	})
@@ -333,7 +333,7 @@ module.exports = baseTest('Event source instance resource')
 			name: 'iFLUX Thermometer instance',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
-			configuration: {captorId: 'amazingCaptor'}
+			configuration: {sensorId: 'amazingSensor'}
 		}, {
 			id: this.getData('eventSourceInstanceId2'),
 			name: 'iFLUX Thermometer second instance',
@@ -353,7 +353,7 @@ module.exports = baseTest('Event source instance resource')
 			name: 'iFLUX Thermometer instance',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
-			configuration: {captorId: 'amazingCaptor'}
+			configuration: {sensorId: 'amazingSensor'}
 		}, {
 			id: this.getData('eventSourceInstanceId3'),
 			name: 'iFLUX Thermometer third instance',
@@ -460,7 +460,7 @@ module.exports = baseTest('Event source instance resource')
 			name: 'iFLUX Thermometer instance',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
-			configuration: {captorId: 'amazingCaptor'}
+			configuration: {sensorId: 'amazingSensor'}
 		};
 	})
 

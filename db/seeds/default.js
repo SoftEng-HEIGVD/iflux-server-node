@@ -57,7 +57,7 @@ exports.seed = function(knex, Promise) {
       $schema: "http://json-schema.org/draft-04/schema#",
       type: "object",
       properties: {
-        captorId: {
+        sensorId: {
           type: "string"
         }
       }
@@ -75,7 +75,7 @@ exports.seed = function(knex, Promise) {
       $schema: "http://json-schema.org/draft-04/schema#",
       type: "object",
       properties: {
-        captorId: {
+        sensorId: {
           type: "string"
         }
       }
@@ -88,13 +88,13 @@ exports.seed = function(knex, Promise) {
 		id: 1,
 		eventTypeId: stringService.generateId(),
 		event_source_template_id: eventSourceTemplate1.id,
-	  name: "ifluxTemperatureCaptor/increase",
+	  name: "ifluxTemperatureSensor/increase",
 	  description: "Temperature increase",
 	  eventTypeSchema: {
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {
@@ -116,13 +116,13 @@ exports.seed = function(knex, Promise) {
 		id: 2,
 		eventTypeId: stringService.generateId(),
 		event_source_template_id: eventSourceTemplate1.id,
-	  name: "ifluxTemperatureCaptor/decrease",
+	  name: "ifluxTemperatureSensor/decrease",
 	  description: "Temperature decrease",
 	  eventTypeSchema: {
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {
@@ -150,7 +150,7 @@ exports.seed = function(knex, Promise) {
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 		    level: {
@@ -167,7 +167,7 @@ exports.seed = function(knex, Promise) {
 	  name: "Thermometer 1",
 	  organization_id: organization.id,
 		configuration: {
-			captorId: "A"
+			sensorId: "A"
 		}
 	});
 
@@ -178,7 +178,7 @@ exports.seed = function(knex, Promise) {
 	  name: "Thermometer 2",
 	  organization_id: organization.id,
 		configuration: {
-			captorId: "B"
+			sensorId: "B"
 		}
 	});
 
@@ -189,7 +189,7 @@ exports.seed = function(knex, Promise) {
 	  name: "Thermometer 3",
 	  organization_id: organization.id,
 		configuration: {
-			captorId: "C"
+			sensorId: "C"
 		}
 	});
 
@@ -200,7 +200,7 @@ exports.seed = function(knex, Promise) {
 	  name: "Room 1",
 	  organization_id: organization.id,
 		configuration: {
-			captorId: "B23"
+			sensorId: "B23"
 		}
 	});
 
@@ -211,7 +211,7 @@ exports.seed = function(knex, Promise) {
 	  name: "Room 2",
 	  organization_id: organization.id,
 		configuration: {
-			captorId: "C23"
+			sensorId: "C23"
 		}
 	});
 

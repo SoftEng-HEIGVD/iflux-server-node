@@ -47,13 +47,13 @@ router.route('/')
 		var promise = null;
 
 		if (req.organization) {
-			promise = actionTargetTemplateDao.findByOrganization(req.organization);
+			promise = actionTargetTemplateDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
-			promise = actionTargetTemplateDao.findAllByUser(req.userModel);
+			promise = actionTargetTemplateDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 		else {
-			promise = actionTargetTemplateDao.findAllPublic();
+			promise = actionTargetTemplateDao.findAllPublic({ name: req.query.name });
 		}
 
 		return promise.then(function(actionTargetTemplates) {

@@ -66,8 +66,14 @@ module.exports = _.extend(new dao(ActionTargetTemplate), {
 			.fetch({require: true});
 	},
 
-	findAllPublic: function() {
-		return this.collectionFromModel({ public: true });
+	findAllPublic: function(criteria) {
+		var whereClause = [{ public: true }];
+
+		if (criteria.name) {
+			whereClause.push(['name', 'like', criteria.name]);
+		}
+
+		return this.collectionFromModel(whereClause);
 	},
 
 	findByOrganizationId: function(organizationId) {
@@ -77,16 +83,32 @@ module.exports = _.extend(new dao(ActionTargetTemplate), {
 		);
 	},
 
-	findByOrganization: function(organization) {
-		return this.collectionFromRelation(organization.actionTargetTemplates());
+	findByOrganization: function(organization, criteria) {
+		return this.collection(function(qb) {
+			qb = qb
+				.leftJoin('organizations', 'action_target_templates.organization_id', 'organizations.id')
+				.where('organizations.id', organization.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('action_target_templates.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
 	},
 
-	findAllByUser: function(user) {
+	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
-			return qb
+			qb = qb
 				.leftJoin('organizations', 'action_target_templates.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('action_target_templates.name', 'like', criteria.name);
+			}
+
+			return qb;
 		});
 	}
 });

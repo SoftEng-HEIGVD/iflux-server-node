@@ -129,6 +129,24 @@ module.exports = baseTest('Action target template resource')
 		}
 	}])
 
+	.describe('Retrieve all the action target templates for first user filtered by name')
+	.get({ url: '/v1/actionTargetTemplates?allOrganizations&name=%Radiator' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Public iFLUX Radiator',
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://radiator.localhost.locadomain',
+			token: 'sometoken'
+		},
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
+	}])
+
 	.describe('Retrieve all the action target templates for first user for the first organization')
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -149,6 +167,24 @@ module.exports = baseTest('Action target template resource')
 	}, {
 		name: 'Private iFLUX Radiator',
 		public: false,
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
+	}])
+
+	.describe('Retrieve all the action target templates for first user for the first organization filtered by name')
+	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId1') + '&name=%Radiator'}; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Public iFLUX Radiator',
+		public: true,
+		configuration: {
+			schema: { test: true },
+			url: 'http://radiator.localhost.locadomain',
+			token: 'sometoken'
+		},
 		target: {
 			url: 'http://radiator.localhost.locadomain',
 			token: 'token'
@@ -184,6 +220,19 @@ module.exports = baseTest('Action target template resource')
 			token: 'token'
 		}
 	}, {
+		name: 'Public iFLUX Radiator in other orga',
+		public: true,
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
+	}])
+
+	.describe('Retrieve all the action target templates for second user filtered by name')
+	.get({ url: '/v1/actionTargetTemplates?name=%Radiator in%' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Radiator in other orga',
 		public: true,
 		target: {

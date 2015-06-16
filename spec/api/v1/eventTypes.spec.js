@@ -24,7 +24,7 @@ module.exports = baseTest('Event type resource')
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
 			    properties: {
-			      captorId: {
+			      sensorId: {
 			        type: "string"
 			      },
 			      temperature: {
@@ -62,7 +62,7 @@ module.exports = baseTest('Event type resource')
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
 			    properties: {
-			      captorId: {
+			      sensorId: {
 			        type: "string"
 			      },
 			      temperature: {
@@ -100,7 +100,7 @@ module.exports = baseTest('Event type resource')
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
 			    properties: {
-			      captorId: {
+			      sensorId: {
 			        type: "string"
 			      },
 			      temperature: {
@@ -137,7 +137,7 @@ module.exports = baseTest('Event type resource')
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
 			    properties: {
-			      captorId: {
+			      sensorId: {
 			        type: "string"
 			      },
 			      temperature: {
@@ -175,7 +175,7 @@ module.exports = baseTest('Event type resource')
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
 			    properties: {
-			      captorId: {
+			      sensorId: {
 			        type: "string"
 			      },
 			      temperature: {
@@ -220,7 +220,7 @@ module.exports = baseTest('Event type resource')
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {
@@ -243,7 +243,7 @@ module.exports = baseTest('Event type resource')
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {
@@ -272,7 +272,7 @@ module.exports = baseTest('Event type resource')
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {
@@ -302,7 +302,7 @@ module.exports = baseTest('Event type resource')
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {
@@ -333,7 +333,7 @@ module.exports = baseTest('Event type resource')
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
 	    properties: {
-	      captorId: {
+	      sensorId: {
 	        type: "string"
 	      },
 	      temperature: {

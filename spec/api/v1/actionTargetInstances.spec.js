@@ -126,7 +126,7 @@ module.exports = baseTest('Action target instance resource')
 				organizationId: this.getData('organizationId2'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
 				configuration: {
-					botId: 'amazingCaptor'
+					botId: 'amazingSensor'
 				}
 			}
 		};
@@ -264,7 +264,7 @@ module.exports = baseTest('Action target instance resource')
 			name: 'Slack Message target',
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
-			configuration: { botId: 'amazingCaptor' }
+			configuration: { botId: 'amazingSensor' }
 		}, {
 			id: this.getData('actionTargetInstanceId2'),
 			name: 'Slack Message second target',
@@ -303,7 +303,7 @@ module.exports = baseTest('Action target instance resource')
 			name: 'Slack Message target',
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
-			configuration: {botId: 'amazingCaptor'}
+			configuration: {botId: 'amazingSensor'}
 		}, {
 			id: this.getData('actionTargetInstanceId2'),
 			name: 'Slack Message second target',
@@ -323,7 +323,7 @@ module.exports = baseTest('Action target instance resource')
 			name: 'Slack Message target',
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
-			configuration: {botId: 'amazingCaptor'}
+			configuration: {botId: 'amazingSensor'}
 		}, {
 			id: this.getData('actionTargetInstanceId3'),
 			name: 'Slack Message third target',
@@ -417,7 +417,7 @@ module.exports = baseTest('Action target instance resource')
 			name: 'Slack Message target',
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
-			configuration: {botId: 'amazingCaptor'}
+			configuration: {botId: 'amazingSensor'}
 		};
 	})
 
