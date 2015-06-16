@@ -128,7 +128,7 @@ module.exports = {
 			}
 
 			if (condition.eventTypeId) {
-				if (!cache.eventTypes[condition.eventTypeKey] && !_.contains(eventTypeIds, condition.eventTypeId)) {
+				if (!cache.eventTypes[condition.eventType] && !_.contains(eventTypeIds, condition.eventTypeId)) {
 					eventTypeIds.push(condition.eventTypeId);
 				}
 
@@ -158,7 +158,7 @@ module.exports = {
 				actionTargetInstanceIds.push(transformation.actionTargetInstanceId);
 			}
 
-			if (!cache.actionTypes[transformation.actionTypeKey] && !_.contains(actionTypeIds, transformation.actionTypeId)) {
+			if (!cache.actionTypes[transformation.actionType] && !_.contains(actionTypeIds, transformation.actionTypeId)) {
 				actionTypeIds.push(transformation.actionTypeId);
 			}
 
@@ -170,7 +170,7 @@ module.exports = {
 			});
 
 			if (transformation.eventTypeId) {
-				if (!cache.eventTypes[transformation.eventTypeKey] && !_.contains(eventTypeIds, transformation.eventTypeId)) {
+				if (!cache.eventTypes[transformation.eventType] && !_.contains(eventTypeIds, transformation.eventTypeId)) {
 					eventTypeIds.push(transformation.eventTypeId);
 				}
 
@@ -232,13 +232,13 @@ module.exports = {
 			})
 			.then(actionTypeDao.findByIds(actionTypeIds).then(function(actionTypesRetrieved) {
 				cache.actionTypes = _.extend(cache.actionTypes, _.reduce(actionTypesRetrieved, function(memo, actionType) {
-					memo[actionType.get('actionTypeId')] = actionType;
+					memo[actionType.get('type')] = actionType;
 					return memo;
 				}, {}));
 			}))
 			.then(eventTypeDao.findByIds(eventTypeIds).then(function(eventTypesRetrieved) {
 				cache.eventTypes = _.extend(cache.eventTypes, _.reduce(eventTypesRetrieved, function(memo, eventType) {
-					memo[eventType.get('eventTypeId')] = eventType;
+					memo[eventType.get('type')] = eventType;
 					return memo;
 				}, {}));
 			}))

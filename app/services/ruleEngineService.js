@@ -57,6 +57,7 @@ module.exports = {
 			//.then(function() {
 			//	console.log(cache);
 			//	console.log(rules);
+			//	_.each(rules, console.log);
 			//})
 		;
 	},
@@ -131,7 +132,7 @@ module.exports = {
 						if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
 							var actionTargetInstance = cache.actionTargetInstances[transformation.actionTargetInstanceKey];
 							var actionTargetTemplate = cache.actionTargetTemplates[actionTargetInstance.get('action_target_template_id')];
-							var actionType = cache.actionTypes[transformation.actionTypeKey];
+							var actionType = cache.actionTypes[transformation.actionType];
 
 							// Process the transformation of the event to the target format
 							var transformed = transformation.fn.compiled(
@@ -139,7 +140,7 @@ module.exports = {
 								actionTargetInstance,
 								actionType,
 								cache.eventSourceInstances[event.sourceId],
-								cache.eventTypes[event.typeId]
+								cache.eventTypes[event.type]
 							);
 
 							// Store transformation
@@ -152,8 +153,7 @@ module.exports = {
 								targetUrl: actionTargetTemplate.get('targetUrl'),
 								targetToken: actionTargetTemplate.get('targetToken'),
 								instanceId: actionTargetInstance.get('actionTargetInstanceId'),
-								typeId: actionType.get('actionTypeId'),
-								type: actionType.get('name'),
+								type: actionType.get('type'),
 								payload: transformed
 							});
 						}
