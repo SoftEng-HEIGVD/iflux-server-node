@@ -56,7 +56,7 @@ router.route('/')
 			});
 	})
 
-	.post(function validateType(req, res, next) {
+	.post(function(req, res, next) {
 		if (!req.body.type) {
 			return resourceService.validationError(res, { type: [ 'Type is mandatory.' ] }).end();
 		}

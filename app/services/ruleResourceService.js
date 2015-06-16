@@ -46,7 +46,7 @@ function createDummyEvent(eventSourceInstance, eventType, properties) {
 
 	if (eventType) {
 		event = _.extend(event, {
-			eventTypeId: eventType.get('eventTypeId')
+			eventType: eventType.get('type')
 		});
 	}
 
@@ -385,7 +385,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 							// Prepare the evaluation parameters
 							var eventSourceInstance = transformation.fn.sample.eventSourceInstanceId ? entities.eventSourceInstances[transformation.fn.sample.eventSourceInstanceId] : null;
 							var eventType = transformation.fn.sample.eventTypeId ? entities.eventTypes[transformation.fn.sample.eventTypeId] : null;
-							var actionTargetInstance = transformation.actionTargetInstanceID ? entities.actionTargetInstances[transformation.actionTargetInstanceId] : null;
+							var actionTargetInstance = transformation.actionTargetInstanceId ? entities.actionTargetInstances[transformation.actionTargetInstanceId] : null;
 							var actionType = entities.actionTypes[transformation.actionTypeId];
 
 							try {

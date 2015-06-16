@@ -94,7 +94,7 @@ function populateTransformations(entities, rule, transformations) {
 
 		realTransformation = _.extend(realTransformation, {
 			actionTypeId: actionType.get('id'),
-			actionTypeKey: actionType.get('actionTypeId')
+			actionType: actionType.get('type')
 		});
 
 		if (transformation.eventTypeId) {

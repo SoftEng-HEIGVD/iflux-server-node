@@ -212,6 +212,7 @@ module.exports = function(name) {
 			var realData = _.extend({
 				name: 'Decrease thermostat',
 				description: 'Action to reduce the thermostat.',
+				type: 'http://iflux.io/schemas/actionTypes',
 				schema: {}
 			}, data || {});
 

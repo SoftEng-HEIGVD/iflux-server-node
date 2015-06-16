@@ -14,6 +14,7 @@ module.exports = _.extend(new dao(ActionType), {
 	createAndSave: function(actionType, actionTargetTemplate) {
 		var data = {
 			name: actionType.name,
+			type: actionType.type,
 			description: actionType.description,
 			actionTypeSchema: actionType.schema,
 			action_target_template_id: actionTargetTemplate.id
@@ -47,5 +48,9 @@ module.exports = _.extend(new dao(ActionType), {
 
 			return qb;
 		});
+	},
+
+	findByType: function(type) {
+		return this.model.where({ type: type }).fetch();
 	}
 });

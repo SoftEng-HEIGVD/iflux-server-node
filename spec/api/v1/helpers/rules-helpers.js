@@ -35,9 +35,9 @@ module.exports = {
 
 			.createActionTargetTemplate('Create first action target template for second user', { name: 'Action target template 3', public: false }, 2, 3)
 
-			.createActionType('Create first action type for first template', { name: 'Radiator increase' }, 1, 1)
-			.createActionType('Create second action type for first template', { name: 'Radiator decrease' }, 1, 1)
-			.createActionType('Create first action type for second template', { name: 'Radiator change' }, 1, 2)
+			.createActionType('Create first action type for first template', { name: 'Radiator increase', type: 'http://iflux.io/schemas/actionTypes/1' }, 1, 1)
+			.createActionType('Create second action type for first template', { name: 'Radiator decrease', type: 'http://iflux.io/schemas/actionTypes/2' }, 1, 1)
+			.createActionType('Create first action type for second template', { name: 'Radiator change', type: 'http://iflux.io/schemas/actionTypes/3' }, 1, 2)
 
 			.createActionType('Create first action type for third template', { name: 'Messaging' }, 2, 3)
 

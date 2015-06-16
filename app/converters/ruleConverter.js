@@ -56,7 +56,7 @@ module.exports = {
 				actionTargetInstanceId: transformation.actionTargetInstanceId,
 				actionTargetInstanceKey: transformation.actionTargetInstanceKey,
 				actionTypeId: transformation.actionTypeId,
-				actionTypeKey: transformation.actionTypeKey
+				actionType: transformation.actionType
 			});
 
 			if (transformation.eventTypeId) {
@@ -134,7 +134,7 @@ module.exports = {
 
 				convertedCondition = _.extend(convertedCondition, {
 					eventTypeId: condition.eventTypeId,
-					eventTypeKey: condition.eventTypeKey
+					eventType: condition.eventType
 				});
 			}
 
@@ -166,7 +166,7 @@ module.exports = {
 				actionTargetInstanceId: transformation.actionTargetInstanceId,
 				actionTargetInstanceKey: transformation.actionTargetInstanceKey,
 				actionTypeId: transformation.actionTypeId,
-				actionTypeKey: transformation.actionTypeKey
+				actionType: transformation.actionType
 			});
 
 			if (transformation.eventTypeId) {
@@ -176,7 +176,7 @@ module.exports = {
 
 				convertedTransformations = _.extend(convertedTransformations, {
 					eventTypeId: transformation.eventTypeId,
-					eventTypeKey: transformation.eventTypeKey
+					eventType: transformation.eventType
 				});
 			}
 
