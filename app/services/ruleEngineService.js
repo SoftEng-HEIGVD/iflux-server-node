@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+	Promise = require('bluebird'),
 	ruleDao = require('../persistence/ruleDao'),
 	ruleConverter = require('../converters/ruleConverter'),
 	ruleService = require('./ruleService'),

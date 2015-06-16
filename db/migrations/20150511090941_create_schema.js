@@ -131,8 +131,9 @@ exports.down = function(knex, Promise) {
 		.dropTable('event_types')
 		.dropTable('event_source_instances')
 		.dropTable('event_source_templates')
+		.dropTable('rules')
 		.dropTable('organizations_users')
 		.dropTable('users')
 		.dropTable('organizations')
-		.dropTable('rules');
+	;
 };
