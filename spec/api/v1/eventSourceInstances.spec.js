@@ -431,7 +431,7 @@ module.exports = baseTest('Event source instance resource')
 	.describe('Second user retrieves all event source instances for his event source template.')
 	.get({}, function() { return { url: '/v1/eventSourceInstances?eventSourceTemplateId=' + this.getData('eventSourceTemplateId3') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
+	.expectJsonToHavePath([ '0.id', '0.eventSourceInstanceId', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
@@ -454,7 +454,7 @@ module.exports = baseTest('Event source instance resource')
 	.describe('First user retrieve his first event source instance.')
 	.get({}, function() { return { url: this.getData('locationEventSourceInstance1') }; })
 	.expectStatusCode(200)
-	.expectJsonToBe(function() {
+	.expectJsonToBeAtLeast(function() {
 		return {
 			id: this.getData('eventSourceInstanceId1'),
 			name: 'iFLUX Thermometer instance',

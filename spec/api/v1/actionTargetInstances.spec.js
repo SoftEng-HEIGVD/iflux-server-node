@@ -428,7 +428,7 @@ module.exports = baseTest('Action target instance resource')
 	.describe('Second user retrieves all action target instances for his action target template.')
 	.get({}, function() { return { url: '/v1/actionTargetInstances?actionTargetTemplateId=' + this.getData('actionTargetTemplateId3') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.name', '0.organizationId', '0.actionTargetTemplateId' ])
+	.expectJsonToHavePath([ '0.id', '0.actionTargetInstanceId', '0.name', '0.organizationId', '0.actionTargetTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
@@ -451,7 +451,7 @@ module.exports = baseTest('Action target instance resource')
 	.describe('First user retrieve his first action target instance.')
 	.get({}, function() { return { url: this.getData('locationActionTargetInstance1') }; })
 	.expectStatusCode(200)
-	.expectJsonToBe(function() {
+	.expectJsonToBeAtLeast(function() {
 		return {
 			id: this.getData('actionTargetInstanceId1'),
 			name: 'Slack Message target',

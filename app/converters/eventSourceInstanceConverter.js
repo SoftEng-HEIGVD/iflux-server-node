@@ -4,6 +4,7 @@ module.exports = {
 	convert: function(eventSourceInstance) {
 		var data = {
 			id: eventSourceInstance.get('id'),
+			eventSourceInstanceId: eventSourceInstance.get('eventSourceInstanceId'),
 			name: eventSourceInstance.get('name'),
 			eventSourceTemplateId: eventSourceInstance.get('event_source_template_id'),
 			organizationId: eventSourceInstance.get('organization_id')

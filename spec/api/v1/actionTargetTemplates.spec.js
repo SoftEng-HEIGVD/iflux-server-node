@@ -130,7 +130,7 @@ module.exports = baseTest('Action target template resource')
 	}])
 
 	.describe('Retrieve all the action target templates for first user filtered by name')
-	.get({ url: '/v1/actionTargetTemplates?allOrganizations&name=%Radiator' })
+	.get({ url: '/v1/actionTargetTemplates?allOrganizations&name=Public%Radiator' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast([{
@@ -174,7 +174,7 @@ module.exports = baseTest('Action target template resource')
 	}])
 
 	.describe('Retrieve all the action target templates for first user for the first organization filtered by name')
-	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId1') + '&name=%Radiator'}; })
+	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId1') + '&name=Public iFLUX Radiator'}; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast([{
@@ -229,7 +229,7 @@ module.exports = baseTest('Action target template resource')
 	}])
 
 	.describe('Retrieve all the action target templates for second user filtered by name')
-	.get({ url: '/v1/actionTargetTemplates?name=%Radiator in%' })
+	.get({ url: '/v1/actionTargetTemplates?name=%25Radiator in%25' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast([{
