@@ -184,6 +184,24 @@ module.exports = baseTest('Action type resource')
 	  }
 	}])
 
+	.describe('Retrieve all the action types of first action target template for first user filtered by name')
+	.get({}, function() { return { url: '/v1/actionTypes?actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') + '&name=Decrease%' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Decrease thermostat',
+		description: 'Action to reduce the thermostat.',
+		schema: {
+      $schema: "http://json-schema.org/draft-04/schema#",
+       type: "object",
+      properties: {
+	      message: {
+	        type: "string"
+	      }
+	    }
+	  }
+	}])
+
 	.describe('Retrieve all the action types of second action target template for first user')
 	.get({}, function() { return { url: '/v1/actionTypes?actionTargetTemplateId=' + this.getData('actionTargetTemplateId2') }; })
 	.expectStatusCode(200)

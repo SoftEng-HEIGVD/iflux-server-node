@@ -35,7 +35,17 @@ module.exports = _.extend(new dao(ActionType), {
 			.fetch({require: true});
 	},
 
-	findByActionTargetTemplate: function(actionTargetTemplate) {
-		return this.collectionFromRelation(actionTargetTemplate.actionTypes());
+	findByActionTargetTemplate: function(actionTargetTemplate, criteria) {
+		return this.collection(function(qb) {
+			qb = qb
+				.leftJoin('action_target_templates', 'action_types.action_target_template_id', 'action_target_templates.id')
+				.where('action_types.action_target_template_id', actionTargetTemplate.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('action_types.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
 	}
 });

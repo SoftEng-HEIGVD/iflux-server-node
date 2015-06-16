@@ -45,7 +45,7 @@ router.route('/')
 	})
 	.get(function(req, res, next) {
 		return actionTypeDao
-			.findByActionTargetTemplate(req.actionTargetTemplate)
+			.findByActionTargetTemplate(req.actionTargetTemplate, { name: req.query.name })
 			.then(function (actionTypes) {
 				return resourceService.ok(res,
 					_.map(actionTypes, function (actionType) {
