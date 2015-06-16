@@ -67,6 +67,7 @@ router.route('/')
 		else if (req.organization) {
 			promise = eventSourceInstanceDao.findByOrganization(req.organization, { name: req.query.name });
 		}
+
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
 			promise = eventSourceInstanceDao.findAllByUser(req.userModel, { name: req.query.name });
 		}

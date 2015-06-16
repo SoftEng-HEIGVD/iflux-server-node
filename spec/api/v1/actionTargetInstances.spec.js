@@ -278,6 +278,20 @@ module.exports = baseTest('Action target instance resource')
 		}];
 	})
 
+	.describe('First user retrieves all action target instances filtered by name.')
+	.get({ url: '/v1/actionTargetInstances?allOrganizations&name=Slack Message target' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			id: this.getData('actionTargetInstanceId1'),
+			name: 'Slack Message target',
+			organizationId: this.getData('organizationId2'),
+			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+			configuration: { botId: 'amazingSensor' }
+		}];
+	})
+
 	.describe('First user retrieves all action target instances for his first organization.')
 	.get({}, function() { return { url: '/v1/actionTargetInstances?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -312,6 +326,19 @@ module.exports = baseTest('Action target instance resource')
 		}];
 	})
 
+	.describe('First user retrieves all action target instances for his second organization filtered by name.')
+	.get({}, function() { return { url: '/v1/actionTargetInstances?organizationId=' + this.getData('organizationId2') + '&name=%second%'}; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			id: this.getData('actionTargetInstanceId2'),
+			name: 'Slack Message second target',
+			organizationId: this.getData('organizationId2'),
+			actionTargetTemplateId: this.getData('actionTargetTemplateId2')
+		}];
+	})
+
 	.describe('First user retrieves all action target instances for his first action target template.')
 	.get({}, function() { return { url: '/v1/actionTargetInstances?actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') }; })
 	.expectStatusCode(200)
@@ -325,6 +352,19 @@ module.exports = baseTest('Action target instance resource')
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
 			configuration: {botId: 'amazingSensor'}
 		}, {
+			id: this.getData('actionTargetInstanceId3'),
+			name: 'Slack Message third target',
+			organizationId: this.getData('organizationId1'),
+			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+		}];
+	})
+
+	.describe('First user retrieves all action target instances for his first action target template filtered by name.')
+	.get({}, function() { return { url: '/v1/actionTargetInstances?actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') + '&name=%third%'}; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
 			id: this.getData('actionTargetInstanceId3'),
 			name: 'Slack Message third target',
 			organizationId: this.getData('organizationId1'),

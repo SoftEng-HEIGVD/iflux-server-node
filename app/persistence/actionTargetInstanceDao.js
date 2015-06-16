@@ -46,26 +46,48 @@ module.exports = _.extend(new dao(ActionTargetInstance), {
 		);
 	},
 
-	findByOrganization: function(organization) {
-		return this.collectionFromRelation(organization.actionTargetInstances());
+	findByOrganization: function(organization, criteria) {
+		return this.collection(function(qb) {
+			var qb = qb
+				.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
+				.where('organizations.id', organization.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('action_target_instances.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
 	},
 
-	findByActionTargetTemplateAndUser: function(actionTargetTemplate, user) {
+	findByActionTargetTemplateAndUser: function(actionTargetTemplate, user, criteria) {
 		return this.collection(function(qb) {
-			return qb
+			qb = qb
 				.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'))
 				.where('action_target_instances.action_target_template_id', actionTargetTemplate.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('action_target_instances.name', 'like', criteria.name);
+			}
+
+			return qb;
 		});
 	},
 
-	findAllByUser: function(user) {
+	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
-			return qb
+			qb = qb
 				.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('action_target_instances.name', 'like', criteria.name);
+			}
+
+			return qb;
 		});
 	}
 });

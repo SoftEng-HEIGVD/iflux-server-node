@@ -61,14 +61,15 @@ router.route('/')
 		var promise = null;
 
 		if (req.actionTargetTemplate) {
-			promise = actionTargetInstanceDao.findByActionTargetTemplateAndUser(req.actionTargetTemplate, req.userModel);
+			promise = actionTargetInstanceDao.findByActionTargetTemplateAndUser(req.actionTargetTemplate, req.userModel, { name: req.query.name });
 		}
 
 		else if (req.organization) {
-			promise = actionTargetInstanceDao.findByOrganization(req.organization);
+			promise = actionTargetInstanceDao.findByOrganization(req.organization, { name: req.query.name });
 		}
+
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
-			promise = actionTargetInstanceDao.findAllByUser(req.userModel);
+			promise = actionTargetInstanceDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 
 		if (promise) {
