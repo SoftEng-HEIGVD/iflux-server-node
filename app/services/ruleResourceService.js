@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+	moment = require('moment'),
 	Promise = require('bluebird'),
 	actionTargetInstanceDao = require('../persistence/actionTargetInstanceDao'),
 	actionTypeDao = require('../persistence/actionTypeDao'),
@@ -22,6 +23,35 @@ function RuleValidationError(errors) {
 
 RuleValidationError.prototype = Object.create(Error.prototype);
 RuleValidationError.prototype.constructor = RuleValidationError;
+
+/**
+ * Create dummy event
+ *
+ * @param eventSourceInstance The event source instance if any
+ * @param eventType The event type if any
+ * @param properties The properties of the event
+ * @returns {Object} The dummy event created
+ */
+function createDummyEvent(eventSourceInstance, eventType, properties) {
+	var event = {
+		timestamp: moment.utc().format(),
+		properties: properties
+	};
+
+	if (eventSourceInstance) {
+		event = _.extend(event, {
+			eventSourceInstanceId: eventSourceInstance.get('eventSourceInstanceId')
+		});
+	}
+
+	if (eventType) {
+		event = _.extend(event, {
+			eventTypeId: eventType.get('eventTypeId')
+		});
+	}
+
+	return event;
+}
 
 /**
  * Rule processing chain
@@ -229,7 +259,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 								var eventType = condition.eventTypeId ? entities.eventTypes[condition.eventTypeId] : null;
 
 								// Evaluation the condition against the sample
-								if (!ruleService.evaluateCondition(condition.fn.expression, eventSourceInstance, eventType, condition.fn.sampleEvent)) {
+								if (!ruleService.evaluateCondition(condition.fn.expression, eventSourceInstance, eventType, createDummyEvent(eventSourceInstance, eventType, condition.fn.sampleEvent))) {
 									entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }});
 								}
 							}
@@ -360,7 +390,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 
 							try {
 								// Do the evaluation of the transformation
-								var res = ruleService.evaluateTransformation(transformation.fn.expression, actionTargetInstance, actionType, eventSourceInstance, eventType, transformation.fn.sample);
+								var res = ruleService.evaluateTransformation(transformation.fn.expression, actionTargetInstance, actionType, eventSourceInstance, eventType, createDummyEvent(eventSourceInstance, eventType, transformation.fn.sample.event));
 
 								// The result of evaluation cannot be null or undefined
 								if (_.isUndefined(res) || _.isNull(res)) {
