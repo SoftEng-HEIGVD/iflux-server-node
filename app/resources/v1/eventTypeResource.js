@@ -3,6 +3,7 @@ var
 	express = require('express'),
   router = express.Router(),
 	npmlog = require('npmlog'),
+	validUrl = require('valid-url'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
@@ -56,26 +57,49 @@ router.route('/')
 	})
 
 	.post(function(req, res, next) {
+		if (!req.body.type) {
+			return resourceService.validationError(res, { type: [ 'Type is mandatory.' ] }).end();
+		}
+		else {
+			var url = validUrl.is_web_uri(req.body.type);
+
+			if (!url) {
+				return resourceService.validationError(res, { type: [ 'Type must be a valid URL.' ] }).end();
+			}
+		}
+
+		next();
+	})
+	.post(function(req, res, next) {
 		var eventType = req.body;
 
-		eventSourceTemplateDao.
-			findByIdAndUser(eventType.eventSourceTemplateId, req.userModel)
-			.then(function(eventSourceTemplate) {
-				eventTypeDao
-					.createAndSave(eventType, eventSourceTemplate)
-					.then(function(eventSourceTemplateSaved) {
-						return resourceService.location(res, 201, eventSourceTemplateSaved).end();
-					})
-					.catch(ValidationError, function(e) {
-						return resourceService.validationError(res, e).end();
-					})
-					.catch(function(err) {
-						npmlog.error(err);
-						return next(err)
-					});
-			})
-			.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
-				return resourceService.validationError(res, { eventSourceTemplateId: [ 'No event source template found.' ] }).end();
+		eventTypeDao
+			.findByType(eventType.type)
+			.then(function(eventTypeFound) {
+				if (eventTypeFound) {
+					return resourceService.validationError(res, { type: [ 'Type must be unique.' ] }).end();
+				}
+				else {
+					return eventSourceTemplateDao.
+						findByIdAndUser(eventType.eventSourceTemplateId, req.userModel)
+						.then(function(eventSourceTemplate) {
+							eventTypeDao
+								.createAndSave(eventType, eventSourceTemplate)
+								.then(function(eventSourceTemplateSaved) {
+									return resourceService.location(res, 201, eventSourceTemplateSaved).end();
+								})
+								.catch(ValidationError, function(e) {
+									return resourceService.validationError(res, e).end();
+								})
+								.catch(function(err) {
+									npmlog.error(err);
+									return next(err)
+								});
+						})
+						.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
+							return resourceService.validationError(res, { eventSourceTemplateId: [ 'No event source template found.' ] }).end();
+						});
+				}
 			});
 	});
 

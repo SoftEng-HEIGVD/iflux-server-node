@@ -137,6 +137,7 @@ module.exports = function(name) {
 			var realData = _.extend({
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
+				type: 'http://iflux.io/schemas/eventTypes',
 				schema: {}
 			}, data || {});
 

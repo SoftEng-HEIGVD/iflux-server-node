@@ -61,7 +61,7 @@ function populateConditions(entities, rule, conditions) {
 			// Store id + generated string id
 			realCondition = _.extend(realCondition, {
 				eventTypeId: eventType.get('id'),
-				eventTypeKey: eventType.get('eventTypeId')
+				eventType: eventType.get('type')
 			});
 		}
 
@@ -102,7 +102,7 @@ function populateTransformations(entities, rule, transformations) {
 
 			realTransformation = _.extend(realTransformation, {
 				eventTypeId: eventType.get('id'),
-				eventTypeKey: eventType.get('eventTypeId')
+				eventType: eventType.get('type')
 			});
 		}
 

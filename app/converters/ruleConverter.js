@@ -33,7 +33,7 @@ module.exports = {
 			if (condition.eventTypeId) {
 				convertedCondition = _.extend(convertedCondition, {
 					eventTypeId: condition.eventTypeId,
-					eventTypeKey: condition.eventTypeKey
+					eventType: condition.eventType
 				});
 			}
 
@@ -62,7 +62,7 @@ module.exports = {
 			if (transformation.eventTypeId) {
 				convertedTransformations = _.extend(convertedTransformations, {
 					eventTypeId: transformation.eventTypeId,
-					eventTypeKey: transformation.eventTypeKey
+					eventType: transformation.eventType
 				});
 			}
 

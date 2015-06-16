@@ -4,7 +4,7 @@ module.exports = {
 	convert: function(eventType) {
 		return {
 			id: eventType.get('id'),
-			eventTypeId: eventType.get('eventTypeId'),
+			type: eventType.get('type'),
 			name: eventType.get('name'),
 			description: eventType.get('description'),
 			eventSourceTemplateId: eventType.get('event_source_template_id'),

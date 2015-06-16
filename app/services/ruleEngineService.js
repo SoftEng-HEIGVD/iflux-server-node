@@ -88,7 +88,7 @@ module.exports = {
 						// Define the fields that can be evaluated
 						var matchingBy = {
 							source: !_.isUndefined(condition.eventSourceInstanceKey),
-							type: !_.isUndefined(condition.eventTypeKey),
+							type: !_.isUndefined(condition.eventType),
 							function: !_.isUndefined(condition.fn)
 						};
 
@@ -206,7 +206,7 @@ function matchConditionEventSource(condition, event) {
  * @returns {boolean} True if the event type match with the event
  */
 function matchConditionEventType(condition, event) {
-	return condition.eventTypeKey === event.typeId;
+	return condition.eventType === event.type;
 }
 
 /**
@@ -220,7 +220,7 @@ function matchConditionFunction(condition, event) {
 	return condition.fn.compiled(
 		event,
 		cache.eventSourceInstances[event.sourceId],
-		cache.eventTypes[event.typeId]
+		cache.eventTypes[event.type]
 	);
 }
 
@@ -232,5 +232,5 @@ function matchConditionFunction(condition, event) {
  * @returns {boolean} True if the event type match with the event
  */
 function matchTransformationEventType(transformation, event) {
-	return transformation.eventTypeKey === event.eventTypeId;
+	return transformation.eventType === event.type;
 }

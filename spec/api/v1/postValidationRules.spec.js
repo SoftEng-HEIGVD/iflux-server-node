@@ -286,7 +286,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
-						expression: 'return event.temperature.old != event.temperature.new',
+						expression: 'return event.properties.temperature.old != event.properties.temperature.new',
 						sampleEvent: {
 							temperature: {
 								old: 10,

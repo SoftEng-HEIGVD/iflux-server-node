@@ -15,6 +15,7 @@ module.exports = _.extend(new dao(EventType), {
 		var data = {
 			name: eventType.name,
 			description: eventType.description,
+			type: eventType.type,
 			eventTypeSchema: eventType.schema,
 			event_source_template_id: eventSourceTemplate.id
 		};
@@ -47,6 +48,9 @@ module.exports = _.extend(new dao(EventType), {
 
 			return qb;
 		});
-	}
+	},
 
+	findByType: function(type) {
+		return this.model.where({ type: type }).fetch();
+	}
 });

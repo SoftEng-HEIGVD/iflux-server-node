@@ -88,6 +88,7 @@ exports.seed = function(knex, Promise) {
 		id: 1,
 		eventTypeId: stringService.generateId(),
 		event_source_template_id: eventSourceTemplate1.id,
+		type: 'http://iflux.io/schemas/eventTypes/1',
 	  name: "ifluxTemperatureSensor/increase",
 	  description: "Temperature increase",
 	  eventTypeSchema: {
@@ -116,6 +117,7 @@ exports.seed = function(knex, Promise) {
 		id: 2,
 		eventTypeId: stringService.generateId(),
 		event_source_template_id: eventSourceTemplate1.id,
+		type: 'http://iflux.io/schemas/eventTypes/2',
 	  name: "ifluxTemperatureSensor/decrease",
 	  description: "Temperature decrease",
 	  eventTypeSchema: {
@@ -144,6 +146,7 @@ exports.seed = function(knex, Promise) {
 		id: 3,
 		eventTypeId: stringService.generateId(),
 		event_source_template_id: eventSourceTemplate2.id,
+		type: 'http://iflux.io/schemas/eventTypes/3',
 	  name: "Light level",
 	  description: "Measure the light level in a room",
 	  eventTypeSchema: {

@@ -17,9 +17,9 @@ module.exports = {
 
 			.createEventSourceTemplate('Create first event source template for second user', { name: 'Event source template 3', public: false }, 2, 3)
 
-			.createEventType('Create first event type for first template', { name: 'Temperature increase' }, 1, 1)
-			.createEventType('Create second event type for first template', { name: 'Temperature decrease' }, 1, 1)
-			.createEventType('Create first event type for second template', { name: 'Temperature change' }, 1, 2)
+			.createEventType('Create first event type for first template', { name: 'Temperature increase', type: 'http://iflux.io/schemas/eventTypes/1' }, 1, 1)
+			.createEventType('Create second event type for first template', { name: 'Temperature decrease', type: 'http://iflux.io/schemas/eventTypes/2' }, 1, 1)
+			.createEventType('Create first event type for second template', { name: 'Temperature change', type: 'http://iflux.io/schemas/eventTypes/3' }, 1, 2)
 
 			.createEventType('Create first event type for third template', { name: 'Lightening' }, 2, 3)
 

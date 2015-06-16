@@ -114,7 +114,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToHavePath([ '0.conditions.0.eventSourceInstanceKey', '0.conditions.0.eventTypeKey', '0.transformations.0.actionTargetInstanceKey', '0.transformations.0.actionTypeKey', '0.transformations.0.eventTypeKey' ])
+	.expectJsonToHavePath([ '0.conditions.0.eventSourceInstanceKey', '0.conditions.0.eventType', '0.transformations.0.actionTargetInstanceKey', '0.transformations.0.actionTypeKey', '0.transformations.0.eventType' ])
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('ruleId1'),
@@ -377,7 +377,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.describe('First user retrieve his first rule.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ 'conditions.0.eventSourceInstanceKey', 'conditions.0.eventTypeKey', 'transformations.0.actionTargetInstanceKey', 'transformations.0.actionTypeKey', 'transformations.0.eventTypeKey' ])
+	.expectJsonToHavePath([ 'conditions.0.eventSourceInstanceKey', 'conditions.0.eventType', 'transformations.0.actionTargetInstanceKey', 'transformations.0.actionTypeKey', 'transformations.0.eventType' ])
 	.expectJsonToBeAtLeast(function() {
 		return {
 			id: this.getData('ruleId1'),
