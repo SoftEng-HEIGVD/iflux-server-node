@@ -2,7 +2,6 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
-	npmlog = require('npmlog'),
 	Connector = require('../../../lib/ioc').create('connector'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
@@ -113,7 +112,10 @@ router.route('/')
 									.then(function(eventSourceInstanceSaved) {
 										return new Connector()
 											.configureEventSourceInstance(eventSourceTemplate, eventSourceInstanceSaved)
-											.then(function() { return eventSourceInstanceSaved; });
+											.then(function() { return eventSourceInstanceSaved; })
+											.catch(function(err) {
+												return resourceService.serverError(res, { message: 'Unable to configure the remote event source.'})
+											});
 									})
 									.then(function(eventSourceInstanceSaved) {
 										return resourceService.location(res, 201, eventSourceInstanceSaved).end();
@@ -122,7 +124,7 @@ router.route('/')
 										return resourceService.validationError(res, e).end();
 									})
 									.catch(function(err) {
-										npmlog.error(err);
+										console.log(err);
 										return next(err)
 									});
 							}
@@ -175,7 +177,10 @@ router.route('/:id')
 				.then(function(eventSourceTemplate) {
 					return new Connector()
 						.configureEventSourceInstance(eventSourceTemplate, eventSourceInstance)
-						.then(function() { return eventSourceInstance; });
+						.then(function() { return eventSourceInstance; })
+						.catch(function(err) {
+							return resourceService.serverError(res, { message: 'Unable to configure the remote event source.'})
+						});
 				})
 				.then(function() {
 					return resourceService.location(res, 201, eventSourceInstance).end();

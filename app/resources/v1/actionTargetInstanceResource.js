@@ -2,7 +2,6 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
-	npmlog = require('npmlog'),
 	ValidationError = require('checkit').Error,
 	Connector = require('../../../lib/ioc').create('connector'),
 	models = require('../../models/models'),
@@ -113,7 +112,10 @@ router.route('/')
 									.then(function(actionTargetInstanceSaved) {
 										return new Connector()
 											.configureActionTargetInstance(actionTargetTemplate, actionTargetInstanceSaved)
-											.then(function() { return actionTargetInstanceSaved; });
+											.then(function() { return actionTargetInstanceSaved; })
+											.catch(function(err) {
+												return resourceService.serverError(res, { message: 'Unable to configure the remote action target.'})
+											});
 									})
 									.then(function(actionTargetInstanceSaved) {
 										return resourceService.location(res, 201, actionTargetInstanceSaved).end();
@@ -122,7 +124,7 @@ router.route('/')
 										return resourceService.validationError(res, e).end();
 									})
 									.catch(function(err) {
-										npmlog.error(err);
+										console.log(err);
 										return next(err)
 									});
 							}
@@ -175,7 +177,10 @@ router.route('/:id')
 				.then(function(actionTargetTemplate) {
 					return new Connector()
 						.configureActionTargetInstance(actionTargetTemplate, actionTargetInstance)
-						.then(function() { return actionTargetInstance; });
+						.then(function() { return actionTargetInstance; })
+						.catch(function(err) {
+							return resourceService.serverError(res, { message: 'Unable to configure the remote action target.'})
+						});
 				})
 				.then(function() {
 					return resourceService.location(res, 201, actionTargetInstance).end();
