@@ -8,7 +8,7 @@ module.exports = {
 	 * @returns {Function} The function created from the expression
 	 */
 	createConditionFn: function(expression) {
-		return safeEval.Function('event', 'eventSourceInstance', 'eventType', expression);
+		return safeEval.Function('event', 'eventSourceInstance', 'eventType', 'options', expression);
 	},
 
 	/**
@@ -18,7 +18,7 @@ module.exports = {
 	 * @returns {Function} The function created from the expression
 	 */
 	createTransformationFn: function(expression) {
-		return safeEval.Function('event', 'actionTargetInstance', 'actionType', 'eventSourceInstance', 'eventType', expression);
+		return safeEval.Function('event', 'actionTargetInstance', 'actionType', 'eventSourceInstance', 'eventType', 'options', expression);
 	},
 
 	/**
@@ -31,7 +31,7 @@ module.exports = {
 	 * @returns {Boolean} Result of the expression evaluation
 	 */
 	evaluateCondition: function(expression, eventSourceInstance, eventType, sample) {
-		return this.createConditionFn(expression)(sample, eventSourceInstance, eventType);
+		return this.createConditionFn(expression)(sample, eventSourceInstance, eventType, { json: JSON, console: console });
 	},
 
 	/**
@@ -46,6 +46,6 @@ module.exports = {
 	 * @returns {*} Result of the expression evaluation
 	 */
 	evaluateTransformation: function(expression, actionTargetInstance, actionType, eventSourceInstance, eventType, sample) {
-		return this.createTransformationFn(expression)(sample, actionTargetInstance, actionType, eventSourceInstance, eventType);
+		return this.createTransformationFn(expression)(sample, actionTargetInstance, actionType, eventSourceInstance, eventType, { json: JSON, console: console });
 	}
 };

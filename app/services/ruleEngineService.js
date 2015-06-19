@@ -125,7 +125,7 @@ module.exports = {
 						// Define the fields that can be evaluated
 						var matchingBy = {
 							targetAndType: true, // Mandatory evaluation
-							evenType: !_.isUndefined(transformation.eventTypeKey)
+							eventType: !_.isUndefined(transformation.eventType)
 						};
 
 						// Evaluate the transformation
@@ -140,7 +140,8 @@ module.exports = {
 								actionTargetInstance,
 								actionType,
 								cache.eventSourceInstances[event.sourceId],
-								cache.eventTypes[event.type]
+								cache.eventTypes[event.type],
+								{ json: JSON, console: console }
 							);
 
 							// Store transformation
@@ -220,7 +221,8 @@ function matchConditionFunction(condition, event) {
 	return condition.fn.compiled(
 		event,
 		cache.eventSourceInstances[event.sourceId],
-		cache.eventTypes[event.type]
+		cache.eventTypes[event.type],
+		{ json: JSON, console: console }
 	);
 }
 

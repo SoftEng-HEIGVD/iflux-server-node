@@ -7,7 +7,7 @@ var
 
 d.on('error', function(err) {
 	console.log("Unable to process the actions.");
-	console.log(err);
+	//console.log(err);
 });
 
 var connector = new Connector();
