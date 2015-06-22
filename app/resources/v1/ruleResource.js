@@ -291,7 +291,8 @@ router.route('/:id')
 					rule.set('description', updatedRuleDefinition.description);
 				}
 
-				if (updatedRuleDefinition.active) {
+				if (!_.isUndefined(updatedRuleDefinition.active)) {
+					console.log(updatedRuleDefinition.active);
 					rule.set('active', updatedRuleDefinition.active);
 				}
 
