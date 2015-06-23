@@ -3,8 +3,16 @@ var
 
 module.exports = {
 	addUser: function(params, organization, user) {
-		return userDao
-			.findByEmail(params.email)
+		var promise;
+
+		if (params.userId) {
+			promise = userDao.findById(params.userId);
+		}
+		else {
+			promise = userDao.findByEmail(params.email);
+		}
+
+		return promise
 			.then(function(userToAdd) {
 				return organization.users().attach(userToAdd);
 			})
@@ -14,8 +22,16 @@ module.exports = {
 	},
 
 	removeUser: function(params, organization, user) {
-		return userDao
-			.findByEmail(params.email)
+		var promise;
+
+		if (params.userId) {
+			promise = userDao.findById(params.userId);
+		}
+		else {
+			promise = userDao.findByEmail(params.email);
+		}
+
+		return promise
 			.then(function(userToRemove) {
 				return organization.users().detach(userToRemove);
 			});

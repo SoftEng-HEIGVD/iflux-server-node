@@ -109,7 +109,11 @@ module.exports = baseTest('Organization resource')
 	.expectStatusCode(200)
 
 	.describe('Retrieve the list of users for organization where first user is a member')
-	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
+	.get({
+		_storeData: function() { this.setData('user2AddedId', this.response.body[1].id); }
+	}, function() {
+		return { url: this.getData('locationOrganization1') + '/users' };
+	})
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToHavePath([ '0.id', '0.firstName', '0.lastName', '1.id', '1.firstName', '1.lastName' ])
@@ -156,4 +160,51 @@ module.exports = baseTest('Organization resource')
 		name: 'iFLUX 2'
 	}])
 
+	.describe('First user add again the second user into the first organization but this time with the userId')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({}, function() {
+		return {
+			url: this.getData('locationOrganization1') + '/actions',
+			body: {
+				type: "addUser",
+				userId: this.getData('user2AddedId')
+			}
+		};
+	})
+	.expectStatusCode(200)
+
+	.describe('Retrieve the list of users for organization where first user is a member (userId used)')
+	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToHavePath([ '0.id', '0.firstName', '0.lastName', '1.id', '1.firstName', '1.lastName' ])
+	.expectJsonToBeAtLeast([{
+		firstName: 'Henri',
+		lastName: 'Dupont'
+	}, {
+		firstName: 'Henri',
+		lastName: 'Dutoit'
+	}])
+
+	.describe('First user remove again the second user from the first organization but this time with the userId')
+	.post({}, function() {
+		return {
+			url: this.getData('locationOrganization1') + '/actions',
+			body: {
+				type: "removeUser",
+				userId: this.getData('user2AddedId')
+			}
+		};
+	})
+	.expectStatusCode(200)
+
+	.describe('Retrieve the list of users for organization where first user is a member (userId used)')
+	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToHavePath([ '0.id', '0.firstName', '0.lastName' ])
+	.expectJsonToBeAtLeast([{
+		firstName: 'Henri',
+		lastName: 'Dupont'
+	}])
 ;
