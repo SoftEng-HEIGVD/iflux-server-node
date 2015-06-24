@@ -96,15 +96,15 @@ describe("Connector", function() {
 		);
 	});
 
-	it ("should not configure an event source instance when there is no URL.", function() {
+	it ("should not configure an event source when there is no URL.", function() {
 		var connector = new Connector();
 
-		connector.configureEventSourceInstance({}, {});
+		connector.configureEventSource({}, {});
 
 		expect(npmlog.info).toHaveBeenCalledWith('There is nothing to configure. Configuration URL is missing.');
 	});
 
-	it ("should configure event source instance.", function() {
+	it ("should configure event source.", function() {
 		var connector = new Connector();
 
 		bluebird.defer.andCallFake(function() {
@@ -114,10 +114,10 @@ describe("Connector", function() {
 			};
 		});
 
-		var result = connector.configureEventSourceInstance({
+		var result = connector.configureEventSource({
 			configurationUrl: 'somewhere'
 		}, {
-			eventSourceInstanceId: 'abcdef',
+			eventSourceId: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -127,7 +127,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					eventSourceInstanceId: 'abcdef',
+					eventSourceId: 'abcdef',
 					properties: {
 						test: 2
 					}
@@ -142,7 +142,7 @@ describe("Connector", function() {
 		expect(restClientSpy.on).toHaveBeenCalled();
 	});
 
-	it ("should configure event source instance with token.", function() {
+	it ("should configure event source with token.", function() {
 		var connector = new Connector();
 
 		bluebird.defer.andCallFake(function() {
@@ -152,11 +152,11 @@ describe("Connector", function() {
 			};
 		});
 
-		var result = connector.configureEventSourceInstance({
+		var result = connector.configureEventSource({
 			configurationUrl: 'somewhere',
 			configurationToken: '1234'
 		}, {
-			eventSourceInstanceId: 'abcdef',
+			eventSourceId: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -166,7 +166,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					eventSourceInstanceId: 'abcdef',
+					eventSourceId: 'abcdef',
 					properties: {
 						test: 2
 					}
@@ -182,16 +182,16 @@ describe("Connector", function() {
 		expect(restClientSpy.on).toHaveBeenCalled();
 	});
 
-	it ("should not configure an action target instance when there is no URL.", function() {
+	it ("should not configure an action target when there is no URL.", function() {
 		var connector = new Connector();
 
-		connector.configureActionTargetInstance({}, {});
+		connector.configureActionTarget({}, {});
 
 		expect(npmlog.info).toHaveBeenCalledWith('There is nothing to configure. Configuration URL is missing.');
 	});
 
 
-	it ("should configure action target instance.", function() {
+	it ("should configure action target.", function() {
 		var connector = new Connector();
 
 		bluebird.defer.andCallFake(function() {
@@ -201,10 +201,10 @@ describe("Connector", function() {
 			};
 		});
 
-		var result = connector.configureActionTargetInstance({
+		var result = connector.configureActionTarget({
 			configurationUrl: 'somewhere'
 		}, {
-			actionTargetInstanceId: 'abcdef',
+			actionTargetId: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -214,7 +214,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					actionTargetInstanceId: 'abcdef',
+					actionTargetId: 'abcdef',
 					properties: {
 						test: 2
 					}
@@ -229,7 +229,7 @@ describe("Connector", function() {
 		expect(restClientSpy.on).toHaveBeenCalled();
 	});
 
-	it ("should configure action target instance with token.", function() {
+	it ("should configure action target with token.", function() {
 		var connector = new Connector();
 
 		bluebird.defer.andCallFake(function() {
@@ -239,11 +239,11 @@ describe("Connector", function() {
 			};
 		});
 
-		var result = connector.configureActionTargetInstance({
+		var result = connector.configureActionTarget({
 			configurationUrl: 'somewhere',
 			configurationToken: '1234'
 		}, {
-			actionTargetInstanceId: 'abcdef',
+			actionTargetId: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -253,7 +253,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					actionTargetInstanceId: 'abcdef',
+					actionTargetId: 'abcdef',
 					properties: {
 						test: 2
 					}

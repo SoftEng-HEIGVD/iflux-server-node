@@ -31,10 +31,10 @@ module.exports = {
 	 */
 	populate: function() {
 		cache = {
-			actionTargetInstances: {},
+			actionTargets: {},
 			actionTargetTemplates: {},
 			actionTypes: {},
-			eventSourceInstances: {},
+			eventSources: {},
 			eventTypes: {},
 			rules: {}
 		};
@@ -88,7 +88,7 @@ module.exports = {
 					_.each(rule.conditions, function (condition) {
 						// Define the fields that can be evaluated
 						var matchingBy = {
-							source: !_.isUndefined(condition.eventSourceInstanceKey),
+							source: !_.isUndefined(condition.eventSourceKey),
 							type: !_.isUndefined(condition.eventType),
 							function: !_.isUndefined(condition.fn)
 						};
@@ -130,16 +130,16 @@ module.exports = {
 
 						// Evaluate the transformation
 						if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
-							var actionTargetInstance = cache.actionTargetInstances[transformation.actionTargetInstanceKey];
-							var actionTargetTemplate = cache.actionTargetTemplates[actionTargetInstance.get('action_target_template_id')];
+							var actionTarget = cache.actionTargets[transformation.actionTargetKey];
+							var actionTargetTemplate = cache.actionTargetTemplates[actionTarget.get('action_target_template_id')];
 							var actionType = cache.actionTypes[transformation.actionType];
 
 							// Process the transformation of the event to the target format
 							var transformed = transformation.fn.compiled(
 								event,
-								actionTargetInstance,
+								actionTarget,
 								actionType,
-								cache.eventSourceInstances[event.sourceId],
+								cache.eventSources[event.sourceId],
 								cache.eventTypes[event.type],
 								{ json: JSON, console: console }
 							);
@@ -153,7 +153,7 @@ module.exports = {
 							actions.push({
 								targetUrl: actionTargetTemplate.get('targetUrl'),
 								targetToken: actionTargetTemplate.get('targetToken'),
-								instanceId: actionTargetInstance.get('actionTargetInstanceId'),
+								actionTargetId: actionTarget.get('actionTargetId'),
 								type: actionType.get('type'),
 								payload: transformed
 							});
@@ -189,14 +189,14 @@ var eventMatchEngine = {
 };
 
 /**
- * Match an event with the condition based on the event source instance.
+ * Match an event with the condition based on the event source.
  *
  * @param condition The condition to evaluate
  * @param event The event to evaluate
- * @returns {boolean} True if the event source instance match with the event
+ * @returns {boolean} True if the event source match with the event
  */
 function matchConditionEventSource(condition, event) {
-	return condition.eventSourceInstanceKey === event.sourceId;
+	return condition.eventSourceKey === event.sourceId;
 }
 
 /**
@@ -220,7 +220,7 @@ function matchConditionEventType(condition, event) {
 function matchConditionFunction(condition, event) {
 	return condition.fn.compiled(
 		event,
-		cache.eventSourceInstances[event.sourceId],
+		cache.eventSources[event.sourceId],
 		cache.eventTypes[event.type],
 		{ json: JSON, console: console }
 	);

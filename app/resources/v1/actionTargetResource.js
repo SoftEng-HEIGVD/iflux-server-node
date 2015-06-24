@@ -7,23 +7,23 @@ var
 	Connector = require('../../../lib/ioc').create('connector'),
 	models = require('../../models/models'),
 	actionTargetTemplateDao = require('../../persistence/actionTargetTemplateDao'),
-	actionTargetInstanceDao = require('../../persistence/actionTargetInstanceDao'),
+	actionTargetDao = require('../../persistence/actionTargetDao'),
 	organizationDao = require('../../persistence/organizationDao'),
-	actionTargetInstanceConverter = require('../../converters/actionTargetInstanceConverter'),
+	actionTargetConverter = require('../../converters/actionTargetConverter'),
 	jsonValidatorService = require('../../services/jsonValidatorService'),
-	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTargetInstances');
+	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTargets');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
 	router.param('id', function (req, res, next) {
-		return actionTargetInstanceDao
+		return actionTargetDao
 			.findByIdAndUser(req.params.id, req.userModel)
-			.then(function(actionTargetInstance) {
-				req.actionTargetInstance = actionTargetInstance;
+			.then(function(actionTarget) {
+				req.actionTarget = actionTarget;
 				next();
 			})
-			.catch(actionTargetInstanceDao.model.NotFoundError, function(err) {
+			.catch(actionTargetDao.model.NotFoundError, function(err) {
 				return resourceService.forbidden(res).end();
 			});
 	});
@@ -61,22 +61,22 @@ router.route('/')
 		var promise = null;
 
 		if (req.actionTargetTemplate) {
-			promise = actionTargetInstanceDao.findByActionTargetTemplateAndUser(req.actionTargetTemplate, req.userModel, { name: req.query.name });
+			promise = actionTargetDao.findByActionTargetTemplateAndUser(req.actionTargetTemplate, req.userModel, { name: req.query.name });
 		}
 
 		else if (req.organization) {
-			promise = actionTargetInstanceDao.findByOrganization(req.organization, { name: req.query.name });
+			promise = actionTargetDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
-			promise = actionTargetInstanceDao.findAllByUser(req.userModel, { name: req.query.name });
+			promise = actionTargetDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 
 		if (promise) {
-			return promise.then(function (actionTargetInstances) {
+			return promise.then(function (actionTargets) {
 				return resourceService.ok(res,
-					_.map(actionTargetInstances, function (actionTargetInstance) {
-						return actionTargetInstanceConverter.convert(actionTargetInstance);
+					_.map(actionTargets, function (actionTarget) {
+						return actionTargetConverter.convert(actionTarget);
 					})
 				);
 			});
@@ -91,35 +91,35 @@ router.route('/')
 	})
 
 	.post(function(req, res, next) {
-		var actionTargetInstance = req.body;
+		var actionTarget = req.body;
 
 		// Try to find the organization
 		organizationDao
-			.findByIdAndUser(actionTargetInstance.organizationId, req.userModel)
+			.findByIdAndUser(actionTarget.organizationId, req.userModel)
 			.then(function(organization) {
 				// Try to find the action target template
 				return actionTargetTemplateDao
-					.findByIdAndUserOrPublic(actionTargetInstance.actionTargetTemplateId, req.userModel)
+					.findByIdAndUserOrPublic(actionTarget.actionTargetTemplateId, req.userModel)
 					.then(function(actionTargetTemplate) {
 						// Prepare the creation function
 						var create = function() {
-							if (!actionTargetTemplate.get('public') && actionTargetInstance.organizationId != actionTargetTemplate.get('organization_id')) {
+							if (!actionTargetTemplate.get('public') && actionTarget.organizationId != actionTargetTemplate.get('organization_id')) {
 								return resourceService.validationError(res, { actionTargetTemplateId: [ 'No action target template found.' ] }).end();
 							}
 
 							else {
-								return actionTargetInstanceDao
-									.createAndSave(actionTargetInstance, organization, actionTargetTemplate)
-									.then(function(actionTargetInstanceSaved) {
+								return actionTargetDao
+									.createAndSave(actionTarget, organization, actionTargetTemplate)
+									.then(function(actionTargetSaved) {
 										return new Connector()
-											.configureActionTargetInstance(actionTargetTemplate, actionTargetInstanceSaved)
-											.then(function() { return actionTargetInstanceSaved; })
+											.configureActionTarget(actionTargetTemplate, actionTargetSaved)
+											.then(function() { return actionTargetSaved; })
 											.catch(function(err) {
 												return resourceService.serverError(res, { message: 'Unable to configure the remote action target.'})
 											});
 									})
-									.then(function(actionTargetInstanceSaved) {
-										return resourceService.location(res, 201, actionTargetInstanceSaved).end();
+									.then(function(actionTargetSaved) {
+										return resourceService.location(res, 201, actionTargetSaved).end();
 									})
 									.catch(ValidationError, function(e) {
 										return resourceService.validationError(res, e).end();
@@ -134,7 +134,7 @@ router.route('/')
 						// Check if a validation must be done for the configuration and do it
 						if (actionTargetTemplate.get('configurationSchema')) {
 							return jsonValidatorService
-								.validate(actionTargetInstance, 'configuration', actionTargetTemplate.get('configurationSchema'))
+								.validate(actionTarget, 'configuration', actionTargetTemplate.get('configurationSchema'))
 								.then(create)
 								.catch(ValidationError, function(err) {
 									return resourceService.validationError(res, err).end();
@@ -155,56 +155,56 @@ router.route('/')
 
 router.route('/:id')
 	.get(function(req, res, next) {
-		return resourceService.ok(res, actionTargetInstanceConverter.convert(req.actionTargetInstance));;
+		return resourceService.ok(res, actionTargetConverter.convert(req.actionTarget));;
 	})
 
 	.patch(function(req, res, next) {
-		var actionTargetInstance = req.actionTargetInstance;
+		var actionTarget = req.actionTarget;
 
 		var data = req.body;
 
 		if (data.name !== undefined) {
-			actionTargetInstance.set('name', data.name);
+			actionTarget.set('name', data.name);
 		}
 
 		if (data.configuration !== undefined) {
-			actionTargetInstance.configuration = data.configuration;
+			actionTarget.configuration = data.configuration;
 		}
 
-		if (actionTargetInstance.hasChanged()) {
-			return actionTargetInstanceDao
-				.save(actionTargetInstance)
-				.then(actionTargetInstance.actionTargetTemplate().fetch())
+		if (actionTarget.hasChanged()) {
+			return actionTargetDao
+				.save(actionTarget)
+				.then(actionTarget.actionTargetTemplate().fetch())
 				.then(function(actionTargetTemplate) {
 					return new Connector()
-						.configureActionTargetInstance(actionTargetTemplate, actionTargetInstance)
-						.then(function() { return actionTargetInstance; })
+						.configureActionTarget(actionTargetTemplate, actionTarget)
+						.then(function() { return actionTarget; })
 						.catch(function(err) {
 							return resourceService.serverError(res, { message: 'Unable to configure the remote action target.'})
 						});
 				})
 				.then(function() {
-					return resourceService.location(res, 201, actionTargetInstance).end();
+					return resourceService.location(res, 201, actionTarget).end();
 				})
 				.catch(ValidationError, function(e) {
 					return resourceService.validationError(res, e);
 				});
 		}
 		else {
-			return resourceService.location(res, 304, actionTargetInstance).end();
+			return resourceService.location(res, 304, actionTarget).end();
 		}
 	});
 
 router.route('/:id/configure')
 	.post(function(req, res, next) {
-		var actionTargetInstance = req.actionTargetInstance;
+		var actionTarget = req.actionTarget;
 
 		return Promise
-			.resolve(actionTargetInstance.actionTargetTemplate().fetch())
+			.resolve(actionTarget.actionTargetTemplate().fetch())
 			.then(function(actionTargetTemplate) {
 				if (actionTargetTemplate.get('configurationUrl')) {
 					return new Connector()
-						.configureActionTargetInstance(actionTargetTemplate, actionTargetInstance)
+						.configureActionTarget(actionTargetTemplate, actionTarget)
 						.then(function () {
 							resourceService.ok(res).end();
 						})

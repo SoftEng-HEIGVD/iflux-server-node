@@ -43,14 +43,14 @@ function populateConditions(entities, rule, conditions) {
 		// Base condition
 		var realCondition = { description: condition.description ? condition.description : null };
 
-		// Event source instance present
-		if (condition.eventSourceInstanceId) {
-			var eventSourceInstance = entities.eventSourceInstances[condition.eventSourceInstanceId];
+		// Event source present
+		if (condition.eventSourceId) {
+			var eventSource = entities.eventSources[condition.eventSourceId];
 
 			// Store id + generated string id
 			realCondition = _.extend(realCondition, {
-				eventSourceInstanceId: eventSourceInstance.get('id'),
-				eventSourceInstanceKey: eventSourceInstance.get('eventSourceInstanceId')
+				eventSourceId: eventSource.get('id'),
+				eventSourceKey: eventSource.get('eventSourceId')
 			});
 		}
 
@@ -83,11 +83,11 @@ function populateTransformations(entities, rule, transformations) {
 	_.each(transformations, function(transformation) {
 		var realTransformation = { description: transformation.description ? transformation.description : null };
 
-		var actionTargetInstance = entities.actionTargetInstances[transformation.actionTargetInstanceId];
+		var actionTarget = entities.actionTargets[transformation.actionTargetId];
 
 		realTransformation = _.extend(realTransformation, {
-			actionTargetInstanceId: actionTargetInstance.get('id'),
-			actionTargetInstanceKey: actionTargetInstance.get('actionTargetInstanceId')
+			actionTargetId: actionTarget.get('id'),
+			actionTargetKey: actionTarget.get('actionTargetId')
 		});
 
 		var actionType = entities.actionTypes[transformation.actionTypeId];
@@ -112,8 +112,8 @@ function populateTransformations(entities, rule, transformations) {
 				sampleEvent: transformation.fn.sample.event
 			});
 
-			if (transformation.fn.sample.eventSourceTemplateId) {
-				realTransformation.sampleEventSourceTemplateId = transformation.fn.sample.eventSourceTemplateId;
+			if (transformation.fn.sample.eventSourceId) {
+				realTransformation.sampleEventSourceId = transformation.fn.sample.eventSourceId;
 			}
 
 			if (transformation.fn.sample.eventTypeId) {
@@ -263,14 +263,14 @@ router.route('/:id')
 		if (req.body.conditions) {
 			ruleProcessingChain = ruleProcessingChain
 				.checkConditionsIntegrity()
-				.checkEventSourceInstances()
+				.checkEventSources()
 				.checkEventTypes('conditions')
 				.checkConditions();
 		}
 
 		if (req.body.transformations) {
 			ruleProcessingChain = ruleProcessingChain
-				.checkActionTargetInstance()
+				.checkActionTargets()
 				.checkActionTypes()
 				.checkEventTypes('transformations')
 				.checkTransformations();

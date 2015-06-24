@@ -1,27 +1,27 @@
 var
 	_ = require('underscore'),
 	bookshelf = require('../../config/bookshelf'),
-	EventSourceInstance = require('../services/modelRegistry').eventSourceInstance,
+	EventSource = require('../services/modelRegistry').eventSource,
 	dao = require('./dao');
 
-module.exports = _.extend(new dao(EventSourceInstance), {
+module.exports = _.extend(new dao(EventSource), {
 	/**
-	 * Create a new event source instance
+	 * Create a new event source
 	 *
-	 * @param eventSourceInstance The event source instance to create and save
-	 * @param organization The organization to link with the instance
-	 * @param eventSourceTemplate The event source template to link with the instance
+	 * @param eventSource The event source to create and save
+	 * @param organization The organization to link
+	 * @param eventSourceTemplate The event source template to link
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(eventSourceInstance, organization, eventSourceTemplate) {
+	createAndSave: function(eventSource, organization, eventSourceTemplate) {
 		var data = {
-			name: eventSourceInstance.name,
+			name: eventSource.name,
 			event_source_template_id: eventSourceTemplate.get('id'),
 			organization_id: organization.get('id')
 		};
 
-		if (eventSourceTemplate.get('configurationSchema') && eventSourceInstance.configuration) {
-			data.configuration = eventSourceInstance.configuration;
+		if (eventSourceTemplate.get('configurationSchema') && eventSource.configuration) {
+			data.configuration = eventSource.configuration;
 		}
 
 		return new this.model(data).save();
@@ -31,9 +31,9 @@ module.exports = _.extend(new dao(EventSourceInstance), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
+					.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
 					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
-					.where('event_source_instances.id', id)
+					.where('event_sources.id', id)
 					.where('organizations_users.user_id', user.get('id'));
 			})
 			.fetch({require: true});
@@ -49,11 +49,11 @@ module.exports = _.extend(new dao(EventSourceInstance), {
 	findByOrganization: function(organization, criteria) {
 		return this.collection(function(qb) {
 			var qb = qb
-				.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
+				.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
 				.where('organizations.id', organization.get('id'));
 
 			if (criteria.name) {
-				qb = qb.where('event_source_instances.name', 'like', criteria.name);
+				qb = qb.where('event_sources.name', 'like', criteria.name);
 			}
 
 			return qb;
@@ -63,13 +63,13 @@ module.exports = _.extend(new dao(EventSourceInstance), {
 	findByEventSourceTemplateAndUser: function(eventSourceTemplate, user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
+				.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'))
-				.where('event_source_instances.event_source_template_id', eventSourceTemplate.get('id'));
+				.where('event_sources.event_source_template_id', eventSourceTemplate.get('id'));
 
 			if (criteria.name) {
-				qb = qb.where('event_source_instances.name', 'like', criteria.name);
+				qb = qb.where('event_sources.name', 'like', criteria.name);
 			}
 
 			return qb;
@@ -79,12 +79,12 @@ module.exports = _.extend(new dao(EventSourceInstance), {
 	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'event_source_instances.organization_id', 'organizations.id')
+				.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
 
 			if (criteria.name) {
-				qb = qb.where('event_source_instances.name', 'like', criteria.name);
+				qb = qb.where('event_sources.name', 'like', criteria.name);
 			}
 
 			return qb;

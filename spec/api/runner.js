@@ -22,10 +22,10 @@ function del(table) {
 var deletes = [
 	del('rules'),
 	del('action_types'),
-	del('action_target_instances'),
+	del('action_targets'),
 	del('action_target_templates'),
 	del('event_types'),
-	del('event_source_instances'),
+	del('event_sources'),
 	del('event_source_templates'),
 	del('organizations_users'),
 	del('users'),

@@ -2,7 +2,7 @@ var
 	config = require('../../../config/config'),
 	baseTest = require('../base');
 
-module.exports = baseTest('Event source instance resource')
+module.exports = baseTest('Event source resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
@@ -68,12 +68,12 @@ module.exports = baseTest('Event source instance resource')
 		}
 	}, 1, 1)
 
-	.describe('First user tries to creates an event source instance in an organization he has no access.')
+	.describe('First user tries to creates an event source in an organization he has no access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
-	.post({	url: '/v1/eventSourceInstances' }, function() {
+	.post({	url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer instance',
+				name: 'iFLUX Thermometer',
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 			}
@@ -83,11 +83,11 @@ module.exports = baseTest('Event source instance resource')
 	.expectJsonToHavePath('organizationId.0')
 	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
 
-	.describe('First user tries to create an event source instance from an event source template he has no access.')
-	.post({	url: '/v1/eventSourceInstances' }, function() {
+	.describe('First user tries to create an event source from an event source template he has no access.')
+	.post({	url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer instance',
+				name: 'iFLUX Thermometer',
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 			}
@@ -97,11 +97,11 @@ module.exports = baseTest('Event source instance resource')
 	.expectJsonToHavePath('eventSourceTemplateId.0')
 	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]})
 
-	.describe('First user tries to create an event source instance with a wrong configuration.')
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.describe('First user tries to create an event source with a wrong configuration.')
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer instance',
+				name: 'iFLUX Thermometer',
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				configuration: {
@@ -117,11 +117,11 @@ module.exports = baseTest('Event source instance resource')
 		sensorId: [ "requires property \"sensorId\"" ]
 	}]})
 
-	.describe('First user creates a first event source instance for his second organization and first event source template.')
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.describe('First user creates a first event source for his second organization and first event source template.')
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer instance',
+				name: 'iFLUX Thermometer',
 				organizationId: this.getData('organizationId2'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				configuration: {
@@ -130,30 +130,30 @@ module.exports = baseTest('Event source instance resource')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 1)
+	.storeLocationAs('eventSource', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user creates a second event source instance for his second organization and second event source template.')
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.describe('First user creates a second event source for his second organization and second event source template.')
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer second instance',
+				name: 'iFLUX Thermometer second',
 				organizationId: this.getData('organizationId2'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 2)
+	.storeLocationAs('eventSource', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 
-	.describe('First user tries to create a third event source instance for his first organization and second event source template.')
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.describe('First user tries to create a third event source for his first organization and second event source template.')
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer third instance',
+				name: 'iFLUX Thermometer third',
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 			}
@@ -163,52 +163,52 @@ module.exports = baseTest('Event source instance resource')
 	.expectJsonToHavePath('eventSourceTemplateId.0')
 	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]})
 
-	.describe('First user creates a third event source instance for his first organization and first event source template.')
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.describe('First user creates a third event source for his first organization and first event source template.')
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer third instance',
+				name: 'iFLUX Thermometer third',
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 3)
+	.storeLocationAs('eventSource', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 
-	.describe('Second user creates a first event source instance for his organization and first event source template.')
+	.describe('Second user creates a first event source for his organization and first event source template.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer first instance for second user',
+				name: 'iFLUX Thermometer first for second user',
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 4)
+	.storeLocationAs('eventSource', 4)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 
-	.describe('Second user creates a second event source instance for his organization and third event source template.')
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.describe('Second user creates a second event source for his organization and third event source template.')
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'iFLUX Thermometer second instance for second user',
+				name: 'iFLUX Thermometer second for second user',
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 5)
+	.storeLocationAs('eventSource', 5)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 
-	.describe('First user tries to retrieve event source instances.')
+	.describe('First user tries to retrieve event sources.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
-	.get({ url: '/v1/eventSourceInstances' })
+	.get({ url: '/v1/eventSources' })
 	.expectStatusCode(422)
 	.expectJsonToHavePath([ 'eventSourceTemplateId', 'organizationId', 'allOrganizations' ])
 	.expectJsonToBe({
@@ -217,10 +217,10 @@ module.exports = baseTest('Event source instance resource')
 		allOrganizations: [ 'allOrganizations should be provided.' ]
 	})
 
-	.describe('First user tries to mix different way to retrieve event source instances (eventSourceTemplateId is used).')
+	.describe('First user tries to mix different way to retrieve event sources (eventSourceTemplateId is used).')
 	.get({}, function() {
 		return {
-			url: '/v1/eventSourceInstances?allOrganizations&organizationId=' +
+			url: '/v1/eventSources?allOrganizations&organizationId=' +
 				this.getData('organizationId1') +
 				'&eventSourceTemplateId=' +
 				this.getData('eventSourceTemplateId1')
@@ -230,63 +230,63 @@ module.exports = baseTest('Event source instance resource')
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId1'),
+			id: this.getData('eventSourceId1'),
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}, {
-			id: this.getData('eventSourceInstanceId3'),
+			id: this.getData('eventSourceId3'),
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
-	.describe('First user tries to mix different way to retrieve event source instances (organizationId is used).')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?allOrganizations&organizationId=' + this.getData('organizationId1') }; })
+	.describe('First user tries to mix different way to retrieve event sources (organizationId is used).')
+	.get({}, function() { return { url: '/v1/eventSources?allOrganizations&organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId3'),
+			id: this.getData('eventSourceId3'),
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances.')
-	.get({ url: '/v1/eventSourceInstances?allOrganizations' })
+	.describe('First user retrieves all event sources.')
+	.get({ url: '/v1/eventSources?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId1'),
-			name: 'iFLUX Thermometer instance',
+			id: this.getData('eventSourceId1'),
+			name: 'iFLUX Thermometer',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {
 				sensorId: 'amazingSensor'
 			}
 		}, {
-			id: this.getData('eventSourceInstanceId2'),
-			name: 'iFLUX Thermometer second instance',
+			id: this.getData('eventSourceId2'),
+			name: 'iFLUX Thermometer second',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}, {
-			id: this.getData('eventSourceInstanceId3'),
-			name: 'iFLUX Thermometer third instance',
+			id: this.getData('eventSourceId3'),
+			name: 'iFLUX Thermometer third',
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances filtered by name.')
-	.get({ url: '/v1/eventSourceInstances?allOrganizations&name=%25er instance' })
+	.describe('First user retrieves all event sources filtered by name.')
+	.get({ url: '/v1/eventSources?allOrganizations&name=%25er' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId1'),
-			name: 'iFLUX Thermometer instance',
+			id: this.getData('eventSourceId1'),
+			name: 'iFLUX Thermometer',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {
@@ -295,212 +295,212 @@ module.exports = baseTest('Event source instance resource')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances for his first organization.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?organizationId=' + this.getData('organizationId1') }; })
+	.describe('First user retrieves all event sources for his first organization.')
+	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId3'),
-			name: 'iFLUX Thermometer third instance',
+			id: this.getData('eventSourceId3'),
+			name: 'iFLUX Thermometer third',
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances for his second organization filtered by name.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?organizationId=' + this.getData('organizationId2') + '&name=%second%'}; })
+	.describe('First user retrieves all event sources for his second organization filtered by name.')
+	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId2') + '&name=%second%'}; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId2'),
-			name: 'iFLUX Thermometer second instance',
+			id: this.getData('eventSourceId2'),
+			name: 'iFLUX Thermometer second',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances for his second organization.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?organizationId=' + this.getData('organizationId2') }; })
+	.describe('First user retrieves all event sources for his second organization.')
+	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId', '0.configuration' ])
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId1'),
-			name: 'iFLUX Thermometer instance',
+			id: this.getData('eventSourceId1'),
+			name: 'iFLUX Thermometer',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {sensorId: 'amazingSensor'}
 		}, {
-			id: this.getData('eventSourceInstanceId2'),
-			name: 'iFLUX Thermometer second instance',
+			id: this.getData('eventSourceId2'),
+			name: 'iFLUX Thermometer second',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances for his first event source template.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
+	.describe('First user retrieves all event sources for his first event source template.')
+	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId', '0.configuration' ])
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId1'),
-			name: 'iFLUX Thermometer instance',
+			id: this.getData('eventSourceId1'),
+			name: 'iFLUX Thermometer',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {sensorId: 'amazingSensor'}
 		}, {
-			id: this.getData('eventSourceInstanceId3'),
-			name: 'iFLUX Thermometer third instance',
+			id: this.getData('eventSourceId3'),
+			name: 'iFLUX Thermometer third',
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances for his first event source template filtered by name.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') + '&name=%third%' }; })
+	.describe('First user retrieves all event sources for his first event source template filtered by name.')
+	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') + '&name=%third%' }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId3'),
-			name: 'iFLUX Thermometer third instance',
+			id: this.getData('eventSourceId3'),
+			name: 'iFLUX Thermometer third',
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
-	.describe('First user retrieves all event source instances for his second event source template.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?eventSourceTemplateId=' + this.getData('eventSourceTemplateId2') }; })
+	.describe('First user retrieves all event sources for his second event source template.')
+	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId2'),
-			name: 'iFLUX Thermometer second instance',
+			id: this.getData('eventSourceId2'),
+			name: 'iFLUX Thermometer second',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}];
 	})
 
-	.describe('Second user retrieves all event source instances.')
+	.describe('Second user retrieves all event sources.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
-	.get({ url: '/v1/eventSourceInstances?allOrganizations' })
+	.get({ url: '/v1/eventSources?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId4'),
-			name: 'iFLUX Thermometer first instance for second user',
+			id: this.getData('eventSourceId4'),
+			name: 'iFLUX Thermometer first for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}, {
-			id: this.getData('eventSourceInstanceId5'),
-			name: 'iFLUX Thermometer second instance for second user',
+			id: this.getData('eventSourceId5'),
+			name: 'iFLUX Thermometer second for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 		}];
 	})
 
-	.describe('Second user retrieves all event source instances for his organization.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?organizationId=' + this.getData('organizationId3') }; })
+	.describe('Second user retrieves all event sources for his organization.')
+	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId4'),
-			name: 'iFLUX Thermometer first instance for second user',
+			id: this.getData('eventSourceId4'),
+			name: 'iFLUX Thermometer first for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}, {
-			id: this.getData('eventSourceInstanceId5'),
-			name: 'iFLUX Thermometer second instance for second user',
+			id: this.getData('eventSourceId5'),
+			name: 'iFLUX Thermometer second for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 		}];
 	})
 
-	.describe('Second user retrieves all event source instances for his event source template.')
-	.get({}, function() { return { url: '/v1/eventSourceInstances?eventSourceTemplateId=' + this.getData('eventSourceTemplateId3') }; })
+	.describe('Second user retrieves all event sources for his event source template.')
+	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId3') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.eventSourceInstanceId', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
+	.expectJsonToHavePath([ '0.id', '0.eventSourceId', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{
-			id: this.getData('eventSourceInstanceId5'),
-			name: 'iFLUX Thermometer second instance for second user',
+			id: this.getData('eventSourceId5'),
+			name: 'iFLUX Thermometer second for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 		}];
 	})
 
-	.describe('First user tries to retrieve an event source instance that does not exist.')
+	.describe('First user tries to retrieve an event source that does not exist.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
-	.get({}, function() { return { url: this.getData('locationEventSourceInstance1') + '100' }; })
+	.get({}, function() { return { url: this.getData('locationEventSource1') + '100' }; })
 	.expectStatusCode(403)
 
-	.describe('First user tries to retrieve an event source instance from an organization where he is not a member.')
-	.get({}, function() { return { url: this.getData('locationEventSourceInstance4') }; })
+	.describe('First user tries to retrieve an event source from an organization where he is not a member.')
+	.get({}, function() { return { url: this.getData('locationEventSource4') }; })
 	.expectStatusCode(403)
 
-	.describe('First user retrieve his first event source instance.')
-	.get({}, function() { return { url: this.getData('locationEventSourceInstance1') }; })
+	.describe('First user retrieve his first event source.')
+	.get({}, function() { return { url: this.getData('locationEventSource1') }; })
 	.expectStatusCode(200)
 	.expectJsonToBeAtLeast(function() {
 		return {
-			id: this.getData('eventSourceInstanceId1'),
-			name: 'iFLUX Thermometer instance',
+			id: this.getData('eventSourceId1'),
+			name: 'iFLUX Thermometer',
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 			configuration: {sensorId: 'amazingSensor'}
 		};
 	})
 
-	.describe('First user updates hist first event source instance.')
+	.describe('First user updates hist first event source.')
 	.patch({}, function() {
 		return {
-			url: this.getData('locationEventSourceInstance1'),
+			url: this.getData('locationEventSource1'),
 			body: {
-				name: 'iFLUX Thermometer instance renamed'
+				name: 'iFLUX Thermometer renamed'
 			}
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
 	.describe('No update sent must let the resource unchanged')
 	.patch({}, function() {
 		return {
-			url: this.getData('locationEventSourceInstance1'),
+			url: this.getData('locationEventSource1'),
 			body: {}
 		};
 	})
 	.expectStatusCode(304)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('Second user tries to update the first event source instance of first user.')
+	.describe('Second user tries to update the first event source of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
 		return {
-			url: this.getData('locationEventSourceInstance1'),
+			url: this.getData('locationEventSource1'),
 			body: {
-				name: 'iFLUX Thermometer instance renamed by second user'
+				name: 'iFLUX Thermometer renamed by second user'
 			}
 		};
 	})
 	.expectStatusCode(403)
 
-	.describe('First user creates an event source instance with a configuration call to remote system.')
+	.describe('First user creates an event source with a configuration call to remote system.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.mockRequest({
 		method: 'POST',
@@ -518,10 +518,10 @@ module.exports = baseTest('Event source instance resource')
 		remainingTimes: 1,
 		unlimited: 1
 	})
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'Instance with configuration',
+				name: 'Source with configuration',
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId4'),
 				configuration: {
@@ -530,9 +530,9 @@ module.exports = baseTest('Event source instance resource')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 1)
+	.storeLocationAs('eventSource', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 	.expectMockServerToHaveReceived(function() {
 		return {
 			method: 'POST',
@@ -549,7 +549,7 @@ module.exports = baseTest('Event source instance resource')
 		};
 	})
 
-	.describe('First user creates an event source instance with a configuration and a token call to remote system.')
+	.describe('First user creates an event source with a configuration and a token call to remote system.')
 	.mockRequest({
 		method: 'POST',
 		path: '/configure',
@@ -566,10 +566,10 @@ module.exports = baseTest('Event source instance resource')
 		remainingTimes: 1,
 		unlimited: 1
 	})
-	.post({ url: '/v1/eventSourceInstances' }, function() {
+	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
-				name: 'Instance with configuration and token',
+				name: 'Source with configuration and token',
 				organizationId: this.getData('organizationId1'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId5'),
 				configuration: {
@@ -578,9 +578,9 @@ module.exports = baseTest('Event source instance resource')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 6)
+	.storeLocationAs('eventSource', 6)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceInstances/:id')
+	.expectLocationHeader('/v1/eventSources/:id')
 	.expectMockServerToHaveReceived(function() {
 		return {
 			method: 'POST',
@@ -601,7 +601,7 @@ module.exports = baseTest('Event source instance resource')
 		};
 	})
 
-	.describe('First reconfigure an event source instance.')
+	.describe('First reconfigure an event source.')
 	.mockRequest({
 		method: 'POST',
 		path: '/configure',
@@ -620,7 +620,7 @@ module.exports = baseTest('Event source instance resource')
 	})
 	.post({}, function() {
 		return {
-			url: this.getData('locationEventSourceInstance6') + '/configure'
+			url: this.getData('locationEventSource6') + '/configure'
 		};
 	})
 	.expectStatusCode(200)
@@ -644,10 +644,10 @@ module.exports = baseTest('Event source instance resource')
 		};
 	})
 
-	.describe('First tries to reconfigure an event source instance that has no configuration.')
+	.describe('First tries to reconfigure an event source that has no configuration.')
 	.post({}, function() {
 		return {
-			url: this.getData('locationEventSourceInstance2') + '/configure'
+			url: this.getData('locationEventSource2') + '/configure'
 		};
 	})
 	.expectStatusCode(404)

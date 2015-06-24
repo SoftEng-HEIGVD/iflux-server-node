@@ -1,10 +1,10 @@
 var
 	_ = require('underscore'),
 	Promise = require('bluebird'),
-	actionTargetInstanceDao = require('../persistence/actionTargetInstanceDao'),
+	actionTargetDao = require('../persistence/actionTargetDao'),
 	actionTypeDao = require('../persistence/actionTypeDao'),
 	eventTypeDao = require('../persistence/eventTypeDao'),
-	eventSourceInstanceDao = require('../persistence/eventSourceInstanceDao'),
+	eventSourceDao = require('../persistence/eventSourceDao'),
 	eventSourceTemplateDao = require('../persistence/eventSourceTemplateDao'),
 	ruleService = require('../services/ruleService');
 
@@ -23,10 +23,10 @@ module.exports = {
 		_.each(ruleModel.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
-			if (condition.eventSourceInstanceId) {
+			if (condition.eventSourceId) {
 				convertedCondition = _.extend(convertedCondition, {
-					eventSourceInstanceId: condition.eventSourceInstanceId,
-					eventSourceInstanceKey: condition.eventSourceInstanceKey
+					eventSourceId: condition.eventSourceId,
+					eventSourceKey: condition.eventSourceKey
 				});
 			}
 
@@ -53,8 +53,8 @@ module.exports = {
 			var convertedTransformations = {};
 
 			convertedTransformations = _.extend(convertedTransformations, {
-				actionTargetInstanceId: transformation.actionTargetInstanceId,
-				actionTargetInstanceKey: transformation.actionTargetInstanceKey,
+				actionTargetId: transformation.actionTargetId,
+				actionTargetKey: transformation.actionTargetKey,
 				actionTypeId: transformation.actionTypeId,
 				actionType: transformation.actionType
 			});
@@ -76,8 +76,8 @@ module.exports = {
 					}
 				});
 
-				if (transformation.sampleEventSourceInstanceId) {
-					convertedTransformations.fn.sample.sampleEventSourceInstanceId = transformation.sampleEventSourceInstanceId;
+				if (transformation.sampleEventSourceId) {
+					convertedTransformations.fn.sample.sampleEventSourceId = transformation.sampleEventSourceId;
 				}
 
 				if (transformation.sampleEventTypeId) {
@@ -108,22 +108,22 @@ module.exports = {
 			transformations: []
 		};
 
-		var eventSourceInstanceIds = [];
+		var eventSourceIds = [];
 		var eventTypeIds = [];
-		var actionTargetInstanceIds = [];
+		var actionTargetIds = [];
 		var actionTypeIds = [];
 
 		_.each(ruleModel.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
-			if (condition.eventSourceInstanceId) {
-				if (!cache.eventSourceInstances[condition.eventSourceInstanceKey] && !_.contains(eventSourceInstanceIds, condition.eventSourceInstanceId)) {
-					eventSourceInstanceIds.push(condition.eventSourceInstanceId);
+			if (condition.eventSourceId) {
+				if (!cache.eventSources[condition.eventSourceKey] && !_.contains(eventSourceIds, condition.eventSourceId)) {
+					eventSourceIds.push(condition.eventSourceId);
 				}
 
 				convertedCondition = _.extend(convertedCondition, {
-					eventSourceInstanceId: condition.eventSourceInstanceId,
-					eventSourceInstanceKey: condition.eventSourceInstanceKey
+					eventSourceId: condition.eventSourceId,
+					eventSourceKey: condition.eventSourceKey
 				});
 			}
 
@@ -154,8 +154,8 @@ module.exports = {
 		_.each(ruleModel.get('transformations'), function(transformation) {
 			var convertedTransformations = {};
 
-			if (!cache.actionTargetInstances[transformation.actionTargetInstanceKey] && !_.contains(actionTargetInstanceIds, transformation.actionTargetInstanceId)) {
-				actionTargetInstanceIds.push(transformation.actionTargetInstanceId);
+			if (!cache.actionTargets[transformation.actionTargetKey] && !_.contains(actionTargetIds, transformation.actionTargetId)) {
+				actionTargetIds.push(transformation.actionTargetId);
 			}
 
 			if (!cache.actionTypes[transformation.actionType] && !_.contains(actionTypeIds, transformation.actionTypeId)) {
@@ -163,8 +163,8 @@ module.exports = {
 			}
 
 			convertedTransformations = _.extend(convertedTransformations, {
-				actionTargetInstanceId: transformation.actionTargetInstanceId,
-				actionTargetInstanceKey: transformation.actionTargetInstanceKey,
+				actionTargetId: transformation.actionTargetId,
+				actionTargetKey: transformation.actionTargetKey,
 				actionTypeId: transformation.actionTypeId,
 				actionType: transformation.actionType
 			});
@@ -191,8 +191,8 @@ module.exports = {
 					}
 				});
 
-				if (transformation.sampleEventSourceInstanceId) {
-					convertedTransformations.fn.sample.sampleEventSourceInstanceId = transformation.sampleEventSourceInstanceId;
+				if (transformation.sampleEventSourceId) {
+					convertedTransformations.fn.sample.sampleEventSourceId = transformation.sampleEventSourceId;
 				}
 
 				if (transformation.sampleEventTypeId) {
@@ -206,26 +206,26 @@ module.exports = {
 		return Promise
 			.resolve()
 			.then(function() {
-				return actionTargetInstanceDao
-					.findByIds(actionTargetInstanceIds)
-					.then(function(actionTargetInstancesRetrieved) {
-						cache.actionTargetInstances = _.extend(
-							cache.actionTargetInstances,
+				return actionTargetDao
+					.findByIds(actionTargetIds)
+					.then(function(actionTargetsRetrieved) {
+						cache.actionTargets = _.extend(
+							cache.actionTargets,
 							_.reduce(
-								actionTargetInstancesRetrieved,
-								function(memo, actionTargetInstance) {
-									memo[actionTargetInstance.get('actionTargetInstanceId')] = actionTargetInstance;
+								actionTargetsRetrieved,
+								function(memo, actionTarget) {
+									memo[actionTarget.get('actionTargetId')] = actionTarget;
 									return memo;
 								},
 								{}
 							)
 						);
 
-						return actionTargetInstancesRetrieved;
+						return actionTargetsRetrieved;
 					}
 				)
-				.each(function(actionTargetInstance) {
-					return actionTargetInstance.actionTargetTemplate().fetch().then(function(actionTargetTemplate) {
+				.each(function(actionTarget) {
+					return actionTarget.actionTargetTemplate().fetch().then(function(actionTargetTemplate) {
 						cache.actionTargetTemplates[actionTargetTemplate.get('id')] = actionTargetTemplate;
 					});
 				});
@@ -242,9 +242,9 @@ module.exports = {
 					return memo;
 				}, {}));
 			}))
-			.then(eventSourceInstanceDao.findByIds(eventSourceInstanceIds).then(function(eventSourceInstancesRetrieved) {
-					cache.eventSourceInstances = _.extend(cache.eventSourceInstances, _.reduce(eventSourceInstancesRetrieved, function(memo, eventSourceInstance) {
-						memo[eventSourceInstance.get('eventSourceInstanceId')] = eventSourceInstance;
+			.then(eventSourceDao.findByIds(eventSourceIds).then(function(eventSourcesRetrieved) {
+					cache.eventSources = _.extend(cache.eventSources, _.reduce(eventSourcesRetrieved, function(memo, eventSource) {
+						memo[eventSource.get('eventSourceId')] = eventSource;
 						return memo;
 					}, {}));
 				})

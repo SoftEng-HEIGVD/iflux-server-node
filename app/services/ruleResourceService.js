@@ -2,9 +2,9 @@ var
 	_ = require('underscore'),
 	moment = require('moment'),
 	Promise = require('bluebird'),
-	actionTargetInstanceDao = require('../persistence/actionTargetInstanceDao'),
+	actionTargetDao = require('../persistence/actionTargetDao'),
 	actionTypeDao = require('../persistence/actionTypeDao'),
-	eventSourceInstanceDao = require('../persistence/eventSourceInstanceDao'),
+	eventSourceDao = require('../persistence/eventSourceDao'),
 	eventTypeDao = require('../persistence/eventTypeDao'),
 	organizationDao = require('../persistence/organizationDao'),
 	ruleService = require('../services/ruleService');
@@ -27,20 +27,20 @@ RuleValidationError.prototype.constructor = RuleValidationError;
 /**
  * Create dummy event
  *
- * @param eventSourceInstance The event source instance if any
+ * @param eventSource The event source if any
  * @param eventType The event type if any
  * @param properties The properties of the event
  * @returns {Object} The dummy event created
  */
-function createDummyEvent(eventSourceInstance, eventType, properties) {
+function createDummyEvent(eventSource, eventType, properties) {
 	var event = {
 		timestamp: moment.utc().format(),
 		properties: properties
 	};
 
-	if (eventSourceInstance) {
+	if (eventSource) {
 		event = _.extend(event, {
-			eventSourceInstanceId: eventSourceInstance.get('eventSourceInstanceId')
+			eventSourceId: eventSource.get('eventSourceId')
 		});
 	}
 
@@ -67,8 +67,8 @@ function RuleProcessingChain(req, collectionRequired) {
 	// This function is aimed to be used in POST and PATCH methods.
 	this.promise = Promise
 		.resolve({
-			actionTargetInstances: {},
-			eventSourceInstances: {},
+			actionTargets: {},
+			eventSources: {},
 			eventTypes: {},
 			actionTypes: {},
 			errors: {
@@ -152,8 +152,8 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 			return Promise
 				.reduce(this.req.body.conditions || [], function (entities, condition, idx) {
 					// Check there is at least one type of condition evaluation
-					if (!condition.eventSourceInstanceId && !condition.eventTypeId && !condition.fn) {
-						entities.errors.conditions[idx] = [ 'At least one of eventSourceInstanceId, eventTypeId or fn must be provided.' ];
+					if (!condition.eventSourceId && !condition.eventTypeId && !condition.fn) {
+						entities.errors.conditions[idx] = [ 'At least one of eventSourceId, eventTypeId or fn must be provided.' ];
 					}
 
 					return entities;
@@ -164,24 +164,24 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 	},
 
 	/**
-	 * When present, retrieve the event source instance from its id. This is done
+	 * When present, retrieve the event source from its id. This is done
 	 * for each condition present in the rule.
 	 *
 	 * @returns {RuleProcessingChain} This
 	 */
-	checkEventSourceInstances: function() {
+	checkEventSources: function() {
 		this.promise = this.promise.then(function(entities) {
 			return Promise
 				.reduce(this.req.body.conditions|| [], function (entities, condition, idx) {
-					if (condition.eventSourceInstanceId && !entities.eventSourceInstances[condition.eventSourceInstanceId]) {
-						return eventSourceInstanceDao
-							.findByIdAndUser(condition.eventSourceInstanceId, entities.user)
-							.then(function (eventSourceInstance) {
-								entities.eventSourceInstances[condition.eventSourceInstanceId] = eventSourceInstance;
+					if (condition.eventSourceId && !entities.eventSources[condition.eventSourceId]) {
+						return eventSourceDao
+							.findByIdAndUser(condition.eventSourceId, entities.user)
+							.then(function (eventSource) {
+								entities.eventSources[condition.eventSourceId] = eventSource;
 								return entities;
 							})
-							.catch(eventSourceInstanceDao.model.NotFoundError, function (err) {
-								entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, {eventSourceInstanceId: ['Event source instance not found.']});
+							.catch(eventSourceDao.model.NotFoundError, function (err) {
+								entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, {eventSourceId: ['Event source not found.']});
 								return entities;
 							});
 					}
@@ -255,11 +255,11 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 						else {
 							try {
 								// Retrieve the parameters for the evaluation
-								var eventSourceInstance = condition.eventSourceInstanceId ? entities.eventSourceInstances[condition.eventSourceInstanceId] : null;
+								var eventSource = condition.eventSourceId ? entities.eventSources[condition.eventSourceId] : null;
 								var eventType = condition.eventTypeId ? entities.eventTypes[condition.eventTypeId] : null;
 
 								// Evaluation the condition against the sample
-								if (!ruleService.evaluateCondition(condition.fn.expression, eventSourceInstance, eventType, createDummyEvent(eventSourceInstance, eventType, condition.fn.sampleEvent))) {
+								if (!ruleService.evaluateCondition(condition.fn.expression, eventSource, eventType, createDummyEvent(eventSource, eventType, condition.fn.sampleEvent))) {
 									entities.errors.conditions[idx] = _.extend(entities.errors.conditions[idx] || {}, { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }});
 								}
 							}
@@ -278,31 +278,30 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 	},
 
 	/**
-	 * Each transformation must define an action target instance. Each action target
-	 * instance is retrieved.
+	 * Each transformation must define an action target. Each action target is retrieved.
 	 *
 	 * @returns {RuleProcessingChain} This
 	 */
-	checkActionTargetInstance: function() {
+	checkActionTargets: function() {
 		this.promise = this.promise.then(function(entities) {
 			return Promise
 				.reduce(this.req.body.transformations|| [], function (entities, transformation, idx) {
-					if (transformation.actionTargetInstanceId && !entities.actionTargetInstances[transformation.actionTargetInstanceId]) {
-						return actionTargetInstanceDao
-							.findByIdAndUser(transformation.actionTargetInstanceId, entities.user)
-							.then(function (actionTargetInstance) {
-								entities.actionTargetInstances[transformation.actionTargetInstanceId] = actionTargetInstance;
+					if (transformation.actionTargetId && !entities.actionTargets[transformation.actionTargetId]) {
+						return actionTargetDao
+							.findByIdAndUser(transformation.actionTargetId, entities.user)
+							.then(function (actionTarget) {
+								entities.actionTargets[transformation.actionTargetId] = actionTarget;
 								return entities;
 							})
-							.catch(actionTargetInstanceDao.model.NotFoundError, function (err) {
-								entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTargetInstanceId: [ 'Action target instance not found.' ]});
+							.catch(actionTargetDao.model.NotFoundError, function (err) {
+								entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTargetId: [ 'Action target not found.' ]});
 								return entities;
 							});
 					}
 
-					// Action target instance is mandatory
-					else if (!transformation.actionTargetInstanceId) {
-						entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTargetInstanceId: [ 'Action target instance id is mandatory.' ]});
+					// Action target is mandatory
+					else if (!transformation.actionTargetId) {
+						entities.errors.transformations[idx] = _.extend(entities.errors.transformations[idx] || {}, { actionTargetId: [ 'Action target id is mandatory.' ]});
 						return entities;
 					}
 					else {
@@ -383,14 +382,14 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 						}
 						else {
 							// Prepare the evaluation parameters
-							var eventSourceInstance = transformation.fn.sample.eventSourceInstanceId ? entities.eventSourceInstances[transformation.fn.sample.eventSourceInstanceId] : null;
+							var eventSource = transformation.fn.sample.eventSourceId ? entities.eventSources[transformation.fn.sample.eventSourceId] : null;
 							var eventType = transformation.fn.sample.eventTypeId ? entities.eventTypes[transformation.fn.sample.eventTypeId] : null;
-							var actionTargetInstance = transformation.actionTargetInstanceId ? entities.actionTargetInstances[transformation.actionTargetInstanceId] : null;
+							var actionTarget = transformation.actionTargetId ? entities.actionTargets[transformation.actionTargetId] : null;
 							var actionType = entities.actionTypes[transformation.actionTypeId];
 
 							try {
 								// Do the evaluation of the transformation
-								var res = ruleService.evaluateTransformation(transformation.fn.expression, actionTargetInstance, actionType, eventSourceInstance, eventType, createDummyEvent(eventSourceInstance, eventType, transformation.fn.sample.event));
+								var res = ruleService.evaluateTransformation(transformation.fn.expression, actionTarget, actionType, eventSource, eventType, createDummyEvent(eventSource, eventType, transformation.fn.sample.event));
 
 								// The result of evaluation cannot be null or undefined
 								if (_.isUndefined(res) || _.isNull(res)) {
@@ -419,7 +418,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 	checkConditions: function() {
 		return this
 			.checkConditionsIntegrity()
-			.checkEventSourceInstances()
+			.checkEventSources()
 			.checkEventTypes('conditions')
 			.checkConditionExpressions();
 	},
@@ -431,7 +430,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 	 */
 	checkTransformations: function() {
 		return this
-			.checkActionTargetInstance()
+			.checkActionTargets()
 			.checkActionTypes()
 			.checkEventTypes('transformations')
 			.checkTransformationExpressions();

@@ -19,7 +19,7 @@ var ActionTargetTemplate = module.exports = bookshelf.Model.extend({
 		return this.hasMany(modelRegistry.actionType);
 	},
 
-	actionTargetInstances: function() {
-		return this.hasMany(modelRegistry.actionTargetInstance)
+	actionTargets: function() {
+		return this.hasMany(modelRegistry.actionTarget)
 	}
 });

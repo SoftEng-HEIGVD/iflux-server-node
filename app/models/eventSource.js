@@ -3,33 +3,33 @@ var
 	stringService = require('../services/stringService'),
 	modelRegistry = require('../services/modelRegistry');
 
-var ActionTargetInstance = module.exports = bookshelf.Model.extend({
-	tableName: 'action_target_instances',
+var EventSource = module.exports = bookshelf.Model.extend({
+	tableName: 'event_sources',
 	hasTimestamps: true,
 
 	validations: {
-		name: [ 'required', 'minLength:5', 'unique:action_target_instances:name:Name is already taken.' ]
+		name: [ 'required', 'minLength:5', 'unique:event_sources:name:Name is already taken.' ]
 	},
 
 	constructor: function() {
 		bookshelf.Model.apply(this, arguments);
 
 		this.on('creating', function(model, attrs, options) {
-			if (!model.get('actionTargetInstanceId')) {
-				model.set('actionTargetInstanceId', stringService.generateId());
+			if (!model.get('eventSourceId')) {
+				model.set('eventSourceId', stringService.generateId());
 			}
 		});
 	},
 
 	generatedId: function() {
-		return this.get('actionTargetInstanceId');
+		return this.get('eventSourceId');
 	},
 
 	organization: function() {
 		return this.belongsTo(modelRegistry.organization);
 	},
 
-	actionTargetTemplate: function() {
-		return this.belongsTo(modelRegistry.actionTargetTemplate);
+	eventSourceTemplate: function() {
+		return this.belongsTo(modelRegistry.eventSourceTemplate);
 	}
 });

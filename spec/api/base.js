@@ -4,7 +4,7 @@ var
 	config = require('../../config/config');
 
 module.exports = function(name) {
-	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate', 'eventType', 'eventSourceInstance', 'actionTargetTemplate', 'actionType', 'actionTargetInstance'], function(memo, value) {
+	var keys = _.reduce(['token', 'organization', 'eventSourceTemplate', 'eventType', 'eventSource', 'actionTargetTemplate', 'actionType', 'actionTarget'], function(memo, value) {
 		memo[value] = {
 			name: value,
 			count: 0
@@ -110,7 +110,7 @@ module.exports = function(name) {
 				.expectStatusCode(201);
 		},
 
-		createEventSourceInstance: function(label, data, tokenIdx, organizationIdx, templateIdx) {
+		createEventSource: function(label, data, tokenIdx, organizationIdx, templateIdx) {
 			var realData = _.extend({
 				name: 'iFLUX thermometer'
 			}, data || {});
@@ -119,8 +119,8 @@ module.exports = function(name) {
 				.describe(label)
 				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
 				.post({
-					url: '/v1/eventSourceInstances',
-					_storeData: storageFactory('eventSourceInstance')
+					url: '/v1/eventSources',
+					_storeData: storageFactory('eventSource')
 				},
 				function() {
 					return {
@@ -185,7 +185,7 @@ module.exports = function(name) {
 				.expectStatusCode(201);
 		},
 
-		createActionTargetInstance: function(label, data, tokenIdx, organizationIdx, templateIdx) {
+		createActionTarget: function(label, data, tokenIdx, organizationIdx, templateIdx) {
 			var realData = _.extend({
 				name: 'iFLUX radiator'
 			}, data || {});
@@ -194,8 +194,8 @@ module.exports = function(name) {
 				.describe(label)
 				.jwtAuthentication(function() { return this.getData(buildKey('token', tokenIdx)); })
 				.post({
-					url: '/v1/actionTargetInstances',
-					_storeData: storageFactory('actionTargetInstance')
+					url: '/v1/actionTargets',
+					_storeData: storageFactory('actionTarget')
 				},
 				function() {
 					return {

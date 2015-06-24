@@ -1,27 +1,27 @@
 var
 	_ = require('underscore'),
 	bookshelf = require('../../config/bookshelf'),
-	ActionTargetInstance = require('../services/modelRegistry').actionTargetInstance,
+	ActionTarget = require('../services/modelRegistry').actionTarget,
 	dao = require('./dao');
 
-module.exports = _.extend(new dao(ActionTargetInstance), {
+module.exports = _.extend(new dao(ActionTarget), {
 	/**
-	 * Create a new action target instance
+	 * Create a new action target
 	 *
-	 * @param actionTargetInstance The action target instance to create and save
-	 * @param organization The organization to link with the instance
-	 * @param actionTargetTemplate The action target template to link with the instance
+	 * @param actionTarget The action target to create and save
+	 * @param organization The organization to link
+	 * @param actionTargetTemplate The action target template to link
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(actionTargetInstance, organization, actionTargetTemplate) {
+	createAndSave: function(actionTarget, organization, actionTargetTemplate) {
 		var data = {
-			name: actionTargetInstance.name,
+			name: actionTarget.name,
 			action_target_template_id: actionTargetTemplate.get('id'),
 			organization_id: organization.get('id')
 		};
 
-		if (actionTargetTemplate.get('configurationSchema') && actionTargetInstance.configuration) {
-			data.configuration = actionTargetInstance.configuration;
+		if (actionTargetTemplate.get('configurationSchema') && actionTarget.configuration) {
+			data.configuration = actionTarget.configuration;
 		}
 
 		return new this.model(data).save();
@@ -31,9 +31,9 @@ module.exports = _.extend(new dao(ActionTargetInstance), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
+					.leftJoin('organizations', 'action_targets.organization_id', 'organizations.id')
 					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
-					.where('action_target_instances.id', id)
+					.where('action_targets.id', id)
 					.where('organizations_users.user_id', user.get('id'));
 			})
 			.fetch({require: true});
@@ -49,11 +49,11 @@ module.exports = _.extend(new dao(ActionTargetInstance), {
 	findByOrganization: function(organization, criteria) {
 		return this.collection(function(qb) {
 			var qb = qb
-				.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
+				.leftJoin('organizations', 'action_targets.organization_id', 'organizations.id')
 				.where('organizations.id', organization.get('id'));
 
 			if (criteria.name) {
-				qb = qb.where('action_target_instances.name', 'like', criteria.name);
+				qb = qb.where('action_targets.name', 'like', criteria.name);
 			}
 
 			return qb;
@@ -63,13 +63,13 @@ module.exports = _.extend(new dao(ActionTargetInstance), {
 	findByActionTargetTemplateAndUser: function(actionTargetTemplate, user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
+				.leftJoin('organizations', 'action_targets.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'))
-				.where('action_target_instances.action_target_template_id', actionTargetTemplate.get('id'));
+				.where('action_targets.action_target_template_id', actionTargetTemplate.get('id'));
 
 			if (criteria.name) {
-				qb = qb.where('action_target_instances.name', 'like', criteria.name);
+				qb = qb.where('action_targets.name', 'like', criteria.name);
 			}
 
 			return qb;
@@ -79,12 +79,12 @@ module.exports = _.extend(new dao(ActionTargetInstance), {
 	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'action_target_instances.organization_id', 'organizations.id')
+				.leftJoin('organizations', 'action_targets.organization_id', 'organizations.id')
 				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
 
 			if (criteria.name) {
-				qb = qb.where('action_target_instances.name', 'like', criteria.name);
+				qb = qb.where('action_targets.name', 'like', criteria.name);
 			}
 
 			return qb;

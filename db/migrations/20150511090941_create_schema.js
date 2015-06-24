@@ -52,10 +52,10 @@ exports.up = function(knex, Promise) {
 			table.unique([ 'organization_id', 'name' ]);
 		})
 
-		// Create the EVENT SOURCE INSTANCE table
-		.createTable('event_source_instances', function(table) {
+		// Create the EVENT SOURCE table
+		.createTable('event_sources', function(table) {
 			table.increments('id').notNullable().primary();
-			table.string('eventSourceInstanceId').notNullable();
+			table.string('eventSourceId').notNullable();
 			table.string('name').notNullable();
 			table.json('configuration');
 			table.integer('event_source_template_id').references('event_source_templates.id');
@@ -97,10 +97,10 @@ exports.up = function(knex, Promise) {
 			table.unique([ 'organization_id', 'name' ]);
 		})
 
-		// Create the ACTION TARGET INSTANCE table
-		.createTable('action_target_instances', function(table) {
+		// Create the ACTION TARGET table
+		.createTable('action_targets', function(table) {
 			table.increments('id').notNullable().primary();
-			table.string('actionTargetInstanceId').notNullable();
+			table.string('actionTargetId').notNullable();
 			table.string('name').notNullable();
 			table.json('configuration');
 			table.integer('action_target_template_id').references('action_target_templates.id');
@@ -128,10 +128,10 @@ exports.up = function(knex, Promise) {
 exports.down = function(knex, Promise) {
 	return knex.schema
 		.dropTable('action_types')
-		.dropTable('action_target_instances')
+		.dropTable('action_targets')
 		.dropTable('action_target_templates')
 		.dropTable('event_types')
-		.dropTable('event_source_instances')
+		.dropTable('event_sources')
 		.dropTable('event_source_templates')
 		.dropTable('rules')
 		.dropTable('organizations_users')

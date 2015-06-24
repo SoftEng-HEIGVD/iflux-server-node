@@ -23,12 +23,12 @@ module.exports = {
 
 			.createEventType('Create first event type for third template', { name: 'Lightening' }, 2, 3)
 
-			.createEventSourceInstance('Create first event source instance for first user, first template in first orga', { name: 'First instance' }, 1, 1, 1)
-			.createEventSourceInstance('Create second event source instance for first user, first template in second orga', { name: 'Second instance' }, 1, 2, 1)
-			.createEventSourceInstance('Create third event source instance for first user, second template in second orga', { name: 'Third instance' }, 1, 2, 2)
+			.createEventSource('Create first event source for first user, first template in first orga', { name: 'First source' }, 1, 1, 1)
+			.createEventSource('Create second event source for first user, first template in second orga', { name: 'Second source' }, 1, 2, 1)
+			.createEventSource('Create third event source for first user, second template in second orga', { name: 'Third source' }, 1, 2, 2)
 
-			.createEventSourceInstance('Create first event source instance for second user, first template in third orga', { name: 'Fourth instance' }, 2, 3, 1)
-			.createEventSourceInstance('Create second event source instance for second user, third template in third orga', { name: 'Fifth instance' }, 2, 3, 3)
+			.createEventSource('Create first event source for second user, first template in third orga', { name: 'Fourth source' }, 2, 3, 1)
+			.createEventSource('Create second event source for second user, third template in third orga', { name: 'Fifth source' }, 2, 3, 3)
 
 			.createActionTargetTemplate('Create first action target template for first user', { name: 'Action target template 1', public: true }, 1, 1)
 			.createActionTargetTemplate('Create second action target template for first user', { name: 'Action target template 2', public: false }, 1, 2)
@@ -41,12 +41,12 @@ module.exports = {
 
 			.createActionType('Create first action type for third template', { name: 'Messaging' }, 2, 3)
 
-			.createActionTargetInstance('Create first action target instance for first user, first template in first orga', { name: 'First instance' }, 1, 1, 1)
-			.createActionTargetInstance('Create second action target instance for first user, first template in second orga', { name: 'Second instance' }, 1, 2, 1)
-			.createActionTargetInstance('Create third action target instance for first user, second template in second orga', { name: 'Third instance' }, 1, 2, 2)
+			.createActionTarget('Create first action target for first user, first template in first orga', { name: 'First target' }, 1, 1, 1)
+			.createActionTarget('Create second action target for first user, first template in second orga', { name: 'Second target' }, 1, 2, 1)
+			.createActionTarget('Create third action target for first user, second template in second orga', { name: 'Third target' }, 1, 2, 2)
 
-			.createActionTargetInstance('Create first action target instance for second user, first template in third orga', { name: 'Fourth instance' }, 2, 3, 1)
-			.createActionTargetInstance('Create second action target instance for second user, third template in third orga', { name: 'Fifth instance' }, 2, 3, 3)
+			.createActionTarget('Create first action target for second user, first template in third orga', { name: 'Fourth target' }, 2, 3, 1)
+			.createActionTarget('Create second action target for second user, third template in third orga', { name: 'Fifth target' }, 2, 3, 3)
 		;
 	}
 };

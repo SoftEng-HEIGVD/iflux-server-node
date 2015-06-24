@@ -7,23 +7,23 @@ var
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
-	eventSourceInstanceDao = require('../../persistence/eventSourceInstanceDao'),
+	eventSourceDao = require('../../persistence/eventSourceDao'),
 	organizationDao = require('../../persistence/organizationDao'),
-	eventSourceInstanceConverter = require('../../converters/eventSourceInstanceConverter'),
+	eventSourceConverter = require('../../converters/eventSourceConverter'),
 	jsonValidatorService = require('../../services/jsonValidatorService'),
-	resourceService = require('../../services/resourceServiceFactory')('/v1/eventSourceInstances');
+	resourceService = require('../../services/resourceServiceFactory')('/v1/eventSources');
 
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
 	router.param('id', function (req, res, next) {
-		return eventSourceInstanceDao
+		return eventSourceDao
 			.findByIdAndUser(req.params.id, req.userModel)
-			.then(function(eventSourceInstance) {
-				req.eventSourceInstance = eventSourceInstance;
+			.then(function(eventSource) {
+				req.eventSource = eventSource;
 				next();
 			})
-			.catch(eventSourceInstanceDao.model.NotFoundError, function(err) {
+			.catch(eventSourceDao.model.NotFoundError, function(err) {
 				return resourceService.forbidden(res).end();
 			});
 	});
@@ -61,22 +61,22 @@ router.route('/')
 		var promise = null;
 
 		if (req.eventSourceTemplate) {
-			promise = eventSourceInstanceDao.findByEventSourceTemplateAndUser(req.eventSourceTemplate, req.userModel, { name: req.query.name });
+			promise = eventSourceDao.findByEventSourceTemplateAndUser(req.eventSourceTemplate, req.userModel, { name: req.query.name });
 		}
 
 		else if (req.organization) {
-			promise = eventSourceInstanceDao.findByOrganization(req.organization, { name: req.query.name });
+			promise = eventSourceDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
-			promise = eventSourceInstanceDao.findAllByUser(req.userModel, { name: req.query.name });
+			promise = eventSourceDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
 
 		if (promise) {
-			return promise.then(function (eventSourceInstances) {
+			return promise.then(function (eventSources) {
 				return resourceService.ok(res,
-					_.map(eventSourceInstances, function (eventSourceInstance) {
-						return eventSourceInstanceConverter.convert(eventSourceInstance);
+					_.map(eventSources, function (eventSource) {
+						return eventSourceConverter.convert(eventSource);
 					})
 				);
 			});
@@ -91,35 +91,35 @@ router.route('/')
 	})
 
 	.post(function(req, res, next) {
-		var eventSourceInstance = req.body;
+		var eventSource = req.body;
 
 		// Try to find the organization
 		organizationDao
-			.findByIdAndUser(eventSourceInstance.organizationId, req.userModel)
+			.findByIdAndUser(eventSource.organizationId, req.userModel)
 			.then(function(organization) {
 				// Try to find the event source template
 				return eventSourceTemplateDao
-					.findByIdAndUserOrPublic(eventSourceInstance.eventSourceTemplateId, req.userModel)
+					.findByIdAndUserOrPublic(eventSource.eventSourceTemplateId, req.userModel)
 					.then(function(eventSourceTemplate) {
 						// Prepare the creation function
 						var create = function() {
-							if (!eventSourceTemplate.get('public') && eventSourceInstance.organizationId != eventSourceTemplate.get('organization_id')) {
+							if (!eventSourceTemplate.get('public') && eventSource.organizationId != eventSourceTemplate.get('organization_id')) {
 								return resourceService.validationError(res, { eventSourceTemplateId: [ 'No event source template found.' ] }).end();
 							}
 
 							else {
-								return eventSourceInstanceDao
-									.createAndSave(eventSourceInstance, organization, eventSourceTemplate)
-									.then(function(eventSourceInstanceSaved) {
+								return eventSourceDao
+									.createAndSave(eventSource, organization, eventSourceTemplate)
+									.then(function(eventSourceSaved) {
 										return new Connector()
-											.configureEventSourceInstance(eventSourceTemplate, eventSourceInstanceSaved)
-											.then(function() { return eventSourceInstanceSaved; })
+											.configureEventSource(eventSourceTemplate, eventSourceSaved)
+											.then(function() { return eventSourceSaved; })
 											.catch(function(err) {
 												return resourceService.serverError(res, { message: 'Unable to configure the remote event source.'})
 											});
 									})
-									.then(function(eventSourceInstanceSaved) {
-										return resourceService.location(res, 201, eventSourceInstanceSaved).end();
+									.then(function(eventSourceSaved) {
+										return resourceService.location(res, 201, eventSourceSaved).end();
 									})
 									.catch(ValidationError, function(e) {
 										return resourceService.validationError(res, e).end();
@@ -134,7 +134,7 @@ router.route('/')
 						// Check if a validation must be done for the configuration and do it
 						if (eventSourceTemplate.get('configurationSchema')) {
 							return jsonValidatorService
-								.validate(eventSourceInstance, 'configuration', eventSourceTemplate.get('configurationSchema'))
+								.validate(eventSource, 'configuration', eventSourceTemplate.get('configurationSchema'))
 								.then(create)
 								.catch(ValidationError, function(err) {
 									return resourceService.validationError(res, err).end();
@@ -155,56 +155,56 @@ router.route('/')
 
 router.route('/:id')
 	.get(function(req, res, next) {
-		return resourceService.ok(res, eventSourceInstanceConverter.convert(req.eventSourceInstance));;
+		return resourceService.ok(res, eventSourceConverter.convert(req.eventSource));;
 	})
 
 	.patch(function(req, res, next) {
-		var eventSourceInstance = req.eventSourceInstance;
+		var eventSource = req.eventSource;
 
 		var data = req.body;
 
 		if (data.name !== undefined) {
-			eventSourceInstance.set('name', data.name);
+			eventSource.set('name', data.name);
 		}
 
 		if (data.configuration !== undefined) {
-			eventSourceInstance.configuration = data.configuration;
+			eventSource.configuration = data.configuration;
 		}
 
-		if (eventSourceInstance.hasChanged()) {
-			return eventSourceInstanceDao
-				.save(eventSourceInstance)
-				.then(eventSourceInstance.eventSourceTemplate().fetch())
+		if (eventSource.hasChanged()) {
+			return eventSourceDao
+				.save(eventSource)
+				.then(eventSource.eventSourceTemplate().fetch())
 				.then(function(eventSourceTemplate) {
 					return new Connector()
-						.configureEventSourceInstance(eventSourceTemplate, eventSourceInstance)
-						.then(function() { return eventSourceInstance; })
+						.configureEventSource(eventSourceTemplate, eventSource)
+						.then(function() { return eventSource; })
 						.catch(function(err) {
 							return resourceService.serverError(res, { message: 'Unable to configure the remote event source.'})
 						});
 				})
 				.then(function() {
-					return resourceService.location(res, 201, eventSourceInstance).end();
+					return resourceService.location(res, 201, eventSource).end();
 				})
 				.catch(ValidationError, function(e) {
 					return resourceService.validationError(res, e);
 				});
 		}
 		else {
-			return resourceService.location(res, 304, eventSourceInstance).end();
+			return resourceService.location(res, 304, eventSource).end();
 		}
 	});
 
 router.route('/:id/configure')
 	.post(function(req, res, next) {
-		var eventSourceInstance = req.eventSourceInstance;
+		var eventSource = req.eventSource;
 
 		return Promise
-			.resolve(eventSourceInstance.eventSourceTemplate().fetch())
+			.resolve(eventSource.eventSourceTemplate().fetch())
 			.then(function(eventSourceTemplate) {
 				if (eventSourceTemplate.get('configurationUrl')) {
 					return new Connector()
-						.configureEventSourceInstance(eventSourceTemplate, eventSourceInstance)
+						.configureEventSource(eventSourceTemplate, eventSource)
 						.then(function () {
 							resourceService.ok(res).end();
 						})

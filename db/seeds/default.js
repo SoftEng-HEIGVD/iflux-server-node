@@ -163,10 +163,10 @@ exports.seed = function(knex, Promise) {
 	  }
 	});
 
-	var eventSourceInstance1 = timestamped({
+	var eventSource1 = timestamped({
 		id: 1,
 		event_source_template_id: eventSourceTemplate1.id,
-		eventSourceInstanceId: stringService.generateId(),
+		eventSourceId: stringService.generateId(),
 	  name: "Thermometer 1",
 	  organization_id: organization.id,
 		configuration: {
@@ -174,10 +174,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var eventSourceInstance2 = timestamped({
+	var eventSource2 = timestamped({
 		id: 2,
 		event_source_template_id: eventSourceTemplate1.id,
-		eventSourceInstanceId: stringService.generateId(),
+		eventSourceId: stringService.generateId(),
 	  name: "Thermometer 2",
 	  organization_id: organization.id,
 		configuration: {
@@ -185,10 +185,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var eventSourceInstance3 = timestamped({
+	var eventSource3 = timestamped({
 		id: 3,
 		event_source_template_id: eventSourceTemplate1.id,
-		eventSourceInstanceId: stringService.generateId(),
+		eventSourceId: stringService.generateId(),
 	  name: "Thermometer 3",
 	  organization_id: organization.id,
 		configuration: {
@@ -196,10 +196,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var eventSourceInstance4 = timestamped({
+	var eventSource4 = timestamped({
 		id: 4,
 		event_source_template_id: eventSourceTemplate2.id,
-		eventSourceInstanceId: stringService.generateId(),
+		eventSourceId: stringService.generateId(),
 	  name: "Room 1",
 	  organization_id: organization.id,
 		configuration: {
@@ -207,10 +207,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var eventSourceInstance5 = timestamped({
+	var eventSource5 = timestamped({
 		id: 5,
 		event_source_template_id: eventSourceTemplate2.id,
-		eventSourceInstanceId: stringService.generateId(),
+		eventSourceId: stringService.generateId(),
 	  name: "Room 2",
 	  organization_id: organization.id,
 		configuration: {
@@ -309,10 +309,10 @@ exports.seed = function(knex, Promise) {
 	  }
 	});
 
-	var actionTargetInstance1 = timestamped({
+	var actionTarget1 = timestamped({
 		id: 1,
 		action_target_template_id: eventSourceTemplate1.id,
-		actionTargetInstanceId: stringService.generateId(),
+		actionTargetId: stringService.generateId(),
 	  name: "Radiator 1",
 	  organization_id: organization.id,
 		configuration: {
@@ -320,10 +320,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var actionTargetInstance2 = timestamped({
+	var actionTarget2 = timestamped({
 		id: 2,
 		action_target_template_id: eventSourceTemplate1.id,
-		actionTargetInstanceId: stringService.generateId(),
+		actionTargetId: stringService.generateId(),
 	  name: "Radiator 2",
 	  organization_id: organization.id,
 		configuration: {
@@ -331,10 +331,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var actionTargetInstance3 = timestamped({
+	var actionTarget3 = timestamped({
 		id: 3,
 		action_target_template_id: eventSourceTemplate1.id,
-		actionTargetInstanceId: stringService.generateId(),
+		actionTargetId: stringService.generateId(),
 	  name: "Radiator 3",
 	  organization_id: organization.id,
 		configuration: {
@@ -342,10 +342,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var actionTargetInstance4 = timestamped({
+	var actionTarget4 = timestamped({
 		id: 4,
 		action_target_template_id: eventSourceTemplate2.id,
-		actionTargetInstanceId: stringService.generateId(),
+		actionTargetId: stringService.generateId(),
 	  name: "Blind 1",
 	  organization_id: organization.id,
 		configuration: {
@@ -353,10 +353,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var actionTargetInstance5 = timestamped({
+	var actionTarget5 = timestamped({
 		id: 5,
 		action_target_template_id: eventSourceTemplate2.id,
-		actionTargetInstanceId: stringService.generateId(),
+		actionTargetId: stringService.generateId(),
 	  name: "Blind 2",
 	  organization_id: organization.id,
 		configuration: {
@@ -364,10 +364,10 @@ exports.seed = function(knex, Promise) {
 		}
 	});
 
-	var actionTargetInstance6 = timestamped({
+	var actionTarget6 = timestamped({
 		id: 6,
 		action_target_template_id: eventSourceTemplate2.id,
-		actionTargetInstanceId: stringService.generateId(),
+		actionTargetId: stringService.generateId(),
 	  name: "Blind 3",
 	  organization_id: organization.id,
 		configuration: {
@@ -381,8 +381,8 @@ exports.seed = function(knex, Promise) {
 		organization_id: organization.id,
 		conditions: JSON.stringify([{
 			description: "Match if the temperature has increased on the first thermometer.",
-			eventSourceInstanceKey: eventSourceInstance1.eventSourceInstanceId,
-			eventSourceInstanceId: eventSourceInstance1.id,
+			eventSourceKey: eventSource1.eventSourceId,
+			eventSourceId: eventSource1.id,
 			eventTypeKey: eventType1.eventTypeId,
 			eventTypeId: eventType1.id,
 			fn: "return event.properties.temperature.old < event.properties.temperature.new;",
@@ -395,8 +395,8 @@ exports.seed = function(knex, Promise) {
 		}]),
 		transformations: JSON.stringify([{
 			description: "Prepare an action to reduce the radiator temperature.",
-			actionTargetInstanceKey: actionTargetInstance1.actionTargetInstanceId,
-			actionTargetInstanceId: actionTargetInstance1.id,
+			actionTargetKey: actionTarget1.actionTargetId,
+			actionTargetId: actionTarget1.id,
 			eventTypeKey: eventType1.eventTypeId,
 			eventTypeId: eventType1.id,
 			actionTypeKey: actionType2.actionTypeId,
@@ -408,17 +408,17 @@ exports.seed = function(knex, Promise) {
 					new: 13
 				}
 			},
-			eventSourceTemplateId: eventSourceInstance1.eventSourceInstanceId
+			eventSourceTemplateId: eventSource1.eventSourceId
 		}])
 	});
 
 	return start()
 		// Deletes ALL existing entries
 		.then(del('rules'))
-		.then(del('action_target_instances'))
+		.then(del('action_targets'))
 		.then(del('action_types'))
 		.then(del('action_target_templates'))
-		.then(del('event_source_instances'))
+		.then(del('event_sources'))
 		.then(del('event_types'))
 		.then(del('event_source_templates'))
 		.then(del('organizations_users'))
@@ -446,12 +446,12 @@ exports.seed = function(knex, Promise) {
 		.then(ins('event_types', eventType2))
 		.then(ins('event_types', eventType3))
 
-		// Add event source instances
-		.then(ins('event_source_instances', eventSourceInstance1))
-		.then(ins('event_source_instances', eventSourceInstance2))
-		.then(ins('event_source_instances', eventSourceInstance3))
-		.then(ins('event_source_instances', eventSourceInstance4))
-		.then(ins('event_source_instances', eventSourceInstance5))
+		// Add event sources
+		.then(ins('event_sources', eventSource1))
+		.then(ins('event_sources', eventSource2))
+		.then(ins('event_sources', eventSource3))
+		.then(ins('event_sources', eventSource4))
+		.then(ins('event_sources', eventSource5))
 
 		// Add action target templates
 		.then(ins('action_target_templates', actionTargetTemplate1))
@@ -462,13 +462,13 @@ exports.seed = function(knex, Promise) {
 		.then(ins('action_types', actionType2))
 		.then(ins('action_types', actionType3))
 
-		// Add action target instances
-		.then(ins('action_target_instances', actionTargetInstance1))
-		.then(ins('action_target_instances', actionTargetInstance2))
-		.then(ins('action_target_instances', actionTargetInstance3))
-		.then(ins('action_target_instances', actionTargetInstance4))
-		.then(ins('action_target_instances', actionTargetInstance5))
-		.then(ins('action_target_instances', actionTargetInstance6))
+		// Add action targets
+		.then(ins('action_targets', actionTarget1))
+		.then(ins('action_targets', actionTarget2))
+		.then(ins('action_targets', actionTarget3))
+		.then(ins('action_targets', actionTarget4))
+		.then(ins('action_targets', actionTarget5))
+		.then(ins('action_targets', actionTarget6))
 
 		// Add rules
 		.then(ins('rules', rule1))

@@ -19,16 +19,16 @@ var Organization = module.exports = bookshelf.Model.extend({
 		return this.hasMany(modelRegistry.eventSourceTemplate);
 	},
 
-	eventSourceInstances: function() {
-		return this.hasMany(modelRegistry.eventSourceInstance);
+	eventSources: function() {
+		return this.hasMany(modelRegistry.eventSource);
 	},
 
 	actionTargetTemplates: function() {
 		return this.hasMany(modelRegistry.actionTargetTemplate);
 	},
 
-	actionTargetInstances: function() {
-		return this.hasMany(modelRegistry.actionTargetInstance);
+	actionTargets: function() {
+		return this.hasMany(modelRegistry.actionTarget);
 	},
 
 	rules: function() {

@@ -3,7 +3,7 @@ var
 	baseTest = require('../base');
 
 module.exports = helpers.setup(baseTest('Validations on rule resource'))
-	.describe('First user create first rule with [first orga, first event source instance, first event type, first action target instance, first action type].')
+	.describe('First user create first rule with [first orga, first event source, first event type, first action target, first action type].')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules' }, function() {
 		return {
@@ -12,7 +12,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				active: true,
 				organizationId: this.getData('organizationId1'),
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						expression: 'return event.properties.temperature.old != event.properties.temperature.new',
@@ -25,7 +25,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 					}
 				}],
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
@@ -78,35 +78,35 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: [ 'At least one of eventSourceInstanceId, eventTypeId or fn must be provided.' ] }})
+	.expectJsonToBe({ conditions: { 0: [ 'At least one of eventSourceId, eventTypeId or fn must be provided.' ] }})
 
-	.describe('First user tries to update a rule with a condition where the event source instance does not exists.')
+	.describe('First user tries to update a rule with a condition where the event source does not exists.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1') + 100
+					eventSourceId: this.getData('eventSourceId1') + 100
 				}]
 			}
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { eventSourceInstanceId: [ 'Event source instance not found.' ] }}})
+	.expectJsonToBe({ conditions: { 0: { eventSourceId: [ 'Event source not found.' ] }}})
 
-	.describe('First user tries to update a rule with a condition where the event source instance where user does not have access.')
+	.describe('First user tries to update a rule with a condition where the event source where user does not have access.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId4')
+					eventSourceId: this.getData('eventSourceId4')
 				}]
 			}
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { eventSourceInstanceId: [ 'Event source instance not found.' ] }}})
+	.expectJsonToBe({ conditions: { 0: { eventSourceId: [ 'Event source not found.' ] }}})
 
 	.describe('First user tries to update a rule with a condition where the event type does not exist.')
 	.patch({}, function() {
@@ -114,7 +114,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1') + 100
 				}]
 			}
@@ -129,7 +129,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId4')
 				}]
 			}
@@ -144,7 +144,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {}
 				}]
@@ -160,7 +160,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						sampleEvent: {
@@ -183,7 +183,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						expression: 'return event.temperature.old != event.temperature.new'
@@ -201,7 +201,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						expression: 'retur event.temperature.old != event.temperature.new',
@@ -225,7 +225,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				conditions: [{
-					eventSourceInstanceId: this.getData('eventSourceInstanceId1'),
+					eventSourceId: this.getData('eventSourceId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						expression: 'return event.properties.temperature.old != event.properties.temperature.new',
@@ -243,7 +243,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	.expectStatusCode(422)
 	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }}}})
 
-	.describe('First user tries to update a rule with a transformation with missing action target instance id.')
+	.describe('First user tries to update a rule with a transformation with missing action target id.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationRule1'),
@@ -255,7 +255,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance id is mandatory.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target id is mandatory.' ] }}})
 
 	.describe('First user tries to update a rule with a transformation with missing action type id.')
 	.patch({}, function() {
@@ -263,7 +263,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1')
+					actionTargetId: this.getData('actionTargetId1')
 				}]
 			}
 		};
@@ -271,35 +271,35 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type id is mandatory.' ] }}})
 
-	.describe('First user tries to update a rule with a transformation where the action target instance does not exists.')
+	.describe('First user tries to update a rule with a transformation where the action target does not exists.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1') + 100,
+					actionTargetId: this.getData('actionTargetId1') + 100,
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target not found.' ] }}})
 
-	.describe('First user tries to update a rule with a transformation where the action target instance where user does not have access.')
+	.describe('First user tries to update a rule with a transformation where the action target where user does not have access.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId4'),
+					actionTargetId: this.getData('actionTargetId4'),
 					actionTypeId: this.getData('actionTypeId1')
 				}]
 			}
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTargetInstanceId: [ 'Action target instance not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target not found.' ] }}})
 
 	.describe('First user tries to update a rule with a transformation where the action type does not exist.')
 	.patch({}, function() {
@@ -307,7 +307,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1') + 100
 				}]
 			}
@@ -322,7 +322,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId4')
 				}]
 			}
@@ -337,7 +337,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1') + 100
 				}]
@@ -353,7 +353,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId4')
 				}]
@@ -369,7 +369,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {}
@@ -386,7 +386,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
@@ -412,7 +412,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
@@ -431,7 +431,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
@@ -451,7 +451,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 			url: this.getData('locationRule1'),
 			body: {
 				transformations: [{
-					actionTargetInstanceId: this.getData('actionTargetInstanceId1'),
+					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
 					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
