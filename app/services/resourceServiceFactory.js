@@ -30,7 +30,12 @@ module.exports = function(basePath) {
 		},
 
 		ok: function(res, obj) {
-			return res.status(200).json(obj);
+			if (obj) {
+				return res.status(200).json(obj);
+			}
+			else {
+				return res.status(200);
+			}
 		},
 
 		notFound: function(res, message) {

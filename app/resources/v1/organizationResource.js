@@ -116,7 +116,7 @@ router.route('/:id/actions')
 		if (_.contains(_.keys(organizationActionService), req.body.type)) {
 			return organizationActionService[req.body.type](req.body, req.organization, req.userModel)
 				.then(function(){
-					return resourceService.ok(res);
+					return resourceService.ok(res).end();
 				})
 				.catch(ValidationError, function(err) {
 					return resourceService.validationError(res, err);

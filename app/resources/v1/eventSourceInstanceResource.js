@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+	Promise = require('bluebird'),
 	express = require('express'),
   router = express.Router(),
 	Connector = require('../../../lib/ioc').create('connector'),
@@ -193,3 +194,27 @@ router.route('/:id')
 			return resourceService.location(res, 304, eventSourceInstance).end();
 		}
 	});
+
+router.route('/:id/configure')
+	.post(function(req, res, next) {
+		var eventSourceInstance = req.eventSourceInstance;
+
+		return Promise
+			.resolve(eventSourceInstance.eventSourceTemplate().fetch())
+			.then(function(eventSourceTemplate) {
+				if (eventSourceTemplate.get('configurationUrl')) {
+					return new Connector()
+						.configureEventSourceInstance(eventSourceTemplate, eventSourceInstance)
+						.then(function () {
+							resourceService.ok(res).end();
+						})
+						.catch(function (err) {
+							return resourceService.serverError(res, {message: 'Unable to configure the remote event source.'})
+						});
+				}
+				else {
+					return resourceService.notFound(res);
+				}
+			});
+	});
+

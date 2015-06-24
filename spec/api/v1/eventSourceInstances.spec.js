@@ -578,7 +578,7 @@ module.exports = baseTest('Event source instance resource')
 			}
 		};
 	})
-	.storeLocationAs('eventSourceInstance', 1)
+	.storeLocationAs('eventSourceInstance', 6)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceInstances/:id')
 	.expectMockServerToHaveReceived(function() {
@@ -600,4 +600,55 @@ module.exports = baseTest('Event source instance resource')
 			}
 		};
 	})
+
+	.describe('First reconfigure an event source instance.')
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.post({}, function() {
+		return {
+			url: this.getData('locationEventSourceInstance6') + '/configure'
+		};
+	})
+	.expectStatusCode(200)
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			headers: [{
+				name: 'Authorization',
+				values: [ 'bearer jwtToken' ]
+			}],
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'niceStoryBro'
+					}
+				})
+			}
+		};
+	})
+
+	.describe('First tries to reconfigure an event source instance that has no configuration.')
+	.post({}, function() {
+		return {
+			url: this.getData('locationEventSourceInstance2') + '/configure'
+		};
+	})
+	.expectStatusCode(404)
 ;

@@ -575,7 +575,7 @@ module.exports = baseTest('Action target instance resource')
 			}
 		};
 	})
-	.storeLocationAs('actionTargetInstance', 1)
+	.storeLocationAs('actionTargetInstance', 6)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetInstances/:id')
 	.expectMockServerToHaveReceived(function() {
@@ -597,4 +597,55 @@ module.exports = baseTest('Action target instance resource')
 			}
 		};
 	})
+
+	.describe('First user reconfigure his action target instance.')
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.post({}, function() {
+		return {
+			url: this.getData('locationActionTargetInstance6') + '/configure'
+		};
+	})
+	.expectStatusCode(200)
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			headers: [{
+				name: 'Authorization',
+				values: [ 'bearer jwtToken' ]
+			}],
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'niceStoryBro'
+					}
+				})
+			}
+		};
+	})
+
+	.describe('First user tries to reconfigure an action target that has no configuration.')
+	.post({}, function() {
+		return {
+			url: this.getData('locationActionTargetInstance2') + '/configure'
+		};
+	})
+	.expectStatusCode(404)
 ;

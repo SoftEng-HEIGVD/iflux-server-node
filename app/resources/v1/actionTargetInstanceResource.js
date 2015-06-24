@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+	Promise = require('bluebird'),
 	express = require('express'),
   router = express.Router(),
 	ValidationError = require('checkit').Error,
@@ -193,3 +194,27 @@ router.route('/:id')
 			return resourceService.location(res, 304, actionTargetInstance).end();
 		}
 	});
+
+router.route('/:id/configure')
+	.post(function(req, res, next) {
+		var actionTargetInstance = req.actionTargetInstance;
+
+		return Promise
+			.resolve(actionTargetInstance.actionTargetTemplate().fetch())
+			.then(function(actionTargetTemplate) {
+				if (actionTargetTemplate.get('configurationUrl')) {
+					return new Connector()
+						.configureActionTargetInstance(actionTargetTemplate, actionTargetInstance)
+						.then(function () {
+							resourceService.ok(res).end();
+						})
+						.catch(function (err) {
+							return resourceService.serverError(res, {message: 'Unable to configure the remote action target.'})
+						});
+				}
+				else {
+					return resourceService.notFound(res);
+				}
+			});
+	});
+
