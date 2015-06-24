@@ -110,29 +110,29 @@ router.route('/:id')
 
 		if (data.configuration !== undefined) {
 			if (data.configuration.schema !== undefined) {
-				actionTargetTemplate.configurationSchema = data.configuration.schema;
+				actionTargetTemplate.set('configurationSchema', data.configuration.schema);
 			}
 
 			if (data.configuration.callbackUrl !== undefined) {
-				actionTargetTemplate.callbackUrl = data.configuration.callbackUrl;
+				actionTargetTemplate.set('callbackUrl', data.configuration.callbackUrl);
 			}
 
 			if (data.configuration.callbackToken !== undefined) {
-				actionTargetTemplate.callbackToken = data.configuration.callbackToken;
+				actionTargetTemplate.set('callbackToken', data.configuration.callbackToken);
 			}
 		}
 
 		if (data.configurationUi !== undefined) {
-			actionTargetTemplate.configurationUi = data.configurationUi;
+			actionTargetTemplate.set('configurationUi', data.configurationUi);
 		}
 
 		if (data.target !== undefined) {
 			if (data.target.url !== undefined) {
-				actionTargetTemplate.targetUrl = data.target.url;
+				actionTargetTemplate.set('targetUrl', data.target.url);
 			}
 
 			if (data.target.token !== undefined) {
-				actionTargetTemplate.targetToken = data.target.token;
+				actionTargetTemplate.set('targetToken', data.target.token);
 			}
 		}
 

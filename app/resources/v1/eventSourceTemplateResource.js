@@ -110,20 +110,20 @@ router.route('/:id')
 
 		if (data.configuration !== undefined) {
 			if (data.configuration.schema !== undefined) {
-				eventSourceTemplate.configurationSchema = data.configuration.schema;
+				eventSourceTemplate.set('configurationSchema', data.configuration.schema);
 			}
 
 			if (data.configuration.callbackUrl !== undefined) {
-				eventSourceTemplate.callbackUrl = data.configuration.callbackUrl;
+				eventSourceTemplate.set('callbackUrl', data.configuration.callbackUrl);
 			}
 
 			if (data.configuration.callbackToken !== undefined) {
-				eventSourceTemplate.callbackToken = data.configuration.callbackToken;
+				eventSourceTemplate.set('callbackToken', data.configuration.callbackToken);
 			}
 		}
 
 		if (data.configurationUi !== undefined) {
-			eventSourceTemplate.configurationUi = data.configurationUi;
+			eventSourceTemplate.set('configurationUi', data.configurationUi);
 		}
 
 		if (eventSourceTemplate.hasChanged()) {
