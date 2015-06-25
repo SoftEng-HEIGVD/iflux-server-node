@@ -18,14 +18,29 @@ router.route('/eventTypes')
 		return eventTypeDao
 			.findByType(type)
 			.then(function(eventType) {
-				if (eventType.get('schema')) {
+				if (eventType && eventType.get('schema')) {
 					return resourceService.ok(res, eventType.get('schema'));
 				}
 				else {
 					return resourceService.notFound(res);
 				}
-			})
-			.catch(eventTypeDao.model.NotFoundError, function(err) {
-				return resourceService.notFound(res);
+			});
+	});
+
+router.route('/actionTypes')
+	.get(function(req, res, next) {
+		var type = req.protocol + '://' + req.get('host') + req.originalUrl;
+
+		console.log(type);
+
+		return eventTypeDao
+			.findByType(type)
+			.then(function(eventType) {
+				if (eventType && eventType.get('schema')) {
+					return resourceService.ok(res, eventType.get('schema'));
+				}
+				else {
+					return resourceService.notFound(res);
+				}
 			});
 	});
