@@ -1,4 +1,6 @@
-var  baseTest = require('../base');
+var
+	config = require('../../../config/config'),
+	baseTest = require('../base');
 
 module.exports = baseTest('Action type resource')
 	.createUser('Register first user')
@@ -94,7 +96,7 @@ module.exports = baseTest('Action type resource')
 			body: {
 				name: 'Decrease thermostat',
 				description: 'Action to reduce the thermostat.',
-				type: 'http://iflux.io/schemas/actionTypes/1',
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
 				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
 				schema: {
 		      $schema: "http://json-schema.org/draft-04/schema#",
@@ -323,7 +325,7 @@ module.exports = baseTest('Action type resource')
 		return {
 			url: this.getData('locationActionType1'),
 			body: {
-				type: 'http://iflux.io/schemas/actionTypes/1'
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1'
 			}
 		};
 	})
@@ -360,7 +362,7 @@ module.exports = baseTest('Action type resource')
 		return {
 			url: this.getData('locationActionType1'),
 			body: {
-				type: 'http://iflux.io/schemas/actionTypes/11'
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/11'
 			}
 		};
 	})
@@ -379,4 +381,12 @@ module.exports = baseTest('Action type resource')
 		};
 	})
 	.expectStatusCode(403)
+
+	.describe('Retrieve an action type schema from its type (url).')
+	.get({ url: '/v1/schemas/actionTypes/11' })
+	.expectStatusCode(200)
+
+	.describe('Retrieve an action type schema from its type (url) but nothing is found.')
+	.get({ url: '/v1/schemas/actionTypes/111' })
+	.expectStatusCode(404)
 ;

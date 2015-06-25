@@ -1,4 +1,6 @@
-var  baseTest = require('../base');
+var
+	config = require('../../../config/config'),
+	baseTest = require('../base');
 
 module.exports = baseTest('Event type resource')
 	.createUser('Register first user')
@@ -127,7 +129,7 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
-				type: 'http://iflux.io/schemas/eventTypes/1',
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
@@ -162,7 +164,7 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
-				type: 'http://iflux.io/schemas/eventTypes/1',
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
@@ -325,7 +327,7 @@ module.exports = baseTest('Event type resource')
 	.expectJsonToBeAtLeast([{
 		name: 'Temperature Increase',
 		description: 'Represent an increase in the temperature.',
-		type: 'http://iflux.io/schemas/eventTypes/1',
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
 		schema: {
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
@@ -379,7 +381,7 @@ module.exports = baseTest('Event type resource')
 	.expectJsonToBeAtLeast([{
 		name: 'Temperature Increase',
 		description: 'Represent an increase in the temperature.',
-		type: 'http://iflux.io/schemas/eventTypes/1',
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
 		schema: {
 	    $schema: "http://json-schema.org/draft-04/schema#",
 	    type: "object",
@@ -495,7 +497,7 @@ module.exports = baseTest('Event type resource')
 		return {
 			url: this.getData('locationEventType1'),
 			body: {
-				type: 'http://iflux.io/schemas/eventTypes/1'
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1'
 			}
 		};
 	})
@@ -532,7 +534,7 @@ module.exports = baseTest('Event type resource')
 		return {
 			url: this.getData('locationEventType1'),
 			body: {
-				type: 'http://iflux.io/schemas/eventTypes/11'
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/11'
 			}
 		};
 	})
@@ -551,4 +553,13 @@ module.exports = baseTest('Event type resource')
 		};
 	})
 	.expectStatusCode(403)
+
+	.describe('Retrieve an event type schema from its type (url).')
+	.get({ url: '/v1/schemas/eventTypes/11' })
+	.expectStatusCode(200)
+
+	.describe('Retrieve an event type schema from its type (url) but nothing is found.')
+	.get({ url: '/v1/schemas/eventTypes/111' })
+	.expectStatusCode(404)
+
 ;
