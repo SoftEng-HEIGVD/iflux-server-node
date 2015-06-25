@@ -13,8 +13,6 @@ router.route('/eventTypes')
 	.get(function(req, res, next) {
 		var type = req.protocol + '://' + req.get('host') + req.originalUrl;
 
-		console.log(type);
-
 		return eventTypeDao
 			.findByType(type)
 			.then(function(eventType) {
@@ -30,8 +28,6 @@ router.route('/eventTypes')
 router.route('/actionTypes')
 	.get(function(req, res, next) {
 		var type = req.protocol + '://' + req.get('host') + req.originalUrl;
-
-		console.log(type);
 
 		return eventTypeDao
 			.findByType(type)
