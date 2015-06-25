@@ -6,7 +6,7 @@ RUN npm install -g grunt bower knex
 
 # See: http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/
 ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
+RUN cd /tmp && npm install --loglevel info
 RUN mkdir -p /nodejs/iflux && cp -a /tmp/node_modules /nodejs/iflux
 
 ADD . /nodejs/iflux

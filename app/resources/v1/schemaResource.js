@@ -2,7 +2,7 @@ var
 	_ = require('underscore'),
 	express = require('express'),
   router = express.Router(),
-	eventTypeDao = require('../../persistnce/eventTypeDao'),
+	eventTypeDao = require('../../persistence/eventTypeDao'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/schemas');
 
 module.exports = function (app) {
