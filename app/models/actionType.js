@@ -26,7 +26,7 @@ var ActionType = module.exports = bookshelf.Model.extend({
 		return this.get('actionTypeId');
 	},
 
-	actionTargetTemplate: function() {
-		return this.belongsTo(modelRegistry.actionTargetTemplate);
+	organization: function() {
+		return this.belongsTo(modelRegistry.organization);
 	}
 });

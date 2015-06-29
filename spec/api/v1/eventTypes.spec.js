@@ -10,18 +10,16 @@ module.exports = baseTest('Event type resource')
 	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 1)
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1)
 	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2)
-	.createEventSourceTemplate('Create first event source template for first user', { name: 'Event source template 1' }, 1, 1)
-	.createEventSourceTemplate('Create second event source template for first user', { name: 'Event source template 2' }, 1, 2)
-	.createEventSourceTemplate('Create first event source template for second user', { name: 'Event source template 3' }, 2, 3)
 
-	.describe('Create new event type in event source template with missing type')
+	.describe('Create new event type in organization with missing type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventTypes' }, function() {
 		return {
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
+				public: true,
+				organizationId: this.getData('organizationId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -49,14 +47,15 @@ module.exports = baseTest('Event type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type is mandatory.' ]})
 
-	.describe('Create new event type in event source template with invalid type')
+	.describe('Create new event type in organization with invalid type')
 	.post({	url: '/v1/eventTypes' }, function() {
 		return {
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
+				public: true,
 				type: '1234',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
+				organizationId: this.getData('organizationId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -84,14 +83,15 @@ module.exports = baseTest('Event type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
 
-	.describe('Create new event type in event source template where user does not have access')
+	.describe('Create new event type in organization where user does not have access')
 	.post({	url: '/v1/eventTypes' }, function() {
 		return {
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
+				public: true,
 				type: 'http://iflux.io/schemas/eventTypes/1',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
+				organizationId: this.getData('organizationId3'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -116,10 +116,10 @@ module.exports = baseTest('Event type resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToHavePath('eventSourceTemplateId.0')
-	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]})
+	.expectJsonToHavePath('organizationId.0')
+	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
 
-	.describe('Create new event type for first user in his first event source template')
+	.describe('Create new event type for first user in his first organization')
 	.post({
 		url: '/v1/eventTypes',
 		_storeData: function() { this.setData('locationEventType1', this.response.headers.location); }
@@ -129,8 +129,9 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
+				public: true,
 				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				organizationId: this.getData('organizationId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -158,14 +159,15 @@ module.exports = baseTest('Event type resource')
 	.expectLocationHeader('/v1/eventTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('Create duplicated event type for first user in his first event source template')
+	.describe('Create duplicated event type for first user in his first organization')
 	.post({ url: '/v1/eventTypes' }, function() {
 		return {
 			body: {
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
+				public: true,
 				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				organizationId: this.getData('organizationId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -193,7 +195,7 @@ module.exports = baseTest('Event type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
 
-	.describe('Create a second event type for first user in his first event source template')
+	.describe('Create a second event type for first user in his first organization')
 	.post({
 		url: '/v1/eventTypes',
 		_storeData: function() { this.setData('locationEventType2', this.response.headers.location); }
@@ -203,8 +205,9 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Decrease',
 				description: 'Represent an decrease in the temperature.',
+				public: false,
 				type: 'http://iflux.io/schemas/eventTypes/2',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				organizationId: this.getData('organizationId1'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -231,7 +234,7 @@ module.exports = baseTest('Event type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
 
-	.describe('Create new event type for first user in his second event source template')
+	.describe('Create new event type for first user in his second organization')
 	.post({
 		url: '/v1/eventTypes',
 		_storeData: function() { this.setData('locationEventType3', this.response.headers.location); }
@@ -241,8 +244,9 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature Increase for thermometer 2',
 				description: 'Represent an increase in the temperature.',
+				public: true,
 				type: 'http://iflux.io/schemas/eventTypes/3',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId2'),
+				organizationId: this.getData('organizationId2'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -269,7 +273,7 @@ module.exports = baseTest('Event type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
 
-	.describe('Create new event type for second user in his first event source template')
+	.describe('Create new event type for second user in his first organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({
 		url: '/v1/eventTypes',
@@ -280,8 +284,9 @@ module.exports = baseTest('Event type resource')
 			body: {
 				name: 'Temperature change',
 				description: 'Represent a modification in the temperature.',
+				public: true,
 				type: 'http://iflux.io/schemas/eventTypes/4',
-				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
+				organizationId: this.getData('organizationId3'),
 				schema: {
 			    $schema: "http://json-schema.org/draft-04/schema#",
 			    type: "object",
@@ -308,25 +313,16 @@ module.exports = baseTest('Event type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
 
-	.describe('Try to retrieve all the event types for first user without specifying the event source template.')
+	.describe('Retrieve all the event types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
-	.get({ url: '/v1/eventTypes' })
-	.expectStatusCode(422)
-	.expectJsonToHavePath('eventSourceTemplateId.0')
-	.expectJsonToBe({ eventSourceTemplateId: [ 'The event source template id is mandatory' ]})
-
-	.describe('Try to retrieve all the event types for first user with non-existing event source template.')
-	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + (this.getData('eventSourceTemplateId1') + 100) }; })
-	.expectStatusCode(403)
-
-	.describe('Retrieve all the event types of first event source template for first user')
-	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
+	.get({ url: '/v1/eventTypes?allOrganizations' })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '1.id', '0.type', '0.name', '1.type', '1.name', '0.eventSourceTemplateId', '1.eventSourceTemplateId', '0.schema', '1.schema' ])
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.public', '1.public', '2.public', '0.organizationId' ])
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast([{
 		name: 'Temperature Increase',
 		description: 'Represent an increase in the temperature.',
+		public: true,
 		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
 		schema: {
 	    $schema: "http://json-schema.org/draft-04/schema#",
@@ -351,6 +347,7 @@ module.exports = baseTest('Event type resource')
 	}, {
 		name: 'Temperature Decrease',
 		description: 'Represent an decrease in the temperature.',
+		public: false,
 		type: 'http://iflux.io/schemas/eventTypes/2',
 		schema: {
 	    $schema: "http://json-schema.org/draft-04/schema#",
@@ -372,100 +369,139 @@ module.exports = baseTest('Event type resource')
 	      }
 	    }
 	  }
+	}, {
+		name: 'Temperature Increase for thermometer 2',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://iflux.io/schemas/eventTypes/3',
+		schema: {
+			$schema: "http://json-schema.org/draft-04/schema#",
+			type: "object",
+			properties: {
+				sensorId: {
+					type: "string"
+				},
+				temperature: {
+					type: "object",
+					properties: {
+						old: {
+							type: "number"
+						},
+						new: {
+							type: "number"
+						}
+					}
+				}
+			}
+		}
 	}])
 
-	.describe('Retrieve all the event types of first event source template for first user filtered by name')
-	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') + '&name=%Increase' }; })
+	.describe('Retrieve all the event types for first user filtered by name')
+	.get({ url: '/v1/eventTypes?allOrganizations&name=%Decrease' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast([{
-		name: 'Temperature Increase',
-		description: 'Represent an increase in the temperature.',
-		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
-		schema: {
-	    $schema: "http://json-schema.org/draft-04/schema#",
-	    type: "object",
-	    properties: {
-	      sensorId: {
-	        type: "string"
-	      },
-	      temperature: {
-	        type: "object",
-	        properties: {
-	          old: {
-	            type: "number"
-	          },
-	          new: {
-	            type: "number"
-	          }
-	        }
-	      }
-	    }
-	  }
+		name: 'Temperature Decrease',
+		description: 'Represent an decrease in the temperature.',
+		public: false,
+		type: 'http://iflux.io/schemas/eventTypes/2'
 	}])
 
-	.describe('Retrieve all the event types of second event source template for first user')
-	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + this.getData('eventSourceTemplateId2') }; })
+	.describe('Retrieve all the event types for first user for the first organization')
+	.get({}, function() { return { url: '/v1/eventTypes?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.type', '0.name', '0.eventSourceTemplateId', '0.schema' ])
+	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.public', '1.public', '0.organizationId', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast([{
+		name: 'Temperature Increase',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1'
+	}, {
+		name: 'Temperature Decrease',
+		description: 'Represent an decrease in the temperature.',
+		public: false,
+		type: 'http://iflux.io/schemas/eventTypes/2'
+	}])
+
+	.describe('Retrieve all the event types for first user for the first organization filtered by name')
+	.get({}, function() { return { url: '/v1/eventTypes?organizationId=' + this.getData('organizationId1') + '&name=%ease%'}; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast([{
+		name: 'Temperature Increase',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1'
+	}, {
+		name: 'Temperature Decrease',
+		description: 'Represent an decrease in the temperature.',
+		public: false,
+		type: 'http://iflux.io/schemas/eventTypes/2'
+	}])
+
+	.describe('Retrieve all the event types for first user for the second organization')
+	.get({}, function() { return { url: '/v1/eventTypes?organizationId=' + this.getData('organizationId2') }; })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast([{
 		name: 'Temperature Increase for thermometer 2',
 		description: 'Represent an increase in the temperature.',
-		type: 'http://iflux.io/schemas/eventTypes/3',
-		schema: {
-	    $schema: "http://json-schema.org/draft-04/schema#",
-	    type: "object",
-	    properties: {
-	      sensorId: {
-	        type: "string"
-	      },
-	      temperature: {
-	        type: "object",
-	        properties: {
-	          old: {
-	            type: "number"
-	          },
-	          new: {
-	            type: "number"
-	          }
-	        }
-	      }
-	    }
-	  }
+		public: true,
+		type: 'http://iflux.io/schemas/eventTypes/3'
 	}])
 
-	.describe('Retrieve all the event types of first event source template for second user')
+	.describe('Retrieve all the event types for second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
-	.get({}, function() { return { url: '/v1/eventTypes?eventSourceTemplateId=' + this.getData('eventSourceTemplateId3') }; })
+	.get({ url: '/v1/eventTypes' })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.type', '0.name', '0.eventSourceTemplateId', '0.schema' ])
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast([{
+		name: 'Temperature Increase',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1'
+	}, {
+		name: 'Temperature Increase for thermometer 2',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://iflux.io/schemas/eventTypes/3'
+	}, {
 		name: 'Temperature change',
 		description: 'Represent a modification in the temperature.',
-		type: 'http://iflux.io/schemas/eventTypes/4',
-		schema: {
-	    $schema: "http://json-schema.org/draft-04/schema#",
-	    type: "object",
-	    properties: {
-	      sensorId: {
-	        type: "string"
-	      },
-	      temperature: {
-	        type: "object",
-	        properties: {
-	          old: {
-	            type: "number"
-	          },
-	          new: {
-	            type: "number"
-	          }
-	        }
-	      }
-	    }
-	  }
+		public: true,
+		type: 'http://iflux.io/schemas/eventTypes/4'
 	}])
+
+	.describe('Retrieve all the event types for second user filtered by name')
+	.get({ url: '/v1/eventTypes?name=%2' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Temperature Increase for thermometer 2',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://iflux.io/schemas/eventTypes/3'
+	}])
+
+	.describe('Try to retrieve all event types and all for a specific organization, only the specific organization is taken into account.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({}, function() { return { url: '/v1/eventTypes?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast([{
+		name: 'Temperature Increase for thermometer 2',
+		description: 'Represent an increase in the temperature.',
+		public: true,
+		type: 'http://iflux.io/schemas/eventTypes/3'
+	}])
+
+	.describe('Try to retrieve event type where the user is not member of the organization')
+	.get({}, function() { return { url: this.getData('locationEventType1') + '100' }; })
+	.expectStatusCode(403)
 
 	.describe('First user updates his first event type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
@@ -561,5 +597,4 @@ module.exports = baseTest('Event type resource')
 	.describe('Retrieve an event type schema from its type (url) but nothing is found.')
 	.get({ url: '/v1/schemas/eventTypes/111' })
 	.expectStatusCode(404)
-
 ;

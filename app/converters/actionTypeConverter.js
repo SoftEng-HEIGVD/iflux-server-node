@@ -1,14 +1,15 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(eventType) {
+	convert: function(actionType) {
 		return {
-			id: eventType.get('id'),
-			type: eventType.get('type'),
-			name: eventType.get('name'),
-			description: eventType.get('description'),
-			actionTargetTemplateId: eventType.get('action_target_template_id'),
-			schema: eventType.get('actionTypeSchema')
+			id: actionType.get('id'),
+			type: actionType.get('type'),
+			public: actionType.get('public'),
+			name: actionType.get('name'),
+			description: actionType.get('description'),
+			organizationId: actionType.get('organization_id'),
+			schema: actionType.get('actionTypeSchema')
 		};
 	}
 };

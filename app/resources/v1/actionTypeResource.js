@@ -6,8 +6,8 @@ var
 	validUrl = require('valid-url'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
-	actionTargetTemplateDao = require('../../persistence/actionTargetTemplateDao'),
 	actionTypeDao = require('../../persistence/actionTypeDao'),
+	organizationDao = require('../../persistence/organizationDao'),
 	actionTypeConverter = require('../../converters/actionTypeConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTypes');
 
@@ -29,24 +29,35 @@ module.exports = function (app) {
 
 router.route('/')
 	.get(function(req, res, next) {
-		if (req.query.actionTargetTemplateId) {
-			return actionTargetTemplateDao
-				.findByIdAndUser(req.query.actionTargetTemplateId, req.userModel)
-				.then(function(actionTargetTemplate) {
-					req.actionTargetTemplate = actionTargetTemplate;
+		if (req.query.organizationId) {
+			return organizationDao
+				.findByIdAndUser(req.query.organizationId, req.userModel)
+				.then(function(organization) {
+					req.organization = organization;
 					return next();
 				})
-				.catch(actionTargetTemplateDao.model.NotFoundError, function(err) {
+				.catch(organizationDao.model.NotFoundError, function(err) {
 					return resourceService.forbidden(res).end();
 				});
 		}
 		else {
-			return resourceService.validationError(res, { actionTargetTemplateId: [ 'The action target template id is mandatory' ]}).end();;
+			return next();
 		}
 	})
 	.get(function(req, res, next) {
-		return actionTypeDao
-			.findByActionTargetTemplate(req.actionTargetTemplate, { name: req.query.name })
+		var promise = null;
+
+		if (req.organization) {
+			promise = actionTypeDao.findByOrganization(req.organization, { name: req.query.name });
+		}
+		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
+			promise = actionTypeDao.findAllByUser(req.userModel, { name: req.query.name });
+		}
+		else {
+			promise = actionTypeDao.findAllPublic({ name: req.query.name });
+		}
+
+		return promise
 			.then(function (actionTypes) {
 				return resourceService.ok(res,
 					_.map(actionTypes, function (actionType) {
@@ -73,18 +84,18 @@ router.route('/')
 	.post(function(req, res, next) {
 		var actionType = req.body;
 
-		actionTypeDao
-			.findByType(actionType.type)
-			.then(function(actionTypeFound) {
-				if (actionTypeFound) {
-					return resourceService.validationError(res, {type: ['Type must be unique.']}).end();
-				}
-				else {
-					actionTargetTemplateDao.
-						findByIdAndUser(actionType.actionTargetTemplateId, req.userModel)
-						.then(function (actionTargetTemplate) {
+		return organizationDao
+			.findByIdAndUser(actionType.organizationId, req.userModel)
+			.then(function(organization) {
+				return actionTypeDao
+					.findByType(actionType.type)
+					.then(function(actionTypeFound) {
+						if (actionTypeFound) {
+							return resourceService.validationError(res, {type: ['Type must be unique.']}).end();
+						}
+						else {
 							actionTypeDao
-								.createAndSave(actionType, actionTargetTemplate)
+								.createAndSave(actionType, organization)
 								.then(function (actionTargetTemplateSaved) {
 									return resourceService.location(res, 201, actionTargetTemplateSaved).end();
 								})
@@ -95,11 +106,11 @@ router.route('/')
 									npmlog.error(err);
 									return next(err)
 								});
-						})
-						.catch(actionTargetTemplateDao.model.NotFoundError, function (err) {
-							return resourceService.validationError(res, {actionTargetTemplateId: ['No action target template found.']}).end();
-						});
-				}
+						}
+					});
+			})
+			.catch(organizationDao.model.NotFoundError, function(err) {
+				return resourceService.validationError(res, { organizationId: [ 'No organization found.' ] }).end();
 			});
 	});
 
@@ -149,6 +160,10 @@ router.route('/:id')
 
 		if (data.description !== undefined) {
 			actionType.set('description', data.description);
+		}
+
+		if (data.public !== undefined) {
+			actionType.set('public', data.public);
 		}
 
 		if (data.schema !== undefined) {

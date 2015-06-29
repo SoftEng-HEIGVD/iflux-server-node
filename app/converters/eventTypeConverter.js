@@ -5,9 +5,10 @@ module.exports = {
 		return {
 			id: eventType.get('id'),
 			type: eventType.get('type'),
+			public: eventType.get('public'),
 			name: eventType.get('name'),
 			description: eventType.get('description'),
-			eventSourceTemplateId: eventType.get('event_source_template_id'),
+			organizationId: eventType.get('organization_id'),
 			schema: eventType.get('eventTypeSchema')
 		};
 	}

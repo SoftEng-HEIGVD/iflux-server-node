@@ -133,10 +133,11 @@ module.exports = function(name) {
 			.expectStatusCode(201);
 		},
 
-		createEventType: function(label, data, tokenIdx, templateIdx) {
+		createEventType: function(label, data, tokenIdx, organizationIdx) {
 			var realData = _.extend({
 				name: 'Temperature Increase',
 				description: 'Represent an increase in the temperature.',
+				public: true,
 				type: 'http://iflux.io/schemas/eventTypes',
 				schema: {}
 			}, data || {});
@@ -151,7 +152,7 @@ module.exports = function(name) {
 				function() {
 					return {
 						body: _.extend(realData, {
-							eventSourceTemplateId: this.getData(buildKey('eventSourceTemplate', templateIdx, { suffix: 'Id' }))
+							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' }))
 						})
 					};
 				})
@@ -208,10 +209,11 @@ module.exports = function(name) {
 			.expectStatusCode(201);
 		},
 
-		createActionType: function(label, data, tokenIdx, templateIdx) {
+		createActionType: function(label, data, tokenIdx, organizationIdx) {
 			var realData = _.extend({
 				name: 'Decrease thermostat',
 				description: 'Action to reduce the thermostat.',
+				public: true,
 				type: 'http://iflux.io/schemas/actionTypes',
 				schema: {}
 			}, data || {});
@@ -226,7 +228,7 @@ module.exports = function(name) {
 				function() {
 					return {
 						body: _.extend(realData, {
-							actionTargetTemplateId: this.getData(buildKey('actionTargetTemplate', templateIdx, { suffix: 'Id' }))
+							organizationId: this.getData(buildKey('organization', organizationIdx, { suffix: 'Id' }))
 						})
 					};
 				})

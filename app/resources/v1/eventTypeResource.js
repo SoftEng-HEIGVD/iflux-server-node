@@ -6,7 +6,7 @@ var
 	validUrl = require('valid-url'),
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
-	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
+	organizationDao = require('../../persistence/organizationDao'),
 	eventTypeDao = require('../../persistence/eventTypeDao'),
 	eventTypeConverter = require('../../converters/eventTypeConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/eventTypes');
@@ -29,24 +29,35 @@ module.exports = function (app) {
 
 router.route('/')
 	.get(function(req, res, next) {
-		if (req.query.eventSourceTemplateId) {
-			return eventSourceTemplateDao
-				.findByIdAndUser(req.query.eventSourceTemplateId, req.userModel)
-				.then(function(eventSourceTemplate) {
-					req.eventSourceTemplate = eventSourceTemplate;
+		if (req.query.organizationId) {
+			return organizationDao
+				.findByIdAndUser(req.query.organizationId, req.userModel)
+				.then(function(organization) {
+					req.organization = organization;
 					return next();
 				})
-				.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
+				.catch(organizationDao.model.NotFoundError, function(err) {
 					return resourceService.forbidden(res).end();
 				});
 		}
 		else {
-			return resourceService.validationError(res, { eventSourceTemplateId: [ 'The event source template id is mandatory' ]}).end();;
+			return next();
 		}
 	})
 	.get(function(req, res, next) {
-		return eventTypeDao
-			.findByEventSourceTemplate(req.eventSourceTemplate, { name: req.query.name })
+		var promise = null;
+
+		if (req.organization) {
+			promise = eventTypeDao.findByOrganization(req.organization, { name: req.query.name });
+		}
+		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
+			promise = eventTypeDao.findAllByUser(req.userModel, { name: req.query.name });
+		}
+		else {
+			promise = eventTypeDao.findAllPublic({ name: req.query.name });
+		}
+
+		return promise
 			.then(function (eventTypes) {
 				return resourceService.ok(res,
 					_.map(eventTypes, function (eventType) {
@@ -70,6 +81,7 @@ router.route('/')
 
 		return next();
 	})
+
 	.post(function(req, res, next) {
 		var eventType = req.body;
 
@@ -80,13 +92,13 @@ router.route('/')
 					return resourceService.validationError(res, { type: [ 'Type must be unique.' ] }).end();
 				}
 				else {
-					return eventSourceTemplateDao.
-						findByIdAndUser(eventType.eventSourceTemplateId, req.userModel)
-						.then(function(eventSourceTemplate) {
+					return organizationDao.
+						findByIdAndUser(eventType.organizationId, req.userModel)
+						.then(function(organization) {
 							eventTypeDao
-								.createAndSave(eventType, eventSourceTemplate)
-								.then(function(eventSourceTemplateSaved) {
-									return resourceService.location(res, 201, eventSourceTemplateSaved).end();
+								.createAndSave(eventType, organization)
+								.then(function(eventTypesSaved) {
+									return resourceService.location(res, 201, eventTypesSaved).end();
 								})
 								.catch(ValidationError, function(e) {
 									return resourceService.validationError(res, e).end();
@@ -96,8 +108,8 @@ router.route('/')
 									return next(err)
 								});
 						})
-						.catch(eventSourceTemplateDao.model.NotFoundError, function(err) {
-							return resourceService.validationError(res, { eventSourceTemplateId: [ 'No event source template found.' ] }).end();
+						.catch(organizationDao.model.NotFoundError, function(err) {
+							return resourceService.validationError(res, { organizationId: [ 'No organization found.' ] }).end();
 						});
 				}
 			});
@@ -149,6 +161,10 @@ router.route('/:id')
 
 		if (data.description !== undefined) {
 			eventType.set('description', data.description);
+		}
+
+		if (data.public !== undefined) {
+			eventType.set('public', data.public);
 		}
 
 		if (data.schema !== undefined) {

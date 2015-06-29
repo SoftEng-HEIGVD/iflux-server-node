@@ -241,12 +241,8 @@ module.exports = baseTest('Action target template resource')
 		}
 	}])
 
-	.describe('Try to retrieve action target templates where the user is not member of the organization')
-	.jwtAuthentication(function() { return this.getData('token1'); })
-	.get({}, function() { return { url: this.getData('locationActionTargetTemplate1') + '100' }; })
-	.expectStatusCode(403)
-
 	.describe('Try to retrieve all action target templates and all for a specific organization, only the specific organization is taken into account.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
@@ -259,6 +255,10 @@ module.exports = baseTest('Action target template resource')
 			token: 'token'
 		}
 	}])
+
+	.describe('Try to retrieve action target templates where the user is not member of the organization')
+	.get({}, function() { return { url: this.getData('locationActionTargetTemplate1') + '100' }; })
+	.expectStatusCode(403)
 
 	.describe('First user updates one of his action target template')
 	.patch({}, function() {

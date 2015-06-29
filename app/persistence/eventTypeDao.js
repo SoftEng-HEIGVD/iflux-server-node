@@ -7,17 +7,18 @@ module.exports = _.extend(new dao(EventType), {
 	/**
 	 * Create a new event type
 	 *
-	 * @param eventSourceTemplate The event source template to associate
+	 * @param organization The organization
 	 * @param eventType The event type to create and save
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(eventType, eventSourceTemplate) {
+	createAndSave: function(eventType, organization) {
 		var data = {
 			name: eventType.name,
 			description: eventType.description,
 			type: eventType.type,
+			public: eventType.public,
 			eventTypeSchema: eventType.schema,
-			event_source_template_id: eventSourceTemplate.id
+			organization_id: organization.id
 		};
 
 		return new this.model(data).save();
@@ -27,8 +28,7 @@ module.exports = _.extend(new dao(EventType), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('event_source_templates', 'event_types.event_source_template_id', 'event_source_templates.id')
-					.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
+					.leftJoin('organizations', 'event_types.organization_id', 'organizations.id')
 					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
 					.where('event_types.id', id)
 					.where('organizations_users.user_id', user.get('id'));
@@ -36,11 +36,59 @@ module.exports = _.extend(new dao(EventType), {
 			.fetch({require: true});
 	},
 
-	findByEventSourceTemplate: function(eventSourceTemplate, criteria) {
+	findByIdAndUserOrPublic: function(id, user) {
+		return this.model
+			.query(function(qb) {
+				return qb
+					.leftJoin('organizations', 'event_types.organization_id', 'organizations.id')
+					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.where('event_types.id', id)
+					.where(function() {
+						return this
+							.where('organizations_users.user_id', user.get('id'))
+							.orWhere('event_types.public', true);
+					})
+			})
+			.fetch({require: true});
+	},
+
+	findAllPublic: function(criteria) {
+		var whereClause = [{ public: true }];
+
+		if (criteria.name) {
+			whereClause.push(['name', 'like', criteria.name]);
+		}
+
+		return this.collectionFromModel(whereClause);
+	},
+
+	findByOrganizationId: function(organizationId) {
+		return this.collection(
+			this.model
+			.where({ organization_id: organizationId })
+		);
+	},
+
+	findByOrganization: function(organization, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('event_source_templates', 'event_types.event_source_template_id', 'event_source_templates.id')
-				.where('event_types.event_source_template_id', eventSourceTemplate.get('id'));
+				.leftJoin('organizations', 'event_types.organization_id', 'organizations.id')
+				.where('organizations.id', organization.get('id'));
+
+			if (criteria.name) {
+				qb = qb.where('event_types.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
+	},
+
+	findAllByUser: function(user, criteria) {
+		return this.collection(function(qb) {
+			qb = qb
+				.leftJoin('organizations', 'event_types.organization_id', 'organizations.id')
+				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.where('organizations_users.user_id', user.get('id'));
 
 			if (criteria.name) {
 				qb = qb.where('event_types.name', 'like', criteria.name);

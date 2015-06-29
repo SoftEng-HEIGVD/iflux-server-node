@@ -26,7 +26,7 @@ var EventType = module.exports = bookshelf.Model.extend({
 		return this.get('eventTypeId');
 	},
 
-	eventSourceTemplate: function() {
-		return this.belongsTo(modelRegistry.eventSourceTemplate);
+	organization: function() {
+		return this.belongsTo(modelRegistry.organization);
 	}
 });
