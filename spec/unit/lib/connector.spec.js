@@ -40,7 +40,9 @@ describe("Connector", function() {
 		spyOn(connector, 'executeActions').andCallThrough();
 
 		var action = {
-			target: 'http://actionTarget/actions',
+			targetUrl: 'http://actionTarget/actions',
+			actionTargetId: 'abcdef',
+			type: 'http://someTypeId',
 			payload: {
 				test: 1
 			}
@@ -50,7 +52,7 @@ describe("Connector", function() {
 
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'http://actionTarget/actions', {
-				data: [ { test: 1 } ],
+				data: [ { actionTargetId: 'abcdef', type: 'http://someTypeId', payload: { test: 1 }} ],
 				headers: { "Content-Type": "application/json" }
 			},
       jasmine.any(Function)
@@ -62,17 +64,23 @@ describe("Connector", function() {
 		var connector = new Connector();
 
 		var actions = [{
-			target: 'http://actionTarget1/actions',
+			targetUrl: 'http://actionTarget1/actions',
+			actionTargetId: 'abcdef',
+			type: 'http://someTypeId',
 			payload: {
 				test: 1
 			}
 		}, {
-			target: 'http://actionTarget2/actions',
+			targetUrl: 'http://actionTarget2/actions',
+			actionTargetId: 'abcdef',
+			type: 'http://someTypeId',
 			payload: {
 				test: 2
 			}
 		}, {
-			target: 'http://actionTarget2/actions',
+			targetUrl: 'http://actionTarget2/actions',
+			actionTargetId: 'abcdef',
+			type: 'http://someTypeId',
 			payload: {
 				test: 3
 			}
@@ -82,14 +90,32 @@ describe("Connector", function() {
 
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'http://actionTarget1/actions', {
-				data: [ { test: 1 } ],
+				data: [ {
+					actionTargetId: 'abcdef',
+					type: 'http://someTypeId',
+				  payload: {
+					  test: 1
+				  }
+				} ],
 				headers: { "Content-Type": "application/json" }
 			},
       jasmine.any(Function)
 		);
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'http://actionTarget2/actions', {
-				data: [ { test: 2 }, { test: 3 } ],
+				data: [{
+					actionTargetId: 'abcdef',
+					type: 'http://someTypeId',
+					payload: {
+						test: 2
+					}
+				}, {
+					actionTargetId: 'abcdef',
+					type: 'http://someTypeId',
+					payload: {
+						test: 3
+					}
+				}],
 				headers: { "Content-Type": "application/json" }
 			},
       jasmine.any(Function)
@@ -99,7 +125,13 @@ describe("Connector", function() {
 	it ("should not configure an event source when there is no URL.", function() {
 		var connector = new Connector();
 
-		connector.configureEventSource({}, {});
+		bluebird.defer.andCallFake(function() {
+			return {
+				resolve: function() {}
+			};
+		});
+
+		connector.configureEventSource({ get: function() { return undefined; }}, {});
 
 		expect(npmlog.info).toHaveBeenCalledWith('There is nothing to configure. Configuration URL is missing.');
 	});
@@ -115,8 +147,10 @@ describe("Connector", function() {
 		});
 
 		var result = connector.configureEventSource({
+			get: function(str) { return this[str]; },
 			configurationUrl: 'somewhere'
 		}, {
+			get: function(str) { return this[str]; },
 			eventSourceId: 'abcdef',
 			configuration: {
 				test: 2
@@ -153,9 +187,11 @@ describe("Connector", function() {
 		});
 
 		var result = connector.configureEventSource({
+			get: function(str) { return this[str]; },
 			configurationUrl: 'somewhere',
 			configurationToken: '1234'
 		}, {
+			get: function(str) { return this[str]; },
 			eventSourceId: 'abcdef',
 			configuration: {
 				test: 2
@@ -185,7 +221,13 @@ describe("Connector", function() {
 	it ("should not configure an action target when there is no URL.", function() {
 		var connector = new Connector();
 
-		connector.configureActionTarget({}, {});
+		bluebird.defer.andCallFake(function() {
+			return {
+				resolve: function() {}
+			};
+		});
+
+		connector.configureActionTarget({ get: function() { return undefined; }}, {});
 
 		expect(npmlog.info).toHaveBeenCalledWith('There is nothing to configure. Configuration URL is missing.');
 	});
@@ -202,8 +244,10 @@ describe("Connector", function() {
 		});
 
 		var result = connector.configureActionTarget({
+			get: function(str) { return this[str]; },
 			configurationUrl: 'somewhere'
 		}, {
+			get: function(str) { return this[str]; },
 			actionTargetId: 'abcdef',
 			configuration: {
 				test: 2
@@ -240,9 +284,11 @@ describe("Connector", function() {
 		});
 
 		var result = connector.configureActionTarget({
+			get: function(str) { return this[str]; },
 			configurationUrl: 'somewhere',
 			configurationToken: '1234'
 		}, {
+			get: function(str) { return this[str]; },
 			actionTargetId: 'abcdef',
 			configuration: {
 				test: 2
