@@ -50,6 +50,9 @@ module.exports = {
 						rules.push(ruleConverted);
 					});
 			})
+			.then(function() {
+				console.log('Rules reloaded');
+			})
 			.catch(function(err) {
 				console.log("Unable to populate the rules.");
 				console.log(err);
