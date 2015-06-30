@@ -114,7 +114,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToHavePath([ '0.conditions.0.eventSourceKey', '0.conditions.0.eventType', '0.transformations.0.actionTargetKey', '0.transformations.0.actionType', '0.transformations.0.eventType' ])
+	.expectJsonToHavePath([ '0.conditions.0.eventSource', '0.conditions.0.eventSource.id', '0.conditions.0.eventSource.generatedIdentifier', '0.conditions.0.eventType', '0.transformations.0.actionTarget', '0.transformations.0.actionType', '0.transformations.0.eventType' ])
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('ruleId1'),
@@ -123,8 +123,12 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId1'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				eventSource: {
+					id: this.getData('eventSourceId1'),
+				},
+				eventType: {
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return event.properties.temperature.old != event.properties.temperature.new',
 					sampleEvent: {
@@ -136,9 +140,15 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				actionTarget: {
+					id: this.getData('actionTargetId1'),
+				},
+				actionType: {
+					id: this.getData('actionTypeId1')
+				},
+				eventType: {
+					id: this.getData('eventTypeId1'),
+				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
 					sample: {
@@ -163,8 +173,12 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId1'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				eventSource: {
+					id: this.getData('eventSourceId1')
+				},
+				eventType: {
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return event.properties.temperature.old != event.properties.temperature.new',
 					sampleEvent: {
@@ -176,9 +190,15 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				actionTarget: {
+					id: this.getData('actionTargetId1')
+				},
+				actionType: {
+					id: this.getData('actionTypeId1')
+				},
+				eventType: {
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
 					sample: {
@@ -195,7 +215,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToHavePath([ '0.conditions.0.eventSourceKey', '0.transformations.0.actionTargetKey', '0.transformations.0.actionType' ])
+	.expectJsonToHavePath([ '0.conditions.0.eventSource.generatedIdentifier', '0.transformations.0.actionTarget.generatedIdentifier', '0.transformations.0.actionType' ])
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('ruleId2'),
@@ -203,11 +223,17 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId2'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId2')
+				eventSource:{
+					id: this.getData('eventSourceId2')
+				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
+				actionTarget:{
+					id: this.getData('actionTargetId1')
+				},
+				actionType:{
+					id: this.getData('actionTypeId1')
+				},
 				fn: {
 					expression: 'return "Received event: " + event.name;',
 					sample: {
@@ -231,8 +257,12 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId1'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				eventSource: {
+					id: this.getData('eventSourceId1')
+				},
+				eventType:{
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return event.properties.temperature.old != event.properties.temperature.new',
 					sampleEvent: {
@@ -244,9 +274,15 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				actionTarget:{
+					id: this.getData('actionTargetId1')
+				},
+				actionType:{
+					id: this.getData('actionTypeId1')
+				},
+				eventType:{
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
 					sample: {
@@ -262,11 +298,17 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId2'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId2')
+				eventSource:{
+					id: this.getData('eventSourceId2')
+				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
+				actionTarget:{
+					id: this.getData('actionTargetId1')
+				},
+				actionType:{
+					id: this.getData('actionTypeId1')
+				},
 				fn: {
 					expression: 'return "Received event: " + event.name;',
 					sample: {
@@ -289,11 +331,17 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId2'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId2')
+				eventSource:{
+					id: this.getData('eventSourceId2')
+				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
+				actionTarget:{
+					id: this.getData('actionTargetId1')
+				},
+				actionType:{
+					id: this.getData('actionTypeId1')
+				},
 				fn: {
 					expression: 'return "Received event: " + event.name;',
 					sample: {
@@ -314,7 +362,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToHavePath([ '0.conditions.0.eventSourceKey', '0.transformations.0.actionTargetKey', '0.transformations.0.actionType' ])
+	.expectJsonToHavePath([ '0.conditions.0.eventSource.generatedIdentifier', '0.transformations.0.actionTarget.generatedIdentifier', '0.transformations.0.actionType' ])
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('ruleId3'),
@@ -322,11 +370,17 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId3'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId4')
+				eventSource:{
+					id: this.getData('eventSourceId4')
+				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId4'),
-				actionTypeId: this.getData('actionTypeId4'),
+				actionTarget:{
+					id: this.getData('actionTargetId4')
+				},
+				actionType:{
+					id: this.getData('actionTypeId4')
+				},
 				fn: {
 					expression: 'return "Received event: " + event.name;',
 					sample: {
@@ -349,11 +403,17 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId3'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId4')
+				eventSource:{
+					id: this.getData('eventSourceId4')
+				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId4'),
-				actionTypeId: this.getData('actionTypeId4'),
+				actionTarget:{
+					id: this.getData('actionTargetId4')
+				},
+				actionType:{
+					id: this.getData('actionTypeId4')
+				},
 				fn: {
 					expression: 'return "Received event: " + event.name;',
 					sample: {
@@ -377,7 +437,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.describe('First user retrieve his first rule.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ 'conditions.0.eventSourceKey', 'conditions.0.eventType', 'transformations.0.actionTargetKey', 'transformations.0.actionType', 'transformations.0.eventType' ])
+	.expectJsonToHavePath([ 'conditions.0.eventSource.generatedIdentifier', 'conditions.0.eventType', 'transformations.0.actionTarget.generatedIdentifier', 'transformations.0.actionType', 'transformations.0.eventType' ])
 	.expectJsonToBeAtLeast(function() {
 		return {
 			id: this.getData('ruleId1'),
@@ -386,8 +446,12 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			active: true,
 			organizationId: this.getData('organizationId1'),
 			conditions: [{
-				eventSourceId: this.getData('eventSourceId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				eventSource:{
+					id: this.getData('eventSourceId1')
+				},
+				eventType:{
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return event.properties.temperature.old != event.properties.temperature.new',
 					sampleEvent: {
@@ -399,9 +463,15 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}],
 			transformations: [{
-				actionTargetId: this.getData('actionTargetId1'),
-				actionTypeId: this.getData('actionTypeId1'),
-				eventTypeId: this.getData('eventTypeId1'),
+				actionTarget:{
+					id: this.getData('actionTargetId1')
+				},
+				actionType:{
+					id: this.getData('actionTypeId1')
+				},
+				eventType:{
+					id: this.getData('eventTypeId1')
+				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
 					sample: {

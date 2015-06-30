@@ -41,9 +41,9 @@ describe("Connector", function() {
 
 		var action = {
 			targetUrl: 'http://actionTarget/actions',
-			actionTargetId: 'abcdef',
+			target: 'abcdef',
 			type: 'http://someTypeId',
-			payload: {
+			properties: {
 				test: 1
 			}
 		};
@@ -52,7 +52,7 @@ describe("Connector", function() {
 
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'http://actionTarget/actions', {
-				data: [ { actionTargetId: 'abcdef', type: 'http://someTypeId', payload: { test: 1 }} ],
+				data: [ { target: 'abcdef', type: 'http://someTypeId', properties: { test: 1 }} ],
 				headers: { "Content-Type": "application/json" }
 			},
       jasmine.any(Function)
@@ -65,23 +65,23 @@ describe("Connector", function() {
 
 		var actions = [{
 			targetUrl: 'http://actionTarget1/actions',
-			actionTargetId: 'abcdef',
+			target: 'abcdef',
 			type: 'http://someTypeId',
-			payload: {
+			properties: {
 				test: 1
 			}
 		}, {
 			targetUrl: 'http://actionTarget2/actions',
-			actionTargetId: 'abcdef',
+			target: 'abcdef',
 			type: 'http://someTypeId',
-			payload: {
+			properties: {
 				test: 2
 			}
 		}, {
 			targetUrl: 'http://actionTarget2/actions',
-			actionTargetId: 'abcdef',
+			target: 'abcdef',
 			type: 'http://someTypeId',
-			payload: {
+			properties: {
 				test: 3
 			}
 		}];
@@ -91,9 +91,9 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'http://actionTarget1/actions', {
 				data: [ {
-					actionTargetId: 'abcdef',
+					target: 'abcdef',
 					type: 'http://someTypeId',
-				  payload: {
+				  properties: {
 					  test: 1
 				  }
 				} ],
@@ -104,15 +104,15 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'http://actionTarget2/actions', {
 				data: [{
-					actionTargetId: 'abcdef',
+					target: 'abcdef',
 					type: 'http://someTypeId',
-					payload: {
+					properties: {
 						test: 2
 					}
 				}, {
-					actionTargetId: 'abcdef',
+					target: 'abcdef',
 					type: 'http://someTypeId',
-					payload: {
+					properties: {
 						test: 3
 					}
 				}],

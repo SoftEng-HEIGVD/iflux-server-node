@@ -15,14 +15,14 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 		bookshelf.Model.apply(this, arguments);
 
 		this.on('creating', function(model, attrs, options) {
-			if (!model.get('actionTargetId')) {
-				model.set('actionTargetId', stringService.generateId());
+			if (!model.get('generatedIdentifier')) {
+				model.set('generatedIdentifier', stringService.generateId());
 			}
 		});
 	},
 
 	generatedId: function() {
-		return this.get('actionTargetId');
+		return this.get('generatedIdentifier');
 	},
 
 	organization: function() {

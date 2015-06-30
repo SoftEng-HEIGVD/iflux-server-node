@@ -15,14 +15,14 @@ var EventSource = module.exports = bookshelf.Model.extend({
 		bookshelf.Model.apply(this, arguments);
 
 		this.on('creating', function(model, attrs, options) {
-			if (!model.get('eventSourceId')) {
-				model.set('eventSourceId', stringService.generateId());
+			if (!model.get('generatedIdentifier')) {
+				model.set('generatedIdentifier', stringService.generateId());
 			}
 		});
 	},
 
 	generatedId: function() {
-		return this.get('eventSourceId');
+		return this.get('generatedIdentifier');
 	},
 
 	organization: function() {

@@ -23,17 +23,21 @@ module.exports = {
 		_.each(ruleModel.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
-			if (condition.eventSourceId) {
+			if (condition.eventSource) {
 				convertedCondition = _.extend(convertedCondition, {
-					eventSourceId: condition.eventSourceId,
-					eventSourceKey: condition.eventSourceKey
+					eventSource: {
+						id: condition.eventSource.id,
+						generatedIdentifier: condition.eventSource.generatedIdentifier
+					}
 				});
 			}
 
-			if (condition.eventTypeId) {
+			if (condition.eventType) {
 				convertedCondition = _.extend(convertedCondition, {
-					eventTypeId: condition.eventTypeId,
-					eventType: condition.eventType
+					eventType: {
+						id: condition.eventType.id,
+						type: condition.eventType.type
+					}
 				});
 			}
 
@@ -53,16 +57,22 @@ module.exports = {
 			var convertedTransformations = {};
 
 			convertedTransformations = _.extend(convertedTransformations, {
-				actionTargetId: transformation.actionTargetId,
-				actionTargetKey: transformation.actionTargetKey,
-				actionTypeId: transformation.actionTypeId,
-				actionType: transformation.actionType
+				actionTarget: {
+					id: transformation.actionTarget.id,
+					generatedIdentifier: transformation.actionTarget.generatedIdentifier
+				},
+				actionType: {
+					id: transformation.actionType.id,
+					type: transformation.actionType.type
+				}
 			});
 
-			if (transformation.eventTypeId) {
+			if (transformation.eventType) {
 				convertedTransformations = _.extend(convertedTransformations, {
-					eventTypeId: transformation.eventTypeId,
-					eventType: transformation.eventType
+					eventType: {
+						id: transformation.eventType.id,
+						type: transformation.eventType.type
+					}
 				});
 			}
 
@@ -116,25 +126,29 @@ module.exports = {
 		_.each(ruleModel.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
-			if (condition.eventSourceId) {
-				if (!cache.eventSources[condition.eventSourceKey] && !_.contains(eventSourceIds, condition.eventSourceId)) {
-					eventSourceIds.push(condition.eventSourceId);
+			if (condition.eventSource && condition.eventSource.id) {
+				if (!cache.eventSources[condition.eventSource.generatedIdentifier] && !_.contains(eventSourceIds, condition.eventSource.id)) {
+					eventSourceIds.push(condition.eventSource.id);
 				}
 
 				convertedCondition = _.extend(convertedCondition, {
-					eventSourceId: condition.eventSourceId,
-					eventSourceKey: condition.eventSourceKey
+					eventSource: {
+						id: condition.eventSource.id,
+						generatedIdentifier: condition.eventSource.generatedIdentifier
+					}
 				});
 			}
 
-			if (condition.eventTypeId) {
-				if (!cache.eventTypes[condition.eventType] && !_.contains(eventTypeIds, condition.eventTypeId)) {
-					eventTypeIds.push(condition.eventTypeId);
+			if (condition.eventType && condition.eventType.id) {
+				if (!cache.eventTypes[condition.eventType.type] && !_.contains(eventTypeIds, condition.eventType.id)) {
+					eventTypeIds.push(condition.eventType.id);
 				}
 
 				convertedCondition = _.extend(convertedCondition, {
-					eventTypeId: condition.eventTypeId,
-					eventType: condition.eventType
+					eventType: {
+						id: condition.eventType.id,
+						type: condition.eventType.type
+					}
 				});
 			}
 
@@ -154,29 +168,35 @@ module.exports = {
 		_.each(ruleModel.get('transformations'), function(transformation) {
 			var convertedTransformations = {};
 
-			if (!cache.actionTargets[transformation.actionTargetKey] && !_.contains(actionTargetIds, transformation.actionTargetId)) {
-				actionTargetIds.push(transformation.actionTargetId);
+			if (!cache.actionTargets[transformation.actionTarget.generatedIdentifier] && !_.contains(actionTargetIds, transformation.actionTarget.id)) {
+				actionTargetIds.push(transformation.actionTarget.id);
 			}
 
-			if (!cache.actionTypes[transformation.actionType] && !_.contains(actionTypeIds, transformation.actionTypeId)) {
-				actionTypeIds.push(transformation.actionTypeId);
+			if (!cache.actionTypes[transformation.actionType.type] && !_.contains(actionTypeIds, transformation.actionType.id)) {
+				actionTypeIds.push(transformation.actionType.id);
 			}
 
 			convertedTransformations = _.extend(convertedTransformations, {
-				actionTargetId: transformation.actionTargetId,
-				actionTargetKey: transformation.actionTargetKey,
-				actionTypeId: transformation.actionTypeId,
-				actionType: transformation.actionType
+				actionTarget: {
+					id: transformation.actionTarget.id,
+					generatedIdentifier: transformation.actionTarget.generatedIdentifier
+				},
+				actionType: {
+					id: transformation.actionType.id,
+					type: transformation.actionType.type
+				}
 			});
 
-			if (transformation.eventTypeId) {
-				if (!cache.eventTypes[transformation.eventType] && !_.contains(eventTypeIds, transformation.eventTypeId)) {
-					eventTypeIds.push(transformation.eventTypeId);
+			if (transformation.eventType && transformation.eventType.id) {
+				if (!cache.eventTypes[transformation.eventType.type] && !_.contains(eventTypeIds, transformation.eventType.id)) {
+					eventTypeIds.push(transformation.eventType.id);
 				}
 
 				convertedTransformations = _.extend(convertedTransformations, {
-					eventTypeId: transformation.eventTypeId,
-					eventType: transformation.eventType
+					eventType: {
+						id: transformation.eventType.id,
+						type: transformation.eventType.type
+					}
 				});
 			}
 

@@ -49,8 +49,10 @@ function populateConditions(entities, rule, conditions) {
 
 			// Store id + generated string id
 			realCondition = _.extend(realCondition, {
-				eventSourceId: eventSource.get('id'),
-				eventSourceKey: eventSource.get('eventSourceId')
+				eventSource: {
+					id: eventSource.get('id'),
+					generatedIdentifier: eventSource.get('generatedIdentifier')
+				}
 			});
 		}
 
@@ -60,8 +62,10 @@ function populateConditions(entities, rule, conditions) {
 
 			// Store id + generated string id
 			realCondition = _.extend(realCondition, {
-				eventTypeId: eventType.get('id'),
-				eventType: eventType.get('type')
+				eventType: {
+					id: eventType.get('id'),
+					type: eventType.get('type')
+				}
 			});
 		}
 
@@ -86,23 +90,29 @@ function populateTransformations(entities, rule, transformations) {
 		var actionTarget = entities.actionTargets[transformation.actionTargetId];
 
 		realTransformation = _.extend(realTransformation, {
-			actionTargetId: actionTarget.get('id'),
-			actionTargetKey: actionTarget.get('actionTargetId')
+			actionTarget: {
+				id: actionTarget.get('id'),
+				generatedIdentifier: actionTarget.get('generatedIdentifier')
+			}
 		});
 
 		var actionType = entities.actionTypes[transformation.actionTypeId];
 
 		realTransformation = _.extend(realTransformation, {
-			actionTypeId: actionType.get('id'),
-			actionType: actionType.get('type')
+			actionType: {
+				id: actionType.get('id'),
+				type: actionType.get('type')
+			}
 		});
 
 		if (transformation.eventTypeId) {
 			var eventType = entities.eventTypes[transformation.eventTypeId];
 
 			realTransformation = _.extend(realTransformation, {
-				eventTypeId: eventType.get('id'),
-				eventType: eventType.get('type')
+				eventType: {
+					id: eventType.get('id'),
+					type: eventType.get('type')
+				}
 			});
 		}
 

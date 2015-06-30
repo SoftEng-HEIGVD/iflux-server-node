@@ -4,7 +4,7 @@ module.exports = {
 	convert: function(actionTarget) {
 		var data = {
 			id: actionTarget.get('id'),
-			actionTargetId: actionTarget.get('actionTargetId'),
+			generatedIdentifier: actionTarget.get('generatedIdentifier'),
 			name: actionTarget.get('name'),
 			actionTargetTemplateId: actionTarget.get('action_target_template_id'),
 			organizationId: actionTarget.get('organization_id')

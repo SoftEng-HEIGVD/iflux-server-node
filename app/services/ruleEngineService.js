@@ -94,8 +94,8 @@ module.exports = {
 					_.each(rule.conditions, function (condition) {
 						// Define the fields that can be evaluated
 						var matchingBy = {
-							source: !_.isUndefined(condition.eventSourceKey),
-							type: !_.isUndefined(condition.eventType),
+							source: !_.isUndefined(condition.eventSource.generatedIdentifier),
+							type: !_.isUndefined(condition.eventType.type),
 							function: !_.isUndefined(condition.fn)
 						};
 
@@ -124,28 +124,26 @@ module.exports = {
 
 				// Evaluate the matches
 				_.each(eventMatchingResults, function (eventMatchingResult) {
-					var transformations = {};
-
 					// Evaluate the transformations
 					_.each(eventMatchingResult.rule.transformations, function (transformation) {
 						// Define the fields that can be evaluated
 						var matchingBy = {
 							targetAndType: true, // Mandatory evaluation
-							eventType: !_.isUndefined(transformation.eventType)
+							eventType: !_.isUndefined(transformation.eventType.type)
 						};
 
 						// Evaluate the transformation
 						if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
-							var actionTarget = cache.actionTargets[transformation.actionTargetKey];
+							var actionTarget = cache.actionTargets[transformation.actionTarget.generatedIdentifier];
 							var actionTargetTemplate = cache.actionTargetTemplates[actionTarget.get('action_target_template_id')];
-							var actionType = cache.actionTypes[transformation.actionType];
+							var actionType = cache.actionTypes[transformation.actionType.type];
 
 							// Process the transformation of the event to the target format
 							var transformed = transformation.fn.compiled(
 								event,
 								actionTarget,
 								actionType,
-								cache.eventSources[event.sourceId],
+								cache.eventSources[event.source],
 								cache.eventTypes[event.type],
 								{ json: JSON, console: console }
 							);
@@ -159,9 +157,9 @@ module.exports = {
 							actions.push({
 								targetUrl: actionTargetTemplate.get('targetUrl'),
 								targetToken: actionTargetTemplate.get('targetToken'),
-								actionTargetId: actionTarget.get('actionTargetId'),
+								target: actionTarget.get('generatedIdentifier'),
 								type: actionType.get('type'),
-								payload: transformed
+								properties: transformed
 							});
 						}
 					}, this);
@@ -202,7 +200,7 @@ var eventMatchEngine = {
  * @returns {boolean} True if the event source match with the event
  */
 function matchConditionEventSource(condition, event) {
-	return condition.eventSourceKey === event.sourceId;
+	return condition.eventSource.generatedIdentifier === event.source;
 }
 
 /**
@@ -213,7 +211,7 @@ function matchConditionEventSource(condition, event) {
  * @returns {boolean} True if the event type match with the event
  */
 function matchConditionEventType(condition, event) {
-	return condition.eventType === event.type;
+	return condition.eventType.type === event.type;
 }
 
 /**
@@ -226,7 +224,7 @@ function matchConditionEventType(condition, event) {
 function matchConditionFunction(condition, event) {
 	return condition.fn.compiled(
 		event,
-		cache.eventSources[event.sourceId],
+		cache.eventSources[event.source],
 		cache.eventTypes[event.type],
 		{ json: JSON, console: console }
 	);
@@ -240,5 +238,5 @@ function matchConditionFunction(condition, event) {
  * @returns {boolean} True if the event type match with the event
  */
 function matchTransformationEventType(transformation, event) {
-	return transformation.eventType === event.type;
+	return transformation.eventType.type === event.type;
 }
