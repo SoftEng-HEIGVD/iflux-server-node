@@ -13,6 +13,8 @@ var
 	jsonValidatorService = require('../../services/jsonValidatorService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTargets');
 
+var connector = new Connector();
+
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
@@ -111,7 +113,7 @@ router.route('/')
 								return actionTargetDao
 									.createAndSave(actionTarget, organization, actionTargetTemplate)
 									.then(function(actionTargetSaved) {
-										return new Connector()
+										return connector
 											.configureActionTarget(actionTargetTemplate, actionTargetSaved)
 											.then(function() { return actionTargetSaved; })
 											.catch(function(err) {
@@ -176,7 +178,7 @@ router.route('/:id')
 				.save(actionTarget)
 				.then(actionTarget.actionTargetTemplate().fetch())
 				.then(function(actionTargetTemplate) {
-					return new Connector()
+					return connector
 						.configureActionTarget(actionTargetTemplate, actionTarget)
 						.then(function() { return actionTarget; })
 						.catch(function(err) {
@@ -203,7 +205,7 @@ router.route('/:id/configure')
 			.resolve(actionTarget.actionTargetTemplate().fetch())
 			.then(function(actionTargetTemplate) {
 				if (actionTargetTemplate.get('configurationUrl')) {
-					return new Connector()
+					return connector
 						.configureActionTarget(actionTargetTemplate, actionTarget)
 						.then(function () {
 							resourceService.ok(res).end();

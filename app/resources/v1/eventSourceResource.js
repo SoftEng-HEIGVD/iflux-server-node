@@ -13,6 +13,8 @@ var
 	jsonValidatorService = require('../../services/jsonValidatorService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/eventSources');
 
+var connector = new Connector();
+
 module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
@@ -111,7 +113,7 @@ router.route('/')
 								return eventSourceDao
 									.createAndSave(eventSource, organization, eventSourceTemplate)
 									.then(function(eventSourceSaved) {
-										return new Connector()
+										return connector
 											.configureEventSource(eventSourceTemplate, eventSourceSaved)
 											.then(function() { return eventSourceSaved; })
 											.catch(function(err) {
@@ -176,7 +178,7 @@ router.route('/:id')
 				.save(eventSource)
 				.then(eventSource.eventSourceTemplate().fetch())
 				.then(function(eventSourceTemplate) {
-					return new Connector()
+					return connector
 						.configureEventSource(eventSourceTemplate, eventSource)
 						.then(function() { return eventSource; })
 						.catch(function(err) {
@@ -203,7 +205,7 @@ router.route('/:id/configure')
 			.resolve(eventSource.eventSourceTemplate().fetch())
 			.then(function(eventSourceTemplate) {
 				if (eventSourceTemplate.get('configurationUrl')) {
-					return new Connector()
+					return connector
 						.configureEventSource(eventSourceTemplate, eventSource)
 						.then(function () {
 							resourceService.ok(res).end();

@@ -207,7 +207,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 				.reduce(this.req.body[collectionName] || [], function (entities, item, idx) {
 					if (item.eventTypeId && !entities.eventTypes[item.eventTypeId]) {
 						return eventTypeDao
-							.findByIdAndUser(item.eventTypeId, entities.user)
+							.findByIdAndUserOrPublic(item.eventTypeId, entities.user)
 							.then(function (eventType) {
 								entities.eventTypes[item.eventTypeId] = eventType;
 								return entities;
@@ -324,7 +324,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 				.reduce(this.req.body.transformations|| [], function (entities, transformation, idx) {
 					if (transformation.actionTypeId && !entities.actionTypes[transformation.actionTypeId]) {
 						return actionTypeDao
-							.findByIdAndUser(transformation.actionTypeId, entities.user)
+							.findByIdAndUserOrPublic(transformation.actionTypeId, entities.user)
 							.then(function (actionType) {
 								entities.actionTypes[transformation.actionTypeId] = actionType;
 								return entities;

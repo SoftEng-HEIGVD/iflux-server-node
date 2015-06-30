@@ -21,7 +21,8 @@ module.exports = {
 			.createEventType('Create second event type for first template', { name: 'Temperature decrease', type: 'http://iflux.io/schemas/eventTypes/2' }, 1, 1)
 			.createEventType('Create first event type for second template', { name: 'Temperature change', type: 'http://iflux.io/schemas/eventTypes/3' }, 1, 2)
 
-			.createEventType('Create first event type for third template', { name: 'Lightening' }, 2, 3)
+			.createEventType('Create first event type for third template (public)', { name: 'Lightening', type: 'http://iflux.io/schemas/eventTypes/4' }, 2, 3)
+			.createEventType('Create second event type for third template (private)', { name: 'Lightening private', type: 'http://iflux.io/schemas/eventTypes/5', public: false }, 2, 3)
 
 			.createEventSource('Create first event source for first user, first template in first orga', { name: 'First source' }, 1, 1, 1)
 			.createEventSource('Create second event source for first user, first template in second orga', { name: 'Second source' }, 1, 2, 1)
@@ -39,7 +40,8 @@ module.exports = {
 			.createActionType('Create second action type for first template', { name: 'Radiator decrease', type: 'http://iflux.io/schemas/actionTypes/2' }, 1, 1)
 			.createActionType('Create first action type for second template', { name: 'Radiator change', type: 'http://iflux.io/schemas/actionTypes/3' }, 1, 2)
 
-			.createActionType('Create first action type for third template', { name: 'Messaging' }, 2, 3)
+			.createActionType('Create first action type for third template (public)', { name: 'Messaging', type: 'http://iflux.io/schemas/actionTypes/4' }, 2, 3)
+			.createActionType('Create second action type for third template (private)', { name: 'Messaging private', type: 'http://iflux.io/schemas/actionTypes/5', public: false }, 2, 3)
 
 			.createActionTarget('Create first action target for first user, first template in first orga', { name: 'First target' }, 1, 1, 1)
 			.createActionTarget('Create second action target for first user, first template in second orga', { name: 'Second target' }, 1, 2, 1)

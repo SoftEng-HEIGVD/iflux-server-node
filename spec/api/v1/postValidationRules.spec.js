@@ -158,7 +158,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				organizationId: this.getData('organizationId1'),
 				conditions: [{
 					eventSourceId: this.getData('eventSourceId1'),
-					eventTypeId: this.getData('eventTypeId4')
+					eventTypeId: this.getData('eventTypeId5')
 				}],
 				transformations: [{
 					actionTargetId: this.getData('actionTargetId1'),
@@ -417,7 +417,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				}],
 				transformations: [{
 					actionTargetId: this.getData('actionTargetId1'),
-					actionTypeId: this.getData('actionTypeId4')
+					actionTypeId: this.getData('actionTypeId5')
 				}]
 			}
 		};
@@ -461,7 +461,7 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 				transformations: [{
 					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId4')
+					eventTypeId: this.getData('eventTypeId5')
 				}]
 			}
 		};

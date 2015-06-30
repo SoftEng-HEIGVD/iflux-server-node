@@ -28,9 +28,16 @@ module.exports = function(name) {
 
 	function storageFactory(key) {
 		return function() {
-			this.setData(generateKey(key, { prefix: 'location' }), this.response.headers.location);
-			var locationParts = this.response.headers.location.split('/');
-			this.setData(regenerateKey(key, { suffix: 'Id' }), parseInt(locationParts[locationParts.length - 1]));
+			if (this.response.headers.location) {
+				this.setData(generateKey(key, { prefix: 'location' }), this.response.headers.location);
+				var locationParts = this.response.headers.location.split('/');
+				this.setData(regenerateKey(key, {suffix: 'Id'}), parseInt(locationParts[locationParts.length - 1]));
+			}
+			else {
+				console.log('unable to get the location'.red);
+				console.log('Status code: %s'.red, this.response.statusCode);
+				console.log('Response body: %s'.red, JSON.stringify(this.response.body));
+			}
 		};
 	}
 
