@@ -207,6 +207,32 @@ module.exports = baseTest('Action target resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
 
+	.describe('Second user creates a third action target for his organization and template in a different organization.')
+	.post({ url: '/v1/actionTargets' }, function() {
+		return {
+			body: {
+				name: 'Slack Message third target for second user',
+				organizationId: this.getData('organizationId3'),
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+			}
+		};
+	})
+	.storeLocationAs('actionTarget', 6)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargets/:id')
+
+	.describe('Second user retrieve his third action target.')
+	.get({}, function() { return { url: '/v1/actionTargets?name=%third%&actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'Slack Message third target for second user',
+			organizationId: this.getData('organizationId3'),
+			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+		}];
+	})
+
 	.describe('First user tries to retrieve action targets.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/actionTargets' })
@@ -391,7 +417,7 @@ module.exports = baseTest('Action target resource')
 	.get({ url: '/v1/actionTargets?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.actionTargetTemplateId' ])
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('actionTargetId4'),
@@ -403,6 +429,11 @@ module.exports = baseTest('Action target resource')
 			name: 'Slack Message second target for second user',
 			organizationId: this.getData('organizationId3'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId3')
+		}, {
+			id: this.getData('actionTargetId6'),
+			name: 'Slack Message third target for second user',
+			organizationId: this.getData('organizationId3'),
+			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
 	})
 
@@ -410,7 +441,7 @@ module.exports = baseTest('Action target resource')
 	.get({}, function() { return { url: '/v1/actionTargets?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.actionTargetTemplateId' ])
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('actionTargetId4'),
@@ -422,6 +453,11 @@ module.exports = baseTest('Action target resource')
 			name: 'Slack Message second target for second user',
 			organizationId: this.getData('organizationId3'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId3')
+		}, {
+			id: this.getData('actionTargetId6'),
+			name: 'Slack Message third target for second user',
+			organizationId: this.getData('organizationId3'),
+			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
 	})
 

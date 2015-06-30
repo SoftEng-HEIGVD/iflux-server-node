@@ -206,6 +206,32 @@ module.exports = baseTest('Event source resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
 
+	.describe('Second user creates a third event source for his organization and template in a different organization.')
+	.post({ url: '/v1/eventSources' }, function() {
+		return {
+			body: {
+				name: 'iFLUX Thermometer third for second user',
+				organizationId: this.getData('organizationId3'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+			}
+		};
+	})
+	.storeLocationAs('eventSource', 6)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSources/:id')
+
+	.describe('Second user retrieve his third event source.')
+	.get({}, function() { return { url: '/v1/eventSources?name=%third%&eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'iFLUX Thermometer third for second user',
+			organizationId: this.getData('organizationId3'),
+			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+		}];
+	})
+
 	.describe('First user tries to retrieve event sources.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/eventSources' })
@@ -394,7 +420,7 @@ module.exports = baseTest('Event source resource')
 	.get({ url: '/v1/eventSources?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('eventSourceId4'),
@@ -406,6 +432,11 @@ module.exports = baseTest('Event source resource')
 			name: 'iFLUX Thermometer second for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId3')
+		}, {
+			id: this.getData('eventSourceId6'),
+			name: 'iFLUX Thermometer third for second user',
+			organizationId: this.getData('organizationId3'),
+			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 
@@ -413,7 +444,7 @@ module.exports = baseTest('Event source resource')
 	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('eventSourceId4'),
@@ -425,6 +456,11 @@ module.exports = baseTest('Event source resource')
 			name: 'iFLUX Thermometer second for second user',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId3')
+		}, {
+			id: this.getData('eventSourceId6'),
+			name: 'iFLUX Thermometer third for second user',
+			organizationId: this.getData('organizationId3'),
+			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	})
 

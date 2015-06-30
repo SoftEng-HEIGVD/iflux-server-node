@@ -35,7 +35,7 @@ router.route('/')
 	.get(function(req, res, next) {
 		if (req.query.actionTargetTemplateId) {
 			return actionTargetTemplateDao
-				.findByIdAndUser(req.query.actionTargetTemplateId, req.userModel)
+				.findByIdAndUserOrPublic(req.query.actionTargetTemplateId, req.userModel)
 				.then(function(actionTargetTemplate) {
 					req.actionTargetTemplate = actionTargetTemplate;
 					return next();

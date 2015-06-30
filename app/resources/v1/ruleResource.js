@@ -217,7 +217,7 @@ router.route('/')
 
 				return ruleDao
 					.createAndSave(newRuleDefinition, entities.organization)
-					.then(function() { return ruleEngineService.populate(); })
+					.then(function(ruleSaved) { return ruleEngineService.populate(ruleSaved); })
 					.then(function(ruleSaved) {
 						return resourceService.location(res, 201, ruleSaved).end();
 					})

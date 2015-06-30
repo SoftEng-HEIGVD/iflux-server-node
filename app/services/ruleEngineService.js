@@ -28,8 +28,10 @@ module.exports = {
 	 * Populate the rules for the evaluation. This will
 	 * act as a caching mechanism to avoid retrieving the rules
 	 * for each event received.
+	 *
+	 * @param {object} payload Something to return at the end of the promise chain
 	 */
-	populate: function() {
+	populate: function(payload) {
 		cache = {
 			actionTargets: {},
 			actionTargetTemplates: {},
@@ -52,6 +54,7 @@ module.exports = {
 			})
 			.then(function() {
 				console.log('Rules reloaded');
+				return payload;
 			})
 			.catch(function(err) {
 				console.log("Unable to populate the rules.");

@@ -35,7 +35,7 @@ router.route('/')
 	.get(function(req, res, next) {
 		if (req.query.eventSourceTemplateId) {
 			return eventSourceTemplateDao
-				.findByIdAndUser(req.query.eventSourceTemplateId, req.userModel)
+				.findByIdAndUserOrPublic(req.query.eventSourceTemplateId, req.userModel)
 				.then(function(eventSourceTemplate) {
 					req.eventSourceTemplate = eventSourceTemplate;
 					return next();
