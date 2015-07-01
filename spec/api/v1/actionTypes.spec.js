@@ -115,6 +115,56 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
+	.describe('Try to create duplicated new public action type for first user in his first organization')
+	.post({ url: '/v1/actionTypes' },
+	function() {
+		return {
+			body: {
+				name: 'Decrease thermostat',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+
+	.describe('Create new public action type for first user in his second organization with same name from one of the first organization')
+	.post({ url: '/v1/actionTypes' },
+	function() {
+		return {
+			body: {
+				name: 'Decrease thermostat',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+				organizationId: this.getData('organizationId2'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id')
+
 	.describe('Create a second private action type for first user in his first organization')
 	.post({
 		url: '/v1/actionTypes',
@@ -205,7 +255,7 @@ module.exports = baseTest('Action type resource')
 	.get({ url: '/v1/actionTypes?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.public', '1.public', '2.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(4)
 	.expectJsonToBeAtLeast([{
 		name: 'Decrease thermostat',
 		description: 'Action to reduce the thermostat.',
@@ -245,12 +295,26 @@ module.exports = baseTest('Action type resource')
 	      }
 	    }
 	  }
+	}, {
+		name: 'Decrease thermostat',
+		description: 'Action to reduce the thermostat.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+		schema: {
+      $schema: "http://json-schema.org/draft-04/schema#",
+       type: "object",
+      properties: {
+	      message: {
+	        type: "string"
+	      }
+	    }
+	  }
 	}])
 
 	.describe('Retrieve all the action types for first user filtered by name')
 	.get({ url: '/v1/actionTypes?allOrganizations&name=Decrease%' })
 	.expectStatusCode(200)
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Decrease thermostat',
 		description: 'Action to reduce the thermostat.',
@@ -258,6 +322,20 @@ module.exports = baseTest('Action type resource')
 		schema: {
       $schema: "http://json-schema.org/draft-04/schema#",
       type: "object",
+      properties: {
+	      message: {
+	        type: "string"
+	      }
+	    }
+	  }
+	}, {
+		name: 'Decrease thermostat',
+		description: 'Action to reduce the thermostat.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+		schema: {
+      $schema: "http://json-schema.org/draft-04/schema#",
+       type: "object",
       properties: {
 	      message: {
 	        type: "string"
@@ -335,7 +413,7 @@ module.exports = baseTest('Action type resource')
 	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Block thermostat',
 	  description: 'Action to lock the thermostat.',
@@ -349,6 +427,20 @@ module.exports = baseTest('Action type resource')
 	      }
 	    }
 	  }
+	}, {
+		name: 'Decrease thermostat',
+		description: 'Action to reduce the thermostat.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+		schema: {
+      $schema: "http://json-schema.org/draft-04/schema#",
+       type: "object",
+      properties: {
+	      message: {
+	        type: "string"
+	      }
+	    }
+	  }
 	}])
 
 	.describe('Retrieve all the action types for second user')
@@ -356,7 +448,7 @@ module.exports = baseTest('Action type resource')
 	.get({ url: '/v1/actionTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(4)
 	.expectJsonToBeAtLeast([{
 		name: 'Decrease thermostat',
 		description: 'Action to reduce the thermostat.',
@@ -397,6 +489,20 @@ module.exports = baseTest('Action type resource')
 	      }
 	    }
 	  }
+	}, {
+		name: 'Decrease thermostat',
+		description: 'Action to reduce the thermostat.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+		schema: {
+      $schema: "http://json-schema.org/draft-04/schema#",
+       type: "object",
+      properties: {
+	      message: {
+	        type: "string"
+	      }
+	    }
+	  }
 	}])
 
 	.describe('Retrieve all the action types for second user filtered by name')
@@ -424,7 +530,7 @@ module.exports = baseTest('Action type resource')
 	.get({}, function() { return { url: '/v1/actionTypes?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Block thermostat',
 	  description: 'Action to lock the thermostat.',
@@ -432,6 +538,20 @@ module.exports = baseTest('Action type resource')
 	  schema: {
       $schema: "http://json-schema.org/draft-04/schema#",
       type: "object",
+      properties: {
+	      message: {
+	        type: "string"
+	      }
+	    }
+	  }
+	}, {
+		name: 'Decrease thermostat',
+		description: 'Action to reduce the thermostat.',
+		public: true,
+		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+		schema: {
+      $schema: "http://json-schema.org/draft-04/schema#",
+       type: "object",
       properties: {
 	      message: {
 	        type: "string"
@@ -518,6 +638,31 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates his first action type with a name used in a different organization')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionType1'),
+			body: {
+				name: 'Block thermostat'
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates his first action type with a name used in the same organization')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionType1'),
+			body: {
+				name: 'Increase thermostat'
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
 
 	.describe('Second user tries to update first action type of first user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
