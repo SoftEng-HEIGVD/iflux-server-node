@@ -1,10 +1,24 @@
-var ValidationError = require('checkit').ValidationError;
+var
+	_ = require('underscore'),
+	s = require('underscore.string'),
+	ValidationError = require('checkit').ValidationError;
 
 module.exports = function(options) {
-	return function(value, tableName, columnName, message) {
+	return function(value, tableName, constraintDefinition, message, scopedBy) {
 		var whereClause = {};
 
-		whereClause[columnName] = value;
+		if (s.startsWith(constraintDefinition, "[")) {
+			var constraints = constraintDefinition.substr(1, constraintDefinition.length - 2).split(',');
+
+			whereClause[s.trim(constraints[0])] = value;
+
+			_.each(_.rest(constraints), function(constraint) {
+				whereClause[s.trim(constraint)] = this._target.get(s.trim(constraint));
+			}, this);
+		}
+		else {
+			whereClause[constraintDefinition] = value;
+		}
 
 		var qb = options.bookshelf.knex(tableName);
 
@@ -20,7 +34,7 @@ module.exports = function(options) {
 						throw new ValidationError(message);
 					}
 					else {
-						throw new ValidationError(value + ' for ' + tableName + '.' + columnName + ' is not unique.');
+						throw new ValidationError(value + ' for ' + tableName + '.' + constraintDefinition + ' is not unique.');
 					}
 				}
 			});
