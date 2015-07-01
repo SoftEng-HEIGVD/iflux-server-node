@@ -54,6 +54,46 @@ module.exports = baseTest('Action target template resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
 
+	.describe('Try to create same public action target template for first user in his first organization')
+	.post({ url: '/v1/actionTargetTemplates' },
+	function() {
+		return {
+			body: {
+				name: 'Public iFLUX Radiator',
+				public: true,
+				organizationId: this.getData('organizationId1'),
+				configuration: {
+					schema: { test: true },
+					url: 'http://radiator.localhost.locadomain',
+					token: 'sometoken'
+				},
+				target: {
+					url: 'http://radiator.localhost.locadomain',
+					token: 'token'
+				}
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+
+	.describe('Try to create same public action target template for first user in his second organization')
+	.post({ url: '/v1/actionTargetTemplates' },
+	function() {
+		return {
+			body: {
+				name: 'Public iFLUX Radiator',
+				public: true,
+				organizationId: this.getData('organizationId2'),
+				target: {
+					url: 'http://radiator.localhost.locadomain',
+					token: 'token'
+				}
+			}
+		};
+	})
+	.expectStatusCode(201)
+
 	.describe('Create new private action target template for first user in his first organization')
 	.post({
 		url: '/v1/actionTargetTemplates',
@@ -100,7 +140,7 @@ module.exports = baseTest('Action target template resource')
 	.get({ url: '/v1/actionTargetTemplates?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.public', '1.public', '2.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(4)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Radiator',
 		public: true,
@@ -127,12 +167,19 @@ module.exports = baseTest('Action target template resource')
 			url: 'http://radiator.localhost.locadomain',
 			token: 'token'
 		}
+	}, {
+		name: 'Public iFLUX Radiator',
+		public: true,
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
 	}])
 
 	.describe('Retrieve all the action target templates for first user filtered by name')
 	.get({ url: '/v1/actionTargetTemplates?allOrganizations&name=Public%Radiator' })
 	.expectStatusCode(200)
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Radiator',
 		public: true,
@@ -141,6 +188,13 @@ module.exports = baseTest('Action target template resource')
 			url: 'http://radiator.localhost.locadomain',
 			token: 'sometoken'
 		},
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
+	}, {
+		name: 'Public iFLUX Radiator',
+		public: true,
 		target: {
 			url: 'http://radiator.localhost.locadomain',
 			token: 'token'
@@ -195,10 +249,17 @@ module.exports = baseTest('Action target template resource')
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Radiator in other orga',
 		public: true
+	}, {
+		name: 'Public iFLUX Radiator',
+		public: true,
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
 	}])
 
 	.describe('Retrieve all the action target templates for second user')
@@ -206,7 +267,7 @@ module.exports = baseTest('Action target template resource')
 	.get({ url: '/v1/actionTargetTemplates' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Radiator',
 		public: true,
@@ -221,6 +282,13 @@ module.exports = baseTest('Action target template resource')
 		}
 	}, {
 		name: 'Public iFLUX Radiator in other orga',
+		public: true,
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
+	}, {
+		name: 'Public iFLUX Radiator',
 		public: true,
 		target: {
 			url: 'http://radiator.localhost.locadomain',
@@ -246,9 +314,16 @@ module.exports = baseTest('Action target template resource')
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast([{
 		name: 'Public iFLUX Radiator in other orga',
+		public: true,
+		target: {
+			url: 'http://radiator.localhost.locadomain',
+			token: 'token'
+		}
+	}, {
+		name: 'Public iFLUX Radiator',
 		public: true,
 		target: {
 			url: 'http://radiator.localhost.locadomain',
@@ -281,6 +356,30 @@ module.exports = baseTest('Action target template resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+
+	.describe('First user updates his first action target template with a name used for a different organization.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionTargetTemplate1'),
+			body: {
+				name: 'Public iFLUX Radiator in other orga'
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+
+	.describe('First user updates his first action target template with a name used for in the same organization.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionTargetTemplate1'),
+			body: {
+				name: 'Private iFLUX Radiator'
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
 
 	.describe('Second user tries to update one of first user action target template')
 	.jwtAuthentication(function() { return this.getData('token2'); })
