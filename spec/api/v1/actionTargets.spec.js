@@ -167,7 +167,7 @@ module.exports = baseTest('Action target resource')
 	.expectJsonToHavePath('name')
 	.expectJsonToBe({ name: [ "Name is already taken for this action target template and this organization." ] })
 
-	.describe('First user tries to re-create AT1 action target but in a different action target template template.')
+	.describe('First user tries to re-create AT1 action target but in a different action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
 			body: {
@@ -602,7 +602,7 @@ module.exports = baseTest('Action target resource')
 	.get({}, function() { return { url: this.getData('locationActionTarget4') }; })
 	.expectStatusCode(403)
 
-	.describe('First user retrieve his first action target.')
+	.describe('First user retrieve ES1 (1) action target.')
 	.get({}, function() { return { url: this.getData('locationActionTarget1') }; })
 	.expectStatusCode(200)
 	.expectJsonToBeAtLeast(function() {
@@ -617,7 +617,7 @@ module.exports = baseTest('Action target resource')
 		};
 	})
 
-	.describe('First user updates AT1 action target.')
+	.describe('First user updates AT1 (1) action target.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionTarget1'),
@@ -641,7 +641,7 @@ module.exports = baseTest('Action target resource')
 	.expectLocationHeader('/v1/actionTargets/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates the configuration of AT1 action target.')
+	.describe('First user updates the configuration of AT1 (1) action target.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionTarget1'),
@@ -656,7 +656,7 @@ module.exports = baseTest('Action target resource')
 	.expectLocationHeader('/v1/actionTargets/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('Check AT1 action target has been correctly updated.')
+	.describe('Check AT1 (1) action target has been correctly updated.')
 	.get({}, function() {
 		return {
 			url: this.getData('locationActionTarget1')

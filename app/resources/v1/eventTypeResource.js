@@ -117,7 +117,7 @@ router.route('/')
 
 router.route('/:id')
 	.get(function(req, res, next) {
-		return resourceService.ok(res, eventTypeConverter.convert(req.eventType));;
+		return resourceService.ok(res, eventTypeConverter.convert(req.eventType));
 	})
 
 	.patch(function(req, res, next) {
