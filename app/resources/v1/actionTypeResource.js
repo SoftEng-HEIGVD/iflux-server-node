@@ -181,7 +181,7 @@ router.route('/:id')
 					return resourceService.location(res, 201, actionType).end();
 				})
 				.catch(ValidationError, function(e) {
-					return resourceService.validationError(res, e);
+					return resourceService.validationError(res, e).end();
 				});
 		}
 		else {
