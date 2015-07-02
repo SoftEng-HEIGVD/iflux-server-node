@@ -61,6 +61,31 @@ module.exports = baseTest('Action type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
 
+	.describe('Create new public action type with too short name.')
+	.post({	url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'DT',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://iflux.io/schemas/actionTypes/1',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('name.0')
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+
 	.describe('Create new public action type in organization where user does not have access')
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {

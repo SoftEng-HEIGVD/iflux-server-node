@@ -8,7 +8,7 @@ var EventSource = module.exports = bookshelf.Model.extend({
 	hasTimestamps: true,
 
 	validations: {
-		name: [ 'required', 'minLength:5', 'unique:event_sources:name:Name is already taken.' ]
+		name: [ 'required', 'minLength:3', 'unique:event_sources:name:Name is already taken.' ]
 	},
 
 	constructor: function() {

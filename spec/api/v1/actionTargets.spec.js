@@ -681,7 +681,6 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ name: [ 'Name is already taken for this action target template and this organization.' ]})
-	.noAfter()
 
 	.describe('First user updates AT1 (100) action target with a name used by AT3.')
 	.patch({}, function() {

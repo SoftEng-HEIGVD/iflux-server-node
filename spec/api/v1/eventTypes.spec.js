@@ -83,6 +83,42 @@ module.exports = baseTest('Event type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
 
+	.describe('Create new event type with too short name')
+	.post({	url: '/v1/eventTypes' }, function() {
+		return {
+			body: {
+				name: 'TI',
+				description: 'Represent an increase in the temperature.',
+				public: true,
+				type: 'http://iflux.io/schemas/eventTypes/1',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+			    $schema: "http://json-schema.org/draft-04/schema#",
+			    type: "object",
+			    properties: {
+			      sensorId: {
+			        type: "string"
+			      },
+			      temperature: {
+			        type: "object",
+			        properties: {
+			          old: {
+			            type: "number"
+			          },
+			          new: {
+			            type: "number"
+			          }
+			        }
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('name.0')
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+
 	.describe('Create new event type in organization where user does not have access')
 	.post({	url: '/v1/eventTypes' }, function() {
 		return {

@@ -9,7 +9,22 @@ module.exports = baseTest('Event source template resource')
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1, 2)
 	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3)
 
-	.describe('Create new event source template in organzation where user does not have access')
+	.describe('Create new event source template with too short name')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({	url: '/v1/eventSourceTemplates' }, function() {
+		return {
+			body: {
+				name: 'ES',
+				public: true,
+				organizationId: this.getData('organizationId1')
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('name.0')
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+
+	.describe('Create new event source template in organization where user does not have access')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventSourceTemplates' }, function() {
 		return {

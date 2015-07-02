@@ -9,8 +9,26 @@ module.exports = baseTest('Action target template resource')
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1, 2)
 	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3)
 
-	.describe('Create new action target template in organzation where user does not have access')
+	.describe('Create new action target template with too short name')
 	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({	url: '/v1/actionTargetTemplates' }, function() {
+		return {
+			body: {
+				name: 'AB',
+				public: true,
+				organizationId: this.getData('organizationId1'),
+				target: {
+					url: 'http://radiator.localhost.locadomain',
+					token: 'token'
+				}
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('name.0')
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+
+	.describe('Create new action target template in organization where user does not have access')
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
 		return {
 			body: {

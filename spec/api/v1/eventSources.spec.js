@@ -68,6 +68,21 @@ module.exports = baseTest('Event source resource')
 		}
 	}, 1, 1)
 
+	.describe('First user tries to creates ES1 event source with too short name.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({	url: '/v1/eventSources' }, function() {
+		return {
+			body: {
+				name: 'ES',
+				organizationId: this.getData('organizationId1'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('name.0')
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+
 	.describe('First user tries to creates an event source in an organization he has no access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventSources' }, function() {
@@ -371,7 +386,7 @@ module.exports = baseTest('Event source resource')
 	.describe('First user retrieves all event sources for his first event source template.')
 	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId', '0.configuration' ])
+	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {
 		return [{
