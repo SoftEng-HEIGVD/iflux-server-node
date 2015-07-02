@@ -326,7 +326,6 @@ module.exports = baseTest('Event source template resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
-	.noAfter()
 
 	.describe('Second user tries to update one of first user event source template')
 	.jwtAuthentication(function() { return this.getData('token2'); })
