@@ -31,7 +31,7 @@
     "electrolyte": "0.0.6",
     "express": "~4.12.0",
     "express-jwt": "^3.0.0",
-    "glob": "~4.4.1",
+    "glob": "~5.0",
     "handlebars": "^2.0.0",
     "jade": "~1.9.1",
     "jsonschema": "^1.0.1",

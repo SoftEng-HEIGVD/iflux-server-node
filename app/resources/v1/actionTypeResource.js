@@ -19,7 +19,7 @@ module.exports = function (app) {
 			.findByIdAndUser(req.params.id, req.userModel)
 			.then(function(actionType) {
 				req.actionType = actionType;
-				next();
+				return next();
 			})
 			.catch(actionTypeDao.model.NotFoundError, function(err) {
 				return resourceService.forbidden(res).end();

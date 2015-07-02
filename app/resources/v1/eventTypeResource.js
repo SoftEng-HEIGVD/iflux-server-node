@@ -19,7 +19,7 @@ module.exports = function (app) {
 			.findByIdAndUser(req.params.id, req.userModel)
 			.then(function(eventType) {
 				req.eventType = eventType;
-				next();
+				return next();
 			})
 			.catch(eventTypeDao.model.NotFoundError, function(err) {
 				return resourceService.forbidden(res).end();
