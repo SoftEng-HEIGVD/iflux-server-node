@@ -141,14 +141,22 @@ module.exports = {
 							var actionType = cache.actionTypes[transformation.actionType];
 
 							// Process the transformation of the event to the target format
-							var transformed = transformation.fn.compiled(
-								event,
-								actionTarget,
-								actionType,
-								cache.eventSources[event.sourceId],
-								cache.eventTypes[event.type],
-								{ json: JSON, console: console }
-							);
+							var transformed;
+
+							// Only apply transformation if an expression is available
+							if (transformation.fn) {
+								transformed = transformation.fn.compiled(
+									event,
+									actionTarget,
+									actionType,
+									cache.eventSources[event.sourceId],
+									cache.eventTypes[event.type],
+									{ json: JSON, console: console }
+								);
+							}
+							else {
+								transformed = event;
+							}
 
 							// Store transformation
 							eventMatchingResult.transformations.push(_.extend({
