@@ -540,11 +540,13 @@ module.exports = baseTest('Action target resource')
 			name: 'Slack Message target',
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
-			configuration: {botId: 'amazingSensor'}
+			configuration: {
+				botId: 'amazingSensor'
+			}
 		};
 	})
 
-	.describe('First user updates hist first action target.')
+	.describe('First user updates his first action target.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionTarget1'),
@@ -567,6 +569,35 @@ module.exports = baseTest('Action target resource')
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTargets/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates the configuration of his first action target.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionTarget1'),
+			body: {
+				configuration: {
+					botId: 'SuperBot'
+				}
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargets/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('Check the first action target of the first user has been correctly updated.')
+	.get({}, function() {
+		return {
+			url: this.getData('locationActionTarget1')
+		};
+	})
+	.expectStatusCode(200)
+	.expectJsonToBeAtLeast({
+		name: 'Slack Message target renamed',
+		configuration: {
+			botId: 'SuperBot'
+		}
+	})
 
 	.describe('First user updates his first action target with a name used for a different action target template.')
 	.patch({}, function() {

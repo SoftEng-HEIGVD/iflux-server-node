@@ -500,7 +500,7 @@ module.exports = baseTest('Event source resource')
 		};
 	})
 
-	.describe('First user updates hist first event source.')
+	.describe('First user updates his first event source.')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationEventSource1'),
@@ -523,6 +523,35 @@ module.exports = baseTest('Event source resource')
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/eventSources/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates the configuration his first event source.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventSource1'),
+			body: {
+				configuration: {
+					sensorId: 'HighTemperatureSensor'
+				}
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSources/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates his first event source.')
+	.get({}, function() {
+		return {
+			url: this.getData('locationEventSource1')
+		};
+	})
+	.expectStatusCode(200)
+	.expectJsonToBeAtLeast({
+		name: 'iFLUX Thermometer renamed',
+		configuration: {
+			sensorId: 'HighTemperatureSensor'
+		}
+	})
 
 	.describe('Second user tries to update the first event source of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
