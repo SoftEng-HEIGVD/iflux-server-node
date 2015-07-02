@@ -11,12 +11,12 @@ module.exports = baseTest('Action type resource')
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1)
 	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2)
 
-	.describe('Create new action type in organization with missing type')
+	.describe('Create AT1 (public) action type in organization with missing type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {
 			body: {
-				name: 'Decrease thermostat',
+				name: 'AT1',
 				description: 'Action to reduce the thermostat.',
 				public: true,
 				organizationId: this.getData('organizationId3'),
@@ -36,11 +36,11 @@ module.exports = baseTest('Action type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type is mandatory.' ]})
 
-	.describe('Create new action type in organization with invalid type')
+	.describe('Create AT1 (public) action type in organization with invalid type')
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {
 			body: {
-				name: 'Decrease thermostat',
+				name: 'AT1',
 				description: 'Action to reduce the thermostat.',
 				public: true,
 				type: '1234',
@@ -61,11 +61,36 @@ module.exports = baseTest('Action type resource')
 	.expectJsonToHavePath('type.0')
 	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
 
-	.describe('Create new public action type in organization where user does not have access')
+	.describe('Create AT1 (public) action type with too short name.')
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {
 			body: {
-				name: 'Decrease thermostat',
+				name: 'AT',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://iflux.io/schemas/actionTypes/1',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('name.0')
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+
+	.describe('Create AT1 (public) action type in organization where user does not have access')
+	.post({	url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT1',
 				description: 'Action to reduce the thermostat.',
 				public: true,
 				type: 'http://iflux.io/schemas/actionTypes/1',
@@ -86,15 +111,11 @@ module.exports = baseTest('Action type resource')
 	.expectJsonToHavePath('organizationId.0')
 	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
 
-	.describe('Create new public action type for first user in his first organization')
-	.post({
-		url: '/v1/actionTypes',
-		_storeData: function() { this.setData('locationActionType1', this.response.headers.location); }
-	},
-	function() {
+	.describe('Create AT1 (public) action type for first user in his first organization')
+	.post({ url: '/v1/actionTypes'}, function() {
 		return {
 			body: {
-				name: 'Decrease thermostat',
+				name: 'AT1',
 				description: 'Action to reduce the thermostat.',
 				public: true,
 				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
@@ -111,19 +132,90 @@ module.exports = baseTest('Action type resource')
 			}
 		};
 	})
+	.storeLocationAs('actionType', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('Create a second private action type for first user in his first organization')
-	.post({
-		url: '/v1/actionTypes',
-		_storeData: function() { this.setData('locationActionType2', this.response.headers.location); }
-	},
-	function() {
+	.describe('Try to re-create AT1 action type for first user in his first organization')
+	.post({ url: '/v1/actionTypes' }, function() {
 		return {
 			body: {
-				name: 'Increase thermostat',
+				name: 'AT1',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+
+	.describe('Re-create AT1 action type for first user in his second organization with same name from one of the first organization')
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT1',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+				organizationId: this.getData('organizationId2'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.storeLocationAs('actionType', 100)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id')
+
+	.describe('Try to create AT1 action type for first user in his first organization with type already taken.')
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT1',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('type.0')
+	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
+
+	.describe('Create a AT2 (private) action type for first user in his first organization')
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT2',
 				description: 'Action to increase the thermostat.',
 				public: false,
 				type: 'http://iflux.io/schemas/actionTypes/2',
@@ -140,18 +232,15 @@ module.exports = baseTest('Action type resource')
 			}
 		};
 	})
+	.storeLocationAs('actionType', 2)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 
-	.describe('Create new action type for first user in his second organization')
-	.post({
-		url: '/v1/actionTypes',
-		_storeData: function() { this.setData('locationActionType3', this.response.headers.location); }
-	},
-	function() {
+	.describe('Create AT3 action type for first user in his second organization')
+	.post({ url: '/v1/actionTypes' }, function() {
 		return {
 			body: {
-				name: 'Block thermostat',
+				name: 'AT3',
 				description: 'Action to lock the thermostat.',
 				public: true,
 				type: 'http://iflux.io/schemas/actionTypes/3',
@@ -168,19 +257,16 @@ module.exports = baseTest('Action type resource')
 			}
 		};
 	})
+	.storeLocationAs('actionType', 3)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 
-	.describe('Create new action type for second user in his first organization')
+	.describe('Create AT4 action type for second user in his first organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
-	.post({
-		url: '/v1/actionTypes',
-		_storeData: function() { this.setData('locationActionType4', this.response.headers.location); }
-	},
-	function() {
+	.post({ url: '/v1/actionTypes' }, function() {
 		return {
 			body: {
-				name: 'Monitor thermostat',
+				name: 'AT4',
 				description: 'Action to collect data from thermostat.',
 				type: 'http://iflux.io/schemas/actionTypes/4',
 				public: true,
@@ -197,6 +283,7 @@ module.exports = baseTest('Action type resource')
 			}
 		};
 	})
+	.storeLocationAs('actionType', 4)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 
@@ -205,252 +292,345 @@ module.exports = baseTest('Action type resource')
 	.get({ url: '/v1/actionTypes?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.public', '1.public', '2.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
-	.expectJsonToBeAtLeast([{
-		name: 'Decrease thermostat',
-		description: 'Action to reduce the thermostat.',
-		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}, {
-		name: 'Increase thermostat',
-	  description: 'Action to increase the thermostat.',
-	  type: 'http://iflux.io/schemas/actionTypes/2',
-	  schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-			type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}, {
-		name: 'Block thermostat',
-	  description: 'Action to lock the thermostat.',
-	  type: 'http://iflux.io/schemas/actionTypes/3',
-	  schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT2',
+			description: 'Action to increase the thermostat.',
+			type: 'http://iflux.io/schemas/actionTypes/2',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT3',
+			description: 'Action to lock the thermostat.',
+			type: 'http://iflux.io/schemas/actionTypes/3',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Retrieve all the action types for first user filtered by name')
-	.get({ url: '/v1/actionTypes?allOrganizations&name=Decrease%' })
+	.get({ url: '/v1/actionTypes?allOrganizations&name=%1' })
 	.expectStatusCode(200)
-	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToBeAtLeast([{
-		name: 'Decrease thermostat',
-		description: 'Action to reduce the thermostat.',
-		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Retrieve all the action types for first user for the first organization')
 	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.public', '1.public', '0.organizationId', '1.organizationId' ])
 	.expectJsonCollectionToHaveSize(2)
-	.expectJsonToBeAtLeast([{
-		name: 'Decrease thermostat',
-		description: 'Action to reduce the thermostat.',
-		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}, {
-		name: 'Increase thermostat',
-	  description: 'Action to increase the thermostat.',
-	  type: 'http://iflux.io/schemas/actionTypes/2',
-	  schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-			type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT2',
+			description: 'Action to increase the thermostat.',
+			type: 'http://iflux.io/schemas/actionTypes/2',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Retrieve all the action types for first user for the first organization filtered by name')
-	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId1') + '&name=%ease%'}; })
+	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId1') + '&name=%2'}; })
 	.expectStatusCode(200)
-	.expectJsonCollectionToHaveSize(2)
-	.expectJsonToBeAtLeast([{
-		name: 'Decrease thermostat',
-		description: 'Action to reduce the thermostat.',
-		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}, {
-		name: 'Increase thermostat',
-	  description: 'Action to increase the thermostat.',
-	  type: 'http://iflux.io/schemas/actionTypes/2',
-	  schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-			type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT2',
+			description: 'Action to increase the thermostat.',
+			type: 'http://iflux.io/schemas/actionTypes/2',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Retrieve all the action types for first user for the second organization')
 	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToBeAtLeast([{
-		name: 'Block thermostat',
-	  description: 'Action to lock the thermostat.',
-	  type: 'http://iflux.io/schemas/actionTypes/3',
-	  schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT3',
+			description: 'Action to lock the thermostat.',
+			type: 'http://iflux.io/schemas/actionTypes/3',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Retrieve all the action types for second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/actionTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
-	.expectJsonToBeAtLeast([{
-		name: 'Decrease thermostat',
-		description: 'Action to reduce the thermostat.',
-		type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}, {
-		name: 'Block thermostat',
-		description: 'Action to lock the thermostat.',
-		type: 'http://iflux.io/schemas/actionTypes/3',
-		schema: {
-			$schema: "http://json-schema.org/draft-04/schema#",
-			type: "object",
-			properties: {
-				message: {
-					type: "string"
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
 				}
 			}
-		}
-	}, {
-		name: 'Monitor thermostat',
-		description: 'Action to collect data from thermostat.',
-		type: 'http://iflux.io/schemas/actionTypes/4',
-		public: true,
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-       type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+		}, {
+			name: 'AT3',
+			description: 'Action to lock the thermostat.',
+			public: false,
+			type: 'http://iflux.io/schemas/actionTypes/3',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT4',
+			description: 'Action to collect data from thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/4',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Retrieve all the action types for second user filtered by name')
-	.get({ url: '/v1/actionTypes?name=Monitor%' })
+	.get({ url: '/v1/actionTypes?name=%4' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToBeAtLeast([{
-		name: 'Monitor thermostat',
-		description: 'Action to collect data from thermostat.',
-		type: 'http://iflux.io/schemas/actionTypes/4',
-		public: true,
-		schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-       type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT4',
+			description: 'Action to collect data from thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/4',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Try to retrieve all action types and all for a specific organization, only the specific organization is taken into account.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: '/v1/actionTypes?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId' ])
-	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToBeAtLeast([{
-		name: 'Block thermostat',
-	  description: 'Action to lock the thermostat.',
-	  type: 'http://iflux.io/schemas/actionTypes/3',
-	  schema: {
-      $schema: "http://json-schema.org/draft-04/schema#",
-      type: "object",
-      properties: {
-	      message: {
-	        type: "string"
-	      }
-	    }
-	  }
-	}])
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT3',
+			description: 'Action to lock the thermostat.',
+			type: 'http://iflux.io/schemas/actionTypes/3',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
 
 	.describe('Try to retrieve action type where the user is not member of the organization')
 	.get({}, function() { return { url: this.getData('locationActionType1') + '100' }; })
 	.expectStatusCode(403)
 
-	.describe('First user updates his first action type')
+	.describe('First user updates AT1 action type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
 			body: {
-				name: 'Increase thermostat renamed'
+				name: 'AT1 renamed'
 			}
 		};
 	})
@@ -469,7 +649,7 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates his first action type with the same type')
+	.describe('First user updates AT1 action type with the same type')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -482,7 +662,7 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates his first action type with invalid type')
+	.describe('First user updates AT1 action type with invalid type')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -494,7 +674,7 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
 
-	.describe('First user updates his first action type with different type but not unique')
+	.describe('First user updates AT1 action type with different type but not unique')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -506,7 +686,7 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
 
-	.describe('First user updates his first action type with valid and unique different type')
+	.describe('First user updates AT1 action type with valid and unique different type')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -519,13 +699,38 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('Second user tries to update first action type of first user')
+	.describe('First user updates AT1 action type with a name used in a different organization')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionType1'),
+			body: {
+				name: 'AT3'
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectHeaderToBePresent('x-iflux-generated-id')
+
+	.describe('First user updates AT1 action type with a name used in the same organization')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionType1'),
+			body: {
+				name: 'AT2'
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+
+	.describe('Second user tries to update AT1 action type of first user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
 			body: {
-				name: 'Increase thermostat renamed by second user'
+				name: 'AT1 renamed again'
 			}
 		};
 	})

@@ -19,7 +19,7 @@ module.exports = function (app) {
 			.findByIdAndUser(req.params.id, req.userModel)
 			.then(function(actionType) {
 				req.actionType = actionType;
-				next();
+				return next();
 			})
 			.catch(actionTypeDao.model.NotFoundError, function(err) {
 				return resourceService.forbidden(res).end();
@@ -181,7 +181,7 @@ router.route('/:id')
 					return resourceService.location(res, 201, actionType).end();
 				})
 				.catch(ValidationError, function(e) {
-					return resourceService.validationError(res, e);
+					return resourceService.validationError(res, e).end();
 				});
 		}
 		else {

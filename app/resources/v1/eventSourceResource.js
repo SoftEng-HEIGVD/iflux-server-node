@@ -170,7 +170,7 @@ router.route('/:id')
 		}
 
 		if (data.configuration !== undefined) {
-			eventSource.configuration = data.configuration;
+			eventSource.set('configuration', data.configuration);
 		}
 
 		if (eventSource.hasChanged()) {

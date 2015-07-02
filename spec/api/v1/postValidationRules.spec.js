@@ -42,6 +42,51 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	.expectStatusCode(422)
 	.expectJsonToBeAtLeast({ organizationId: [ 'Organization not found.' ] })
 
+	.describe('First user create RU2 rule.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({ url: '/v1/rules' }, function() {
+		return {
+			body: {
+				name: 'RU2',
+				active: false,
+				organizationId: this.getData('organizationId1'),
+				conditions: [{
+					eventSourceId: this.getData('eventSourceId1'),
+					eventTypeId: this.getData('eventTypeId1')
+				}],
+				transformations: [{
+					actionTargetId: this.getData('actionTargetId1'),
+					actionTypeId: this.getData('actionTypeId1')
+				}]
+			}
+		};
+	})
+	.storeLocationAs('rule', 2)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/rules/:id')
+
+	.describe('First user tries to re-create RU2 rule with same name.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({ url: '/v1/rules' }, function() {
+		return {
+			body: {
+				name: 'RU2',
+				active: false,
+				organizationId: this.getData('organizationId1'),
+				conditions: [{
+					eventSourceId: this.getData('eventSourceId1'),
+					eventTypeId: this.getData('eventTypeId1')
+				}],
+				transformations: [{
+					actionTargetId: this.getData('actionTargetId1'),
+					actionTypeId: this.getData('actionTypeId1')
+				}]
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+
 	.describe('First user tries to create a rule without conditions.')
 	.post({ url: '/v1/rules'}, function() {
 		return {

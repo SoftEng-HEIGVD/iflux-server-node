@@ -19,7 +19,7 @@ module.exports = function (app) {
 			.findByIdAndUser(req.params.id, req.userModel)
 			.then(function(eventType) {
 				req.eventType = eventType;
-				next();
+				return next();
 			})
 			.catch(eventTypeDao.model.NotFoundError, function(err) {
 				return resourceService.forbidden(res).end();
@@ -117,7 +117,7 @@ router.route('/')
 
 router.route('/:id')
 	.get(function(req, res, next) {
-		return resourceService.ok(res, eventTypeConverter.convert(req.eventType));;
+		return resourceService.ok(res, eventTypeConverter.convert(req.eventType));
 	})
 
 	.patch(function(req, res, next) {
@@ -182,7 +182,7 @@ router.route('/:id')
 					return resourceService.location(res, 201, eventType).end();
 				})
 				.catch(ValidationError, function(e) {
-					return resourceService.validationError(res, e);
+					return resourceService.validationError(res, e).end();
 				});
 		}
 		else {

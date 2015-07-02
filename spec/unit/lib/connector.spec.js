@@ -8,8 +8,6 @@ describe("Connector", function() {
   var Connector;
 	var bluebird;
 
-  var npmlog;
-
   beforeEach(function() {
 	  restClientSpy = {
       post: function() { return this; },
@@ -27,11 +25,7 @@ describe("Connector", function() {
 		  defer: jasmine.createSpy()
 	  };
 
-    npmlog = {
-	    info: jasmine.createSpy()
-    };
-
-    Connector = connectorFactory(restClient, npmlog, bluebird);
+    Connector = connectorFactory(restClient, bluebird);
   });
 
 	it ("should execute an action with an array of actions", function() {
@@ -132,8 +126,6 @@ describe("Connector", function() {
 		});
 
 		connector.configureEventSource({ get: function() { return undefined; }}, {});
-
-		expect(npmlog.info).toHaveBeenCalledWith('There is nothing to configure. Configuration URL is missing.');
 	});
 
 	it ("should configure event source.", function() {
@@ -228,8 +220,6 @@ describe("Connector", function() {
 		});
 
 		connector.configureActionTarget({ get: function() { return undefined; }}, {});
-
-		expect(npmlog.info).toHaveBeenCalledWith('There is nothing to configure. Configuration URL is missing.');
 	});
 
 

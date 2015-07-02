@@ -14,8 +14,6 @@ router.route('/actionTypes/*')
 	.get(function(req, res, next) {
 		var type = req.protocol + '://' + req.get('host') + req.originalUrl;
 
-		console.log(type);
-
 		return actionTypeDao
 			.findByType(type)
 			.then(function(actionType) {

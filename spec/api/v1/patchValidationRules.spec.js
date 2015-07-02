@@ -3,12 +3,12 @@ var
 	baseTest = require('../base');
 
 module.exports = helpers.setup(baseTest('Validations on rule resource'))
-	.describe('First user create first rule with [first orga, first event source, first event type, first action target, first action type].')
+	.describe('First user create RU1 rule with [first orga, first event source, first event type, first action target, first action type].')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules' }, function() {
 		return {
 			body: {
-				name: 'First rule',
+				name: 'RU1',
 				active: true,
 				organizationId: this.getData('organizationId1'),
 				conditions: [{
@@ -43,6 +43,100 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	.storeLocationAs('rule', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/rules/:id')
+
+	.describe('First user create RU2 rule with [first orga, first event source, first event type, first action target, first action type].')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({ url: '/v1/rules' }, function() {
+		return {
+			body: {
+				name: 'RU2',
+				active: false,
+				organizationId: this.getData('organizationId1'),
+				conditions: [{
+					eventSourceId: this.getData('eventSourceId1'),
+					eventTypeId: this.getData('eventTypeId1')
+				}],
+				transformations: [{
+					actionTargetId: this.getData('actionTargetId1'),
+					actionTypeId: this.getData('actionTypeId1')
+				}]
+			}
+		};
+	})
+	.storeLocationAs('rule', 2)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/rules/:id')
+
+	.describe('First user tries to re-create RU2 rule with same name.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({ url: '/v1/rules' }, function() {
+		return {
+			body: {
+				name: 'RU2',
+				active: false,
+				organizationId: this.getData('organizationId1'),
+				conditions: [{
+					eventSourceId: this.getData('eventSourceId1'),
+					eventTypeId: this.getData('eventTypeId1')
+				}],
+				transformations: [{
+					actionTargetId: this.getData('actionTargetId1'),
+					actionTypeId: this.getData('actionTypeId1')
+				}]
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+
+	.describe('First user re-create RU2 rule with same name in different organization.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.post({ url: '/v1/rules' }, function() {
+		return {
+			body: {
+				name: 'RU2',
+				active: false,
+				organizationId: this.getData('organizationId2'),
+				conditions: [{
+					eventSourceId: this.getData('eventSourceId3'),
+					eventTypeId: this.getData('eventTypeId4')
+				}],
+				transformations: [{
+					actionTargetId: this.getData('actionTargetId3'),
+					actionTypeId: this.getData('actionTypeId4')
+				}]
+			}
+		};
+	})
+	.storeLocationAs('rule', 3)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/rules/:id')
+
+	.describe('First user can rename RU1 with a name not already used in the organization.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.patch({ }, function() {
+		return {
+			url: this.getData('locationRule1'),
+			body: {
+				name: 'RU1 renamed'
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/rules/:id')
+
+	.describe('First user cannot rename RU1 with a name already used in the organization.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.patch({ }, function() {
+		return {
+			url: this.getData('locationRule1'),
+			body: {
+				name: 'RU2'
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
 
 	.describe('First user tries to update a rule with empty conditions.')
 	.patch({}, function() {

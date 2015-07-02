@@ -344,6 +344,7 @@ router.route('/:id')
 	.delete(function(req, res, next) {
 		return req.rule
 			.destroy()
+			.then(function() { return ruleEngineService.populate(); })
 			.then(function() {
 				return resourceService.deleted(res).end();
 			})

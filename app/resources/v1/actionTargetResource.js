@@ -170,7 +170,7 @@ router.route('/:id')
 		}
 
 		if (data.configuration !== undefined) {
-			actionTarget.configuration = data.configuration;
+			actionTarget.set('configuration', data.configuration);
 		}
 
 		if (actionTarget.hasChanged()) {

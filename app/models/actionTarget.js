@@ -8,7 +8,7 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 	hasTimestamps: true,
 
 	validations: {
-		name: [ 'required', 'minLength:5', 'unique:action_targets:name:Name is already taken.' ]
+		name: [ 'required', 'minLength:3', 'unique:action_targets:[name, action_target_template_id, organization_id]:Name is already taken for this action target template and this organization.' ]
 	},
 
 	constructor: function() {
