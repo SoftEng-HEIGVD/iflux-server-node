@@ -186,6 +186,31 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 
+	.describe('Try to create AT1 action type for first user in his first organization with type already taken.')
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT1',
+				description: 'Action to reduce the thermostat.',
+				public: true,
+				type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+				organizationId: this.getData('organizationId1'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('type.0')
+	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
+
 	.describe('Create a AT2 (private) action type for first user in his first organization')
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -599,7 +624,7 @@ module.exports = baseTest('Action type resource')
 	.get({}, function() { return { url: this.getData('locationActionType1') + '100' }; })
 	.expectStatusCode(403)
 
-	.describe('First user updates his first action type')
+	.describe('First user updates AT1 action type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({}, function() {
 		return {
@@ -624,7 +649,7 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates his first action type with the same type')
+	.describe('First user updates AT1 action type with the same type')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -637,7 +662,7 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates his first action type with invalid type')
+	.describe('First user updates AT1 action type with invalid type')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -649,7 +674,7 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
 
-	.describe('First user updates his first action type with different type but not unique')
+	.describe('First user updates AT1 action type with different type but not unique')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -661,7 +686,7 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
 
-	.describe('First user updates his first action type with valid and unique different type')
+	.describe('First user updates AT1 action type with valid and unique different type')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -674,7 +699,7 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates his first action type with a name used in a different organization')
+	.describe('First user updates AT1 action type with a name used in a different organization')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -687,7 +712,7 @@ module.exports = baseTest('Action type resource')
 	.expectLocationHeader('/v1/actionTypes/:id')
 	.expectHeaderToBePresent('x-iflux-generated-id')
 
-	.describe('First user updates his first action type with a name used in the same organization')
+	.describe('First user updates AT1 action type with a name used in the same organization')
 	.patch({}, function() {
 		return {
 			url: this.getData('locationActionType1'),
@@ -699,7 +724,7 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
 
-	.describe('Second user tries to update first action type of first user')
+	.describe('Second user tries to update AT1 action type of first user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
 		return {
