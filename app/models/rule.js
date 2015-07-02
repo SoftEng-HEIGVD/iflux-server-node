@@ -18,7 +18,7 @@ var Rule = module.exports = bookshelf.Model.extend({
 	hasTimestamps: true,
 
 	validations: {
-		name: [ 'required', 'minLength:3', 'unique:rules:name:Name is already taken.' ]
+		name: [ 'required', 'minLength:3', 'unique:rules:[name, organization_id]:Name is already taken in this organization.' ]
 	},
 
 	constructor: function() {
