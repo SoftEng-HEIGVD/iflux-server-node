@@ -241,7 +241,7 @@ module.exports = {
 							_.reduce(
 								actionTargetsRetrieved,
 								function(memo, actionTarget) {
-									memo[actionTarget.get('actionTargetId')] = actionTarget;
+									memo[actionTarget.get('generatedIdentifier')] = actionTarget;
 									return memo;
 								},
 								{}
@@ -271,7 +271,7 @@ module.exports = {
 			}))
 			.then(eventSourceDao.findByIds(eventSourceIds).then(function(eventSourcesRetrieved) {
 					cache.eventSources = _.extend(cache.eventSources, _.reduce(eventSourcesRetrieved, function(memo, eventSource) {
-						memo[eventSource.get('eventSourceId')] = eventSource;
+						memo[eventSource.get('generatedIdentifier')] = eventSource;
 						return memo;
 					}, {}));
 				})
