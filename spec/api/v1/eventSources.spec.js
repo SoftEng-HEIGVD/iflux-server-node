@@ -583,7 +583,7 @@ module.exports = baseTest('Event source resource')
 	.describe('Second user retrieves all event sources for his event source template.')
 	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId3') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.eventSourceId', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
+	.expectJsonToHavePath([ '0.id', '0.generatedIdentifier', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{

@@ -582,7 +582,7 @@ module.exports = baseTest('Action target resource')
 	.describe('Second user retrieves all action targets for his action target template.')
 	.get({}, function() { return { url: '/v1/actionTargets?actionTargetTemplateId=' + this.getData('actionTargetTemplateId3') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ '0.id', '0.actionTargetId', '0.name', '0.organizationId', '0.actionTargetTemplateId' ])
+	.expectJsonToHavePath([ '0.id', '0.generatedIdentifier', '0.name', '0.organizationId', '0.actionTargetTemplateId' ])
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
 		return [{

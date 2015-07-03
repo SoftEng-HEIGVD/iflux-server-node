@@ -143,7 +143,7 @@ describe("Connector", function() {
 			configurationUrl: 'somewhere'
 		}, {
 			get: function(str) { return this[str]; },
-			eventSourceId: 'abcdef',
+			generatedIdentifier: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -153,7 +153,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					eventSourceId: 'abcdef',
+					source: 'abcdef',
 					properties: {
 						test: 2
 					}
@@ -184,7 +184,7 @@ describe("Connector", function() {
 			configurationToken: '1234'
 		}, {
 			get: function(str) { return this[str]; },
-			eventSourceId: 'abcdef',
+			generatedIdentifier: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -194,7 +194,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					eventSourceId: 'abcdef',
+					source: 'abcdef',
 					properties: {
 						test: 2
 					}
@@ -238,7 +238,7 @@ describe("Connector", function() {
 			configurationUrl: 'somewhere'
 		}, {
 			get: function(str) { return this[str]; },
-			actionTargetId: 'abcdef',
+			generatedIdentifier: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -248,7 +248,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					actionTargetId: 'abcdef',
+					target: 'abcdef',
 					properties: {
 						test: 2
 					}
@@ -279,7 +279,7 @@ describe("Connector", function() {
 			configurationToken: '1234'
 		}, {
 			get: function(str) { return this[str]; },
-			actionTargetId: 'abcdef',
+			generatedIdentifier: 'abcdef',
 			configuration: {
 				test: 2
 			}
@@ -289,7 +289,7 @@ describe("Connector", function() {
 		expect(restClientSpy.post).toHaveBeenCalledWith(
 			'somewhere', {
 				data: {
-					actionTargetId: 'abcdef',
+					target: 'abcdef',
 					properties: {
 						test: 2
 					}

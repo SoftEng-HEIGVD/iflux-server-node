@@ -533,7 +533,7 @@ module.exports = baseTest('Event type resource')
 			public: false,
 			type: 'http://iflux.io/schemas/eventTypes/2',
 			organizationId: this.getData('organizationId1')
-		}]
+		}];
 	})
 
 	.describe('Retrieve all the event types for first user for the first organization')

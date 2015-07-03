@@ -15,7 +15,7 @@ module.exports = {
 			client.create({
 			  index: 'iflux-events',
 			  type: 'json',
-			  id: stringService.hash(stringService.generateEventId() + '#' + event.sourceId + '#' + event.typeId + '#' + event.timestamp),
+			  id: stringService.hash(stringService.generateEventId() + '#' + event.source + '#' + event.type + '#' + event.timestamp),
 			  body: event
 			},
 			function (error, response) {
@@ -34,7 +34,7 @@ module.exports = {
 			client.create({
 			  index: 'iflux-event-matches',
 			  type: 'json',
-			  id: stringService.hash(stringService.generateEventId() + '#' + match.event.sourceId + '#' + match.event.typeId + '#' + match.event.timestamp),
+			  id: stringService.hash(stringService.generateEventId() + '#' + match.event.source + '#' + match.event.type + '#' + match.event.timestamp),
 			  body: match
 			},
 			function (error, response) {
