@@ -56,16 +56,23 @@ module.exports = {
 		_.each(ruleModel.get('transformations'), function(transformation) {
 			var convertedTransformations = {};
 
-			convertedTransformations = _.extend(convertedTransformations, {
-				actionTarget: {
-					id: transformation.actionTarget.id,
-					generatedIdentifier: transformation.actionTarget.generatedIdentifier
-				},
-				actionType: {
-					id: transformation.actionType.id,
-					type: transformation.actionType.type
-				}
-			});
+			if (transformation.actionTarget) {
+				convertedTransformations = _.extend(convertedTransformations, {
+					actionTarget: {
+						id: transformation.actionTarget.id,
+						generatedIdentifier: transformation.actionTarget.generatedIdentifier
+					}
+				});
+			}
+
+			if (transformation.actionType) {
+				convertedTransformations = _.extend(convertedTransformations, {
+					actionType: {
+						id: transformation.actionType.id,
+						type: transformation.actionType.type
+					}
+				});
+			}
 
 			if (transformation.eventType) {
 				convertedTransformations = _.extend(convertedTransformations, {
