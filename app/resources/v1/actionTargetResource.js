@@ -176,7 +176,7 @@ router.route('/:id')
 		if (actionTarget.hasChanged()) {
 			return actionTargetDao
 				.save(actionTarget)
-				.then(actionTarget.actionTargetTemplate().fetch())
+				.then(function() { return actionTarget.actionTargetTemplate().fetch(); })
 				.then(function(actionTargetTemplate) {
 					return connector
 						.configureActionTarget(actionTargetTemplate, actionTarget)

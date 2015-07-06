@@ -176,7 +176,7 @@ router.route('/:id')
 		if (eventSource.hasChanged()) {
 			return eventSourceDao
 				.save(eventSource)
-				.then(eventSource.eventSourceTemplate().fetch())
+				.then(function() { return eventSource.eventSourceTemplate().fetch(); })
 				.then(function(eventSourceTemplate) {
 					return connector
 						.configureEventSource(eventSourceTemplate, eventSource)

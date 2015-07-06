@@ -822,6 +822,55 @@ module.exports = baseTest('Event source resource')
 		};
 	})
 
+	.describe('First user updates ES8 event source with a configuration and a token call to remote system.')
+	.mockRequest({
+		method: 'POST',
+		path: '/configure',
+		body: {
+			type: 'JSON'
+		}
+	}, {
+		statusCode: 200,
+		body: {
+			type: 'JSON',
+			value: JSON.stringify({ message: 'Configuration done.' })
+		}
+	}, {
+		remainingTimes: 1,
+		unlimited: 1
+	})
+	.patch({ }, function() {
+		return {
+			url: this.getData('locationEventSource201'),
+			body: {
+				configuration: {
+					test: 'configuration updated'
+				}
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSources/:id')
+	.expectMockServerToHaveReceived(function() {
+		return {
+			method: 'POST',
+			path: '/configure',
+			headers: [{
+				name: 'Authorization',
+				values: [ 'bearer jwtToken' ]
+			}],
+			body: {
+				type: 'JSON',
+				matchType: 'ONLY_MATCHING_FIELDS',
+				value: JSON.stringify({
+					properties: {
+						test: 'configuration updated'
+					}
+				})
+			}
+		};
+	})
+
 	.describe('First reconfigure ES8 event source.')
 	.mockRequest({
 		method: 'POST',
