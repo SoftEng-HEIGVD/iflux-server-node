@@ -75,7 +75,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES',
 				organizationId: this.getData('organizationId1'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				configuration: {
+					sensorId: 'sensorIdForES1'
+				}
 			}
 		};
 	})
@@ -90,7 +93,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES1',
 				organizationId: this.getData('organizationId3'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
+				configuration: {
+					sensorId: 'sensorIdForES1'
+				}
 			}
 		};
 	})
@@ -104,7 +110,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES1',
 				organizationId: this.getData('organizationId1'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId3')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId3'),
+				configuration: {
+					sensorId: 'sensorIdForES1'
+				}
 			}
 		};
 	})
@@ -131,6 +140,20 @@ module.exports = baseTest('Event source resource')
 		wrongProperty: [ "additionalProperty 'wrongProperty' exists in instance when not allowed" ],
 		sensorId: [ "requires property \"sensorId\"" ]
 	}]})
+
+	.describe('First user tries to create ES1 event source without configuration.')
+	.post({ url: '/v1/eventSources' }, function() {
+		return {
+			body: {
+				name: 'ES1',
+				organizationId: this.getData('organizationId1'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('configuration')
+	.expectJsonToBe({ configuration: [ 'The event source template requires an event source configured.' ] })
 
 	.describe('First user creates ES1 event source for his second organization and first event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
@@ -173,7 +196,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES1',
 				organizationId: this.getData('organizationId2'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId2')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId2'),
+				configuration: {
+					sensorId: 'sensorIdForES1'
+				}
 			}
 		};
 	})
@@ -188,7 +214,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES1',
 				organizationId: this.getData('organizationId1'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				configuration: {
+					sensorId: 'sensorIdForES1'
+				}
 			}
 		};
 	})
@@ -231,7 +260,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES3',
 				organizationId: this.getData('organizationId1'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				configuration: {
+					sensorId: 'sensorIdForES3'
+				}
 			}
 		};
 	})
@@ -246,7 +278,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES4',
 				organizationId: this.getData('organizationId3'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				configuration: {
+					sensorId: 'sensorIdForES4'
+				}
 			}
 		};
 	})
@@ -274,7 +309,10 @@ module.exports = baseTest('Event source resource')
 			body: {
 				name: 'ES6',
 				organizationId: this.getData('organizationId3'),
-				eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				configuration: {
+					sensorId: 'sensorIdForES6'
+				}
 			}
 		};
 	})

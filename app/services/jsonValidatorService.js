@@ -14,7 +14,6 @@ function validateFactory(jsonSchema) {
 			//var validationError = new checkit.FieldError('The JSON value contains ' + validationResult.errors.length + 'error' + (validationResult.errors.length < 2 ? '' : 's'));
 			var checkitError = new checkit.Error();
 
-
 			_.each(validationResult.errors, function (error) {
 				var fieldName = error.property;
 

@@ -76,7 +76,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT',
 				organizationId: this.getData('organizationId1'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+				configuration: {
+					botId: ''
+				}
 			}
 		};
 	})
@@ -90,7 +93,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT1',
 				organizationId: this.getData('organizationId3'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId3')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId3'),
+				configuration: {
+					botId: ''
+				}
 			}
 		};
 	})
@@ -104,7 +110,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT1',
 				organizationId: this.getData('organizationId1'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId3')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId3'),
+				configuration: {
+					botId: ''
+				}
 			}
 		};
 	})
@@ -131,6 +140,20 @@ module.exports = baseTest('Action target resource')
 		wrongProperty: [ "additionalProperty 'wrongProperty' exists in instance when not allowed" ],
 		botId: [ "requires property \"botId\"" ]
 	}]})
+
+	.describe('First user tries to create AT1 action target without configuration when it is mandatory.')
+	.post({ url: '/v1/actionTargets' }, function() {
+		return {
+			body: {
+				name: 'AT1',
+				organizationId: this.getData('organizationId1'),
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+			}
+		};
+	})
+	.expectStatusCode(422)
+	.expectJsonToHavePath('configuration')
+	.expectJsonToBe({ configuration: [ 'The action target template requires an action target configured.' ] })
 
 	.describe('First user creates a AT1 action target for his second organization and first action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
@@ -173,7 +196,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT1',
 				organizationId: this.getData('organizationId2'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId2')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId2'),
+				configuration: {
+					botId: 'amazingSensor'
+				}
 			}
 		};
 	})
@@ -188,7 +214,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT1',
 				organizationId: this.getData('organizationId1'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+				configuration: {
+					botId: 'amazingSensor'
+				}
 			}
 		};
 	})
@@ -217,7 +246,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT3',
 				organizationId: this.getData('organizationId1'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId2')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId2'),
+				configuration: {
+					botId: 'amazingSensorForAT3'
+				}
 			}
 		};
 	})
@@ -231,7 +263,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT3',
 				organizationId: this.getData('organizationId1'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+				configuration: {
+					botId: 'amazingSensorForAT3'
+				}
 			}
 		};
 	})
@@ -246,7 +281,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT4',
 				organizationId: this.getData('organizationId3'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+				configuration: {
+					botId: 'amazingSensorForAT4'
+				}
 			}
 		};
 	})
@@ -274,7 +312,10 @@ module.exports = baseTest('Action target resource')
 			body: {
 				name: 'AT6',
 				organizationId: this.getData('organizationId3'),
-				actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+				configuration: {
+					botId: 'amazingSensorForAT6'
+				}
 			}
 		};
 	})
@@ -290,7 +331,10 @@ module.exports = baseTest('Action target resource')
 		return [{
 			name: 'AT6',
 			organizationId: this.getData('organizationId3'),
-			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+			actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
+			configuration: {
+				botId: 'amazingSensorForAT6'
+			}
 		}];
 	})
 

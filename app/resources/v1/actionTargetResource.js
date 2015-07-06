@@ -108,6 +108,9 @@ router.route('/')
 							if (!actionTargetTemplate.get('public') && actionTarget.organizationId != actionTargetTemplate.get('organization_id')) {
 								return resourceService.validationError(res, { actionTargetTemplateId: [ 'No action target template found.' ] }).end();
 							}
+							else if (actionTargetTemplate.get('configurationSchema') && !actionTarget.configuration) {
+								return resourceService.validationError(res, { configuration: [ 'The action target template requires an action target configured.' ] }).end();
+							}
 
 							else {
 								return actionTargetDao

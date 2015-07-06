@@ -108,6 +108,9 @@ router.route('/')
 							if (!eventSourceTemplate.get('public') && eventSource.organizationId != eventSourceTemplate.get('organization_id')) {
 								return resourceService.validationError(res, { eventSourceTemplateId: [ 'No event source template found.' ] }).end();
 							}
+							else if (eventSourceTemplate.get('configurationSchema') && !eventSource.configuration) {
+								return resourceService.validationError(res, { configuration: [ 'The event source template requires an event source configured.' ] }).end();
+							}
 
 							else {
 								return eventSourceDao
