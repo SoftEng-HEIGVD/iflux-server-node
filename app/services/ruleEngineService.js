@@ -85,6 +85,11 @@ module.exports = {
 		return promise.then(function() {
 			// Analyze each received events
 			_.each(_.isArray(events) ? events : [events], function (event) {
+				if (_.isUndefined(event) || _.isNull(event)) {
+					console.log('The event is null for a strange reason');
+					return;
+				}
+
 				var eventMatchingResults = {};
 
 				// Analyze each active rule
