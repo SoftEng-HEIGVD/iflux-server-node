@@ -94,8 +94,8 @@ module.exports = {
 					_.each(rule.conditions, function (condition) {
 						// Define the fields that can be evaluated
 						var matchingBy = {
-							source: !_.isUndefined(condition.eventSource.generatedIdentifier),
-							type: !_.isUndefined(condition.eventType.type),
+							source: !isEventSourceDefined(condition),
+							type: !isEventTypeDefined(condition),
 							function: !_.isUndefined(condition.fn)
 						};
 
@@ -129,7 +129,7 @@ module.exports = {
 						// Define the fields that can be evaluated
 						var matchingBy = {
 							targetAndType: true, // Mandatory evaluation
-							eventType: !_.isUndefined(transformation.eventType.type)
+							eventType: isEventTypeDefined(transformation)
 						};
 
 						// Evaluate the transformation
@@ -184,6 +184,26 @@ module.exports = {
 		});
 	}
 };
+
+/**
+ * Check if an event source is defined on a condition.
+ *
+ * @param condition The condition to check
+ * @returns {boolean} True if the event source is defined
+ */
+function isEventSourceDefined(condition) {
+	return !_.isUndefined(condition.eventSource) && !_.isUndefined(condition.eventSource.generatedIdentifier);
+}
+
+/**
+ * Check if an event type is defined on a condition.
+ *
+ * @param condition The condition to check
+ * @returns {boolean} True if the event type is defined
+ */
+function isEventTypeDefined(condition) {
+	return !_.isUndefined(condition.eventType) && !_.isUndefined(condition.eventType.type);
+}
 
 /**
  * Matching array functions to evaluate the different conditions
