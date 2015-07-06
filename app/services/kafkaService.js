@@ -17,11 +17,17 @@ function messageHandler(message) {
 		events = [ events ];
 	}
 
-	console.log("Received %s event(s).", events.length);
+	console.log('Received %s event(s).', events.length);
 
 	_.each(events, function(event) {
-		event.receivedAt = time;
-		elasticSearchService.saveEvent(event);
+		if (event) {
+			event.receivedAt = time;
+			elasticSearchService.saveEvent(event);
+		}
+		else {
+			console.log('Something strange happens to the event: %s', event);
+			console.log(events);
+		}
 	});
 
 	ruleEngineService.match(events);
