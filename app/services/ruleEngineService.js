@@ -94,8 +94,8 @@ module.exports = {
 					_.each(rule.conditions, function (condition) {
 						// Define the fields that can be evaluated
 						var matchingBy = {
-							source: !isEventSourceDefined(condition),
-							type: !isEventTypeDefined(condition),
+							source: isEventSourceDefined(condition),
+							type: isEventTypeDefined(condition),
 							function: !_.isUndefined(condition.fn)
 						};
 
