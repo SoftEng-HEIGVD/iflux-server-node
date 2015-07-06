@@ -180,7 +180,6 @@ router.route('/:id')
 				.then(function(eventSourceTemplate) {
 					return connector
 						.configureEventSource(eventSourceTemplate, eventSource)
-						.then(function() { return eventSource; })
 						.catch(function(err) {
 							return resourceService.serverError(res, { message: 'Unable to configure the remote event source.'})
 						});

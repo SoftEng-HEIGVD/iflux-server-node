@@ -180,7 +180,6 @@ router.route('/:id')
 				.then(function(actionTargetTemplate) {
 					return connector
 						.configureActionTarget(actionTargetTemplate, actionTarget)
-						.then(function() { return actionTarget; })
 						.catch(function(err) {
 							return resourceService.serverError(res, { message: 'Unable to configure the remote action target.'})
 						});
