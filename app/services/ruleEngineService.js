@@ -5,7 +5,7 @@ var
 	ruleConverter = require('../converters/ruleConverter'),
 	ruleService = require('./ruleService'),
 	actionService = require('./actionService'),
-	elasticSearch = require('./elasticSearchService'),
+	elasticSearchService = require('../../lib/ioc').create('elasticSearchService'),
 	timeService = require('./timeService');
 
 /**
@@ -178,7 +178,7 @@ module.exports = {
 					}, this);
 
 					// Save in elastic search the event matching result
-					elasticSearch.saveMatch(eventMatchingResult);
+					elasticSearchService.saveMatch(eventMatchingResult);
 				}, this);
 			}, this);
 

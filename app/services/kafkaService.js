@@ -3,7 +3,7 @@ var
 	config = require('../../config/config'),
 	kafka = require('kafka-node'),
 	Consumer = kafka.Consumer,
-	elasticSearchService = require('./elasticSearchService'),
+	elasticSearchService = require('../../lib/ioc').create('elasticSearchService'),
 	ruleEngineService = require('./ruleEngineService'),
 	timeService = require('./timeService');
 

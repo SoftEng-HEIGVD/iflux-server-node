@@ -41,7 +41,6 @@ module.exports = function (grunt) {
 				specNameMatcher: 'spec',
 				helperNameMatcher: 'helpers'
 			},
-			all: ['spec/unit'],
 			unit: ['spec/unit'],
 		},
 
@@ -109,7 +108,7 @@ module.exports = function (grunt) {
 
 	grunt.loadNpmTasks('grunt-jasmine-node');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('mockserver-grunt')
+	grunt.loadNpmTasks('mockserver-grunt');
 
 	grunt.registerTask('test', ['jshint', 'jasmine_node:unit']);
 

@@ -25,7 +25,9 @@ describe("Connector", function() {
 		  defer: jasmine.createSpy()
 	  };
 
-    Connector = connectorFactory(restClient, bluebird);
+	  var print = jasmine.createSpy();
+
+    Connector = connectorFactory(restClient, bluebird, print);
   });
 
 	it ("should execute an action with an array of actions", function() {
