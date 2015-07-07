@@ -10,9 +10,14 @@ function renameIdFields(obj) {
 				delete obj['id'];
 				obj['dbid'] = value;
 			}
-			else if (!_.isString(value) && !_.isNumber(value) && !_.isArray(value)) {
+			else if ((!_.isString(value) && !_.isNumber(value)) || _.isArray(value)) {
 				renameIdFields(value);
 			}
+		}, this);
+	}
+	else if (_.isArray(obj)) {
+		_.each(obj, function(value) {
+			renameIdFields(value)
 		}, this);
 	}
 }

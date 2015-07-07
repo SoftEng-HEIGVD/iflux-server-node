@@ -145,9 +145,11 @@ describe('elasticSearchService', function() {
 						id: '456',
 						deep2: {
 							id: '789',
-							deep3: {
+							deep3: [{
 								id: '012'
-							}
+							}, {
+								id: '345'
+							}]
 						}
 					}
 				}
@@ -172,14 +174,32 @@ describe('elasticSearchService', function() {
 								dbid: '456',
 								deep2: {
 									dbid: '789',
-									deep3: {
+									deep3: [{
 										dbid: '012'
-									}
+									}, {
+										dbid: '345'
+									}]
 								}
 							}
 						}
 					}
 				}
+			},
+      jasmine.any(Function)
+		);
+	});
+
+	it ('should save a match event with complex structure and multiple id fields', function() {
+		var matchEvent = require('./matchedEvent.json');
+
+		elasticSearchService.saveMatch(matchEvent);
+
+		expect(elasticSearchSpy.create).toHaveBeenCalledWith(
+			{
+				index: 'iflux-event-matches',
+				type: 'json',
+				id: jasmine.any(String),
+				body: require('./matchedEventExpected.json')
 			},
       jasmine.any(Function)
 		);

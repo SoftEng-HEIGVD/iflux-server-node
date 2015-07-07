@@ -1,0 +1,339 @@
+{
+  "rule": {
+    "organizationId": 1,
+    "name": "Publibike movements",
+    "description": "Broadcast publibike movements.",
+    "active": true,
+    "conditions": [
+      {
+        "eventType": {
+          "dbid": 1,
+          "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+        }
+      }
+    ],
+    "transformations": [
+      {
+        "actionTarget": {
+          "dbid": 2,
+          "generatedIdentifier": "J1PVdEZOSIrl"
+        },
+        "actionType": {
+          "dbid": 2,
+          "type": "http://iflux.heig-vd.ch/schemas/actionTypes/viewMarker"
+        },
+        "eventType": {
+          "dbid": 1,
+          "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+        },
+        "fn": {
+          "expression": "return { markerId: event.properties.terminal.terminalid, lat: event.properties.terminal.lat, lng: event.properties.terminal.lng, date: event.timestamp, data: { type: 'bike', name: event.properties.terminal.name, street: event.properties.terminal.street, city: event.properties.terminal.street, zip: event.properties.terminal.zip, freeholders: event.properties.new.freeholders, bikes: event.properties.new.bikes }};",
+          "sample": {
+            "event": {
+              "terminalid": "asdfghjkl",
+              "terminal": {
+                "name": "Y-Parc",
+                "infotext": "Parc Scientifique - Yverdon",
+                "zip": "1400",
+                "city": "Yverdon-les-Bains",
+                "country": "Switzerland",
+                "lat": 46.764968,
+                "lng": 6.646069,
+                "image": ""
+              },
+              "old": {
+                "freeholders": 10,
+                "bikes": 3
+              },
+              "new": {
+                "freeholders": 11,
+                "bikes": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "actionTarget": {
+          "dbid": 3,
+          "generatedIdentifier": "sAxeLDnWv0u3"
+        },
+        "actionType": {
+          "dbid": 3,
+          "type": "http://iflux.heig-vd.ch/schemas/actionTypes/updateMetric"
+        },
+        "eventType": {
+          "dbid": 1,
+          "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+        },
+        "fn": {
+          "expression": "return { metric: 'io.iflux.publibike.holders.' + event.properties.terminal.terminalid, value: event.properties.new.freeholders, timestamp: event.timestamp };",
+          "sample": {
+            "event": {
+              "terminalid": "asdfghjkl",
+              "terminal": {
+                "name": "Y-Parc",
+                "infotext": "Parc Scientifique - Yverdon",
+                "zip": "1400",
+                "city": "Yverdon-les-Bains",
+                "country": "Switzerland",
+                "lat": 46.764968,
+                "lng": 6.646069,
+                "image": ""
+              },
+              "old": {
+                "freeholders": 10,
+                "bikes": 3
+              },
+              "new": {
+                "freeholders": 11,
+                "bikes": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "actionTarget": {
+          "dbid": 3,
+          "generatedIdentifier": "sAxeLDnWv0u3"
+        },
+        "actionType": {
+          "dbid": 3,
+          "type": "http://iflux.heig-vd.ch/schemas/actionTypes/updateMetric"
+        },
+        "eventType": {
+          "dbid": 1,
+          "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+        },
+        "fn": {
+          "expression": "return { metric: 'io.iflux.publibike.bikes.' + event.properties.terminal.terminalid, value: event.properties.new.bikes, timestamp: event.timestamp };",
+          "sample": {
+            "event": {
+              "terminalid": "asdfghjkl",
+              "terminal": {
+                "name": "Y-Parc",
+                "infotext": "Parc Scientifique - Yverdon",
+                "zip": "1400",
+                "city": "Yverdon-les-Bains",
+                "country": "Switzerland",
+                "lat": 46.764968,
+                "lng": 6.646069,
+                "image": ""
+              },
+              "old": {
+                "freeholders": 10,
+                "bikes": 3
+              },
+              "new": {
+                "freeholders": 11,
+                "bikes": 2
+              }
+            }
+          }
+        }
+      }
+    ],
+    "dbid": 1
+  },
+  "event": {
+    "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement",
+    "properties": {
+      "terminal": {
+        "terminalid": "40010910",
+        "name": "Gare de Nyon",
+        "infotext": "4001 Gare de Nyon",
+        "street": "Route de Saint-Cergue 1",
+        "zip": "1260",
+        "city": "Nyon",
+        "country": "CH",
+        "lat": 46.384008,
+        "lng": 6.234907,
+        "image": "/upload/prj/terminal/com2013_0910_GaredeNyon_DSC04067_web.jpg"
+      },
+      "old": {
+        "freeholders": 21,
+        "bikes": 7
+      },
+      "new": {
+        "freeholders": 19,
+        "bikes": 9
+      }
+    },
+    "timestamp": "2015-07-07T07:52:31.215Z",
+    "receivedAt": "2015-07-07T07:52:31+00:00",
+    "matchedAt": "2015-07-07T07:52:31+00:00"
+  },
+  "matchedConditions": [
+    {
+      "matchingBy": {
+        "source": false,
+        "type": true,
+        "function": false
+      },
+      "eventType": {
+        "dbid": 1,
+        "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+      }
+    }
+  ],
+  "transformations": [
+    {
+      "matchingBy": {
+        "targetAndType": true,
+        "eventType": true
+      },
+      "transformed": {
+        "markerId": "40010910",
+        "lat": 46.384008,
+        "lng": 6.234907,
+        "date": "2015-07-07T07:52:31.215Z",
+        "data": {
+          "type": "bike",
+          "name": "Gare de Nyon",
+          "street": "Route de Saint-Cergue 1",
+          "city": "Route de Saint-Cergue 1",
+          "zip": "1260",
+          "freeholders": 19,
+          "bikes": 9
+        }
+      },
+      "actionTarget": {
+        "dbid": 2,
+        "generatedIdentifier": "J1PVdEZOSIrl"
+      },
+      "actionType": {
+        "dbid": 2,
+        "type": "http://iflux.heig-vd.ch/schemas/actionTypes/viewMarker"
+      },
+      "eventType": {
+        "dbid": 1,
+        "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+      },
+      "fn": {
+        "expression": "return { markerId: event.properties.terminal.terminalid, lat: event.properties.terminal.lat, lng: event.properties.terminal.lng, date: event.timestamp, data: { type: 'bike', name: event.properties.terminal.name, street: event.properties.terminal.street, city: event.properties.terminal.street, zip: event.properties.terminal.zip, freeholders: event.properties.new.freeholders, bikes: event.properties.new.bikes }};",
+        "sample": {
+          "event": {
+            "terminalid": "asdfghjkl",
+            "terminal": {
+              "name": "Y-Parc",
+              "infotext": "Parc Scientifique - Yverdon",
+              "zip": "1400",
+              "city": "Yverdon-les-Bains",
+              "country": "Switzerland",
+              "lat": 46.764968,
+              "lng": 6.646069,
+              "image": ""
+            },
+            "old": {
+              "freeholders": 10,
+              "bikes": 3
+            },
+            "new": {
+              "freeholders": 11,
+              "bikes": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "matchingBy": {
+        "targetAndType": true,
+        "eventType": true
+      },
+      "transformed": {
+        "metric": "io.iflux.publibike.holders.40010910",
+        "value": 19,
+        "timestamp": "2015-07-07T07:52:31.215Z"
+      },
+      "actionTarget": {
+        "dbid": 3,
+        "generatedIdentifier": "sAxeLDnWv0u3"
+      },
+      "actionType": {
+        "dbid": 3,
+        "type": "http://iflux.heig-vd.ch/schemas/actionTypes/updateMetric"
+      },
+      "eventType": {
+        "dbid": 1,
+        "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+      },
+      "fn": {
+        "expression": "return { metric: 'io.iflux.publibike.holders.' + event.properties.terminal.terminalid, value: event.properties.new.freeholders, timestamp: event.timestamp };",
+        "sample": {
+          "event": {
+            "terminalid": "asdfghjkl",
+            "terminal": {
+              "name": "Y-Parc",
+              "infotext": "Parc Scientifique - Yverdon",
+              "zip": "1400",
+              "city": "Yverdon-les-Bains",
+              "country": "Switzerland",
+              "lat": 46.764968,
+              "lng": 6.646069,
+              "image": ""
+            },
+            "old": {
+              "freeholders": 10,
+              "bikes": 3
+            },
+            "new": {
+              "freeholders": 11,
+              "bikes": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "matchingBy": {
+        "targetAndType": true,
+        "eventType": true
+      },
+      "transformed": {
+        "metric": "io.iflux.publibike.bikes.40010910",
+        "value": 9,
+        "timestamp": "2015-07-07T07:52:31.215Z"
+      },
+      "actionTarget": {
+        "dbid": 3,
+        "generatedIdentifier": "sAxeLDnWv0u3"
+      },
+      "actionType": {
+        "dbid": 3,
+        "type": "http://iflux.heig-vd.ch/schemas/actionTypes/updateMetric"
+      },
+      "eventType": {
+        "dbid": 1,
+        "type": "http://iflux.heig-vd.ch/schemas/eventTypes/publibikeMovement"
+      },
+      "fn": {
+        "expression": "return { metric: 'io.iflux.publibike.bikes.' + event.properties.terminal.terminalid, value: event.properties.new.bikes, timestamp: event.timestamp };",
+        "sample": {
+          "event": {
+            "terminalid": "asdfghjkl",
+            "terminal": {
+              "name": "Y-Parc",
+              "infotext": "Parc Scientifique - Yverdon",
+              "zip": "1400",
+              "city": "Yverdon-les-Bains",
+              "country": "Switzerland",
+              "lat": 46.764968,
+              "lng": 6.646069,
+              "image": ""
+            },
+            "old": {
+              "freeholders": 10,
+              "bikes": 3
+            },
+            "new": {
+              "freeholders": 11,
+              "bikes": 2
+            }
+          }
+        }
+      }
+    }
+  ]
+}
