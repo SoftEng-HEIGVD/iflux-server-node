@@ -3,10 +3,10 @@ var
 	Promise = require('bluebird'),
 	ruleDao = require('../persistence/ruleDao'),
 	ruleConverter = require('../converters/ruleConverter'),
-	ruleService = require('./ruleService'),
 	actionService = require('./actionService'),
 	elasticSearchService = require('../../lib/ioc').create('elasticSearchService'),
-	timeService = require('./timeService');
+	timeService = require('./timeService'),
+	ruleEngineConverter = require('../converters/ruleEngineConverter');
 
 /**
  * The rules are the entities stored in the database
@@ -150,10 +150,10 @@ module.exports = {
 							if (transformation.fn) {
 								transformed = transformation.fn.compiled(
 									event,
-									actionTarget,
-									actionType,
-									cache.eventSources[event.source],
-									cache.eventTypes[event.type],
+									ruleEngineConverter.convertActionTarget(actionTarget),
+									ruleEngineConverter.convertActionType(actionType),
+									ruleEngineConverter.convertEventSource(event.source ? cache.eventSources[event.source] : null),
+									ruleEngineConverter.convertEventType(event.type ? cache.eventTypes[event.type] : null),
 									{ json: JSON, console: console }
 								);
 							}
@@ -257,8 +257,8 @@ function matchConditionEventType(condition, event) {
 function matchConditionFunction(condition, event) {
 	return condition.fn.compiled(
 		event,
-		cache.eventSources[event.source],
-		cache.eventTypes[event.type],
+		ruleConverter.convertEventSource(cache.eventSources[event.source]),
+		ruleConverter.convertEventType(cache.eventTypes[event.type]),
 		{ json: JSON, console: console }
 	);
 }

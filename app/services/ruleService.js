@@ -1,4 +1,6 @@
-var safeEval = require('notevil');
+var
+	safeEval = require('notevil'),
+	ruleEngineConverter = require('../converters/ruleEngineConverter');
 
 module.exports = {
 	/**
@@ -31,7 +33,13 @@ module.exports = {
 	 * @returns {Boolean} Result of the expression evaluation
 	 */
 	evaluateCondition: function(expression, eventSource, eventType, sample) {
-		return this.createConditionFn(expression)(sample, eventSource, eventType, { json: JSON, console: console });
+		return this.createConditionFn(expression)(
+			sample,
+			ruleEngineConverter.convertEventSource(eventSource),
+			ruleEngineConverter.convertEventType(eventType),
+			{
+				json: JSON, console: console
+			});
 	},
 
 	/**
@@ -46,6 +54,14 @@ module.exports = {
 	 * @returns {*} Result of the expression evaluation
 	 */
 	evaluateTransformation: function(expression, actionTarget, actionType, eventSource, eventType, sample) {
-		return this.createTransformationFn(expression)(sample, actionTarget, actionType, eventSource, eventType, { json: JSON, console: console });
+		return this.createTransformationFn(expression)(
+			sample,
+			ruleEngineConverter.convertActionTarget(actionTarget),
+			ruleEngineConverter.convertActionType(actionType),
+			ruleEngineConverter.convertEventSource(eventSource),
+			ruleEngineConverter.convertEventType(eventType),
+			{
+				json: JSON, console: console
+			});
 	}
 };
