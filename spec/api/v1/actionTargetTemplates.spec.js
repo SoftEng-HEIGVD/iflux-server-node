@@ -146,6 +146,106 @@ module.exports = baseTest('Action target template resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargetTemplates/:id')
 
+	.describe('Create ATT4 (public) action target template for second user in his organization')
+	.jwtAuthentication(function() { return this.getData('token2'); })
+	.post({	url: '/v1/actionTargetTemplates' }, function() {
+		return {
+			body: {
+				name: 'ATT4',
+				public: true,
+				organizationId: this.getData('organizationId3'),
+				target: {
+					url: 'http://radiator.localhost.localdomain',
+					token: 'token'
+				}
+			}
+		};
+	})
+	.storeLocationAs('actionTargetTemplate', 4)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+
+	.describe('Create ATT5 (private) action target template for second user in his organization')
+	.post({	url: '/v1/actionTargetTemplates' }, function() {
+		return {
+			body: {
+				name: 'ATT5',
+				public: false,
+				organizationId: this.getData('organizationId3'),
+				target: {
+					url: 'http://radiator.localhost.localdomain',
+					token: 'token'
+				}
+			}
+		};
+	})
+	.storeLocationAs('actionTargetTemplate', 5)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+
+	.describe('Retrieve all the public action target templates for first user')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({ url: '/v1/actionTargetTemplates?public' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ATT1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: { test: true },
+				url: 'http://radiator.localhost.localdomain',
+				token: 'sometoken'
+			},
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT3',
+			public: true,
+			organizationId: this.getData('organizationId2'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT4',
+			public: true,
+			organizationId: this.getData('organizationId3'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}];
+	})
+
+	.describe('Retrieve all the public action target templates for first user filtered by name')
+	.get({ url: '/v1/actionTargetTemplates?public=true&name=%3' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ATT3',
+			public: true,
+			organizationId: this.getData('organizationId2'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}];
+	})
+
 	.describe('Retrieve all the action target templates for first user')
 	.get({ url: '/v1/actionTargetTemplates?allOrganizations' })
 	.expectStatusCode(200)
@@ -298,7 +398,7 @@ module.exports = baseTest('Action target template resource')
 	.get({ url: '/v1/actionTargetTemplates' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'ATT1',
@@ -329,11 +429,90 @@ module.exports = baseTest('Action target template resource')
 				url: 'http://radiator.localhost.localdomain',
 				token: 'token'
 			}
+		}, {
+			name: 'ATT4',
+			public: true,
+			organizationId: this.getData('organizationId3'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT5',
+			public: false,
+			organizationId: this.getData('organizationId3'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
 		}];
 	})
 
 	.describe('Retrieve all the action target templates for second user filtered by name')
 	.get({ url: '/v1/actionTargetTemplates?name=%3' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ATT3',
+			public: true,
+			organizationId: this.getData('organizationId2'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}];
+	})
+
+	.describe('Retrieve all the public action target templates for second user')
+	.jwtAuthentication(function() { return this.getData('token2'); })
+	.get({ url: '/v1/actionTargetTemplates?public' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ATT1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: { test: true },
+				url: 'http://radiator.localhost.localdomain',
+				token: 'sometoken'
+			},
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT3',
+			public: true,
+			organizationId: this.getData('organizationId2'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}, {
+			name: 'ATT4',
+			public: true,
+			organizationId: this.getData('organizationId3'),
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		}];
+	})
+
+	.describe('Retrieve all the public action target templates for second user filtered by name')
+	.get({ url: '/v1/actionTargetTemplates?public=true&name=%3' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {

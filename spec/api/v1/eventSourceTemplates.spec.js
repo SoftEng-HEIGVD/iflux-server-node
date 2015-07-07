@@ -117,6 +117,78 @@ module.exports = baseTest('Event source template resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSourceTemplates/:id')
 
+	.describe('Create EST4 (public) event source template for second user in his organization')
+	.jwtAuthentication(function() { return this.getData('token2'); })
+	.post({ url: '/v1/eventSourceTemplates' }, function() {
+		return {
+			body: {
+				name: 'EST4',
+				public: true,
+				organizationId: this.getData('organizationId3')
+			}
+		};
+	})
+	.storeLocationAs('eventSourceTemplate', 4)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+
+	.describe('Create EST5 (private) event source template for second user in his organization')
+	.post({ url: '/v1/eventSourceTemplates' }, function() {
+		return {
+			body: {
+				name: 'EST5',
+				public: false,
+				organizationId: this.getData('organizationId3')
+			}
+		};
+	})
+	.storeLocationAs('eventSourceTemplate', 5)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+
+	.describe('Retrieve all the public event source templates for first user')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({ url: '/v1/eventSourceTemplates?public=true' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'EST1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: { test: true },
+				url: 'http://somewhere.localhost.localdomain',
+				token: 'sometoken'
+			}
+		}, {
+			name: 'EST3',
+			public: true,
+			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'EST1',
+			public: true,
+			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'EST4',
+			public: true,
+			organizationId: this.getData('organizationId3')
+		}];
+	})
+
+	.describe('Retrieve all the public event source templates for first user filtered by name')
+	.get({ url: '/v1/eventSourceTemplates?public=true&name=%4' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'EST4',
+			public: true,
+			organizationId: this.getData('organizationId3')
+		}];
+	})
+
 	.describe('Retrieve all the event source templates for first user')
 	.get({ url: '/v1/eventSourceTemplates?allOrganizations' })
 	.expectStatusCode(200)
@@ -228,7 +300,7 @@ module.exports = baseTest('Event source template resource')
 	.get({ url: '/v1/eventSourceTemplates' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'EST1',
@@ -247,11 +319,70 @@ module.exports = baseTest('Event source template resource')
 			name: 'EST1',
 			public: true,
 			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'EST4',
+			public: true,
+			organizationId: this.getData('organizationId3')
+		}, {
+			name: 'EST5',
+			public: false,
+			organizationId: this.getData('organizationId3')
 		}];
 	})
 
 	.describe('Retrieve all the event source templates for second user filtered by name')
 	.get({ url: '/v1/eventSourceTemplates?name=%1' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(2)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'EST1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: { test: true },
+				url: 'http://somewhere.localhost.localdomain',
+				token: 'sometoken'
+			}
+		}, {
+			name: 'EST1',
+			public: true,
+			organizationId: this.getData('organizationId2')
+		}];
+	})
+
+	.describe('Retrieve all the public event source templates for second user')
+	.get({ url: '/v1/eventSourceTemplates?public=true' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'EST1',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: { test: true },
+				url: 'http://somewhere.localhost.localdomain',
+				token: 'sometoken'
+			}
+		}, {
+			name: 'EST3',
+			public: true,
+			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'EST1',
+			public: true,
+			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'EST4',
+			public: true,
+			organizationId: this.getData('organizationId3')
+		}];
+	})
+
+	.describe('Retrieve all the public event source templates for second user filtered by name')
+	.get({ url: '/v1/eventSourceTemplates?public=true&name=%1' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToBeAtLeast(function() {

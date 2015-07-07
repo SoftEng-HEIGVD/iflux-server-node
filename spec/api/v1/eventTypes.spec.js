@@ -371,7 +371,7 @@ module.exports = baseTest('Event type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
 
-	.describe('Create ET4 event type for second user in his first organization')
+	.describe('Create ET4 (public) event type for second user in his first organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/eventTypes' }, function() {
 		return {
@@ -408,8 +408,93 @@ module.exports = baseTest('Event type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id')
 
-	.describe('Retrieve all the event types for first user')
+	.describe('Create ET5 (private) event type for second user in his first organization')
+	.jwtAuthentication(function() { return this.getData('token2'); })
+	.post({ url: '/v1/eventTypes' }, function() {
+		return {
+			body: {
+				name: 'ET5',
+				description: 'Represent a modification in the temperature.',
+				public: false,
+				type: 'http://iflux.io/schemas/eventTypes/5',
+				organizationId: this.getData('organizationId3'),
+				schema: {
+			    $schema: "http://json-schema.org/draft-04/schema#",
+			    type: "object",
+			    properties: {
+			      sensorId: {
+			        type: "string"
+			      },
+			      temperature: {
+			        type: "object",
+			        properties: {
+			          old: {
+			            type: "number"
+			          },
+			          new: {
+			            type: "number"
+			          }
+			        }
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.storeLocationAs('eventType', 5)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventTypes/:id')
+
+	.describe('Retrieve all the public event types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({ url: '/v1/eventTypes?public' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ET1',
+			description: 'Represent an increase in the temperature.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
+			organizationId: this.getData('organizationId1')
+		}, {
+			name: 'ET3',
+			description: 'Represent an increase in the temperature.',
+			public: true,
+			type: 'http://iflux.io/schemas/eventTypes/3',
+			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'ET4',
+			description: 'Represent a modification in the temperature.',
+			public: true,
+			type: 'http://iflux.io/schemas/eventTypes/4',
+			organizationId: this.getData('organizationId3')
+		}, {
+		}, {
+			name: 'ET1',
+			description: 'Represent an increase in the temperature.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1/duplicated',
+			organizationId: this.getData('organizationId2')
+		}];
+	})
+
+	.describe('Retrieve all the event types for first user filtered by name')
+	.get({ url: '/v1/eventTypes?public=true&name=%4' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ET4',
+			description: 'Represent a modification in the temperature.',
+			public: true,
+			type: 'http://iflux.io/schemas/eventTypes/4',
+			organizationId: this.getData('organizationId3')
+		}];
+	})
+
+	.describe('Retrieve all the event types for first user')
 	.get({ url: '/v1/eventTypes?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.public', '1.public', '2.public', '0.organizationId' ])
@@ -597,6 +682,59 @@ module.exports = baseTest('Event type resource')
 	.get({ url: '/v1/eventTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(5)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ET1',
+			description: 'Represent an increase in the temperature.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1',
+			organizationId: this.getData('organizationId1')
+		}, {
+			name: 'ET3',
+			description: 'Represent an increase in the temperature.',
+			public: true,
+			type: 'http://iflux.io/schemas/eventTypes/3',
+			organizationId: this.getData('organizationId2')
+		}, {
+			name: 'ET4',
+			description: 'Represent a modification in the temperature.',
+			public: true,
+			type: 'http://iflux.io/schemas/eventTypes/4',
+			organizationId: this.getData('organizationId3')
+		}, {
+			name: 'ET5',
+			description: 'Represent a modification in the temperature.',
+			public: false,
+			type: 'http://iflux.io/schemas/eventTypes/5',
+			organizationId: this.getData('organizationId3')
+		}, {
+			name: 'ET1',
+			description: 'Represent an increase in the temperature.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1/duplicated',
+			organizationId: this.getData('organizationId2')
+		}];
+	})
+
+	.describe('Retrieve all the event types for second user filtered by name')
+	.get({ url: '/v1/eventTypes?name=%4' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'ET4',
+			description: 'Represent a modification in the temperature.',
+			public: true,
+			type: 'http://iflux.io/schemas/eventTypes/4',
+			organizationId: this.getData('organizationId3')
+		}];
+	})
+
+	.describe('Retrieve all the public event types for second user')
+	.get({ url: '/v1/eventTypes?public' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
 	.expectJsonCollectionToHaveSize(4)
 	.expectJsonToBeAtLeast(function() {
 		return [{
@@ -618,6 +756,7 @@ module.exports = baseTest('Event type resource')
 			type: 'http://iflux.io/schemas/eventTypes/4',
 			organizationId: this.getData('organizationId3')
 		}, {
+		}, {
 			name: 'ET1',
 			description: 'Represent an increase in the temperature.',
 			public: true,
@@ -627,7 +766,7 @@ module.exports = baseTest('Event type resource')
 	})
 
 	.describe('Retrieve all the event types for second user filtered by name')
-	.get({ url: '/v1/eventTypes?name=%4' })
+	.get({ url: '/v1/eventTypes?public=true&name=%4' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {

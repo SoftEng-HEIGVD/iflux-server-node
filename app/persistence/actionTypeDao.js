@@ -62,6 +62,25 @@ module.exports = _.extend(new dao(ActionType), {
 		return this.collectionFromModel(whereClause);
 	},
 
+	findAllAccessible: function(user, criteria) {
+		return this.collection(function(qb) {
+			qb = qb
+				.leftJoin('organizations', 'action_types.organization_id', 'organizations.id')
+				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.where(function() {
+					return this
+						.where('organizations_users.user_id', user.get('id'))
+						.orWhere('public', true);
+				});
+
+			if (criteria.name) {
+				qb = qb.where('action_types.name', 'like', criteria.name);
+			}
+
+			return qb;
+		});
+	},
+
 	findByOrganizationId: function(organizationId) {
 		return this.collection(
 			this.model

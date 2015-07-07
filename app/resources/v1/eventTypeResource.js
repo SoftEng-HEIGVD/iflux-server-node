@@ -53,8 +53,11 @@ router.route('/')
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
 			promise = eventTypeDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
-		else {
+		else if (req.query.public != undefined || req.query.public) {
 			promise = eventTypeDao.findAllPublic({ name: req.query.name });
+		}
+		else {
+			promise = eventTypeDao.findAllAccessible(req.userModel, { name: req.query.name });
 		}
 
 		return promise

@@ -261,7 +261,7 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 
-	.describe('Create AT4 action type for second user in his first organization')
+	.describe('Create AT4 (public) action type for second user in his first organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -287,8 +287,126 @@ module.exports = baseTest('Action type resource')
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
 
-	.describe('Retrieve all the action types for first user')
+	.describe('Create AT5 (private) action type for second user in his first organization')
+	.jwtAuthentication(function() { return this.getData('token2'); })
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT5',
+				description: 'Action to collect data from thermostat.',
+				type: 'http://iflux.io/schemas/actionTypes/5',
+				public: false,
+				organizationId: this.getData('organizationId3'),
+				schema: {
+		      $schema: "http://json-schema.org/draft-04/schema#",
+	        type: "object",
+		      properties: {
+			      message: {
+			        type: "string"
+			      }
+			    }
+			  }
+			}
+		};
+	})
+	.storeLocationAs('actionType', 5)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id')
+
+	.describe('Retrieve all the public action types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({ url: '/v1/actionTypes?public' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT3',
+			description: 'Action to lock the thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/3',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT4',
+			description: 'Action to collect data from thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/4',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
+
+	.describe('Retrieve all the public action types for first user filtered by name')
+	.get({ url: '/v1/actionTypes?public=true&name=%4' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT4',
+			description: 'Action to collect data from thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/4',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
+
+	.describe('Retrieve all the action types for first user')
 	.get({ url: '/v1/actionTypes?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '2.id', '0.name', '1.name', '2.name', '0.public', '1.public', '2.public', '0.organizationId' ])
@@ -493,7 +611,7 @@ module.exports = baseTest('Action type resource')
 	.get({ url: '/v1/actionTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(4)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'AT1',
@@ -541,6 +659,21 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}, {
+			name: 'AT5',
+			description: 'Action to collect data from thermostat.',
+			public: false,
+			type: 'http://iflux.io/schemas/actionTypes/5',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
 			name: 'AT1',
 			description: 'Action to reduce the thermostat.',
 			public: true,
@@ -560,6 +693,98 @@ module.exports = baseTest('Action type resource')
 
 	.describe('Retrieve all the action types for second user filtered by name')
 	.get({ url: '/v1/actionTypes?name=%4' })
+	.expectStatusCode(200)
+	.expectJsonCollectionToHaveSize(1)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT4',
+			description: 'Action to collect data from thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/4',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
+
+	.describe('Retrieve all the public action types for second user')
+	.get({ url: '/v1/actionTypes?public' })
+	.expectStatusCode(200)
+	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
+	.expectJsonCollectionToHaveSize(4)
+	.expectJsonToBeAtLeast(function() {
+		return [{
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1',
+			organizationId: this.getData('organizationId1'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT3',
+			description: 'Action to lock the thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/3',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT4',
+			description: 'Action to collect data from thermostat.',
+			public: true,
+			type: 'http://iflux.io/schemas/actionTypes/4',
+			organizationId: this.getData('organizationId3'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}, {
+			name: 'AT1',
+			description: 'Action to reduce the thermostat.',
+			public: true,
+			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/actionTypes/1/duplicated',
+			organizationId: this.getData('organizationId2'),
+			schema: {
+				$schema: "http://json-schema.org/draft-04/schema#",
+				type: "object",
+				properties: {
+					message: {
+						type: "string"
+					}
+				}
+			}
+		}];
+	})
+
+	.describe('Retrieve all the public action types for second user filtered by name')
+	.get({ url: '/v1/actionTypes?public=true&name=%4' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToBeAtLeast(function() {
