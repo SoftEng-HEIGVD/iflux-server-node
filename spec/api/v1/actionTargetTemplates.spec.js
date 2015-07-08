@@ -603,6 +603,51 @@ module.exports = baseTest('Action target template resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
 
+	.describe('First user updates ATT1 for the configuration part.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationActionTargetTemplate1'),
+			body: {
+				configuration: {
+					schema: {
+						test: false
+					},
+					url: 'http://radiator.localhost.localdomain/att1',
+					token: 'sometokenThatIsDifferent'
+				}
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+
+	.describe('First user retrieves ATT1 after updated for checks.')
+	.get({}, function() {
+		return {
+			url: this.getData('locationActionTargetTemplate1')
+		};
+	})
+	.expectStatusCode(200)
+	.expectJsonToBe(function() {
+		return {
+			id: this.getData('actionTargetTemplateId1'),
+			name: 'ATT3',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: {
+					test: false
+				},
+				url: 'http://radiator.localhost.localdomain/att1',
+				token: 'sometokenThatIsDifferent'
+			},
+			target: {
+				url: 'http://radiator.localhost.localdomain',
+				token: 'token'
+			}
+		};
+	})
+
 	.describe('Second user tries to update one of first user action target template')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {

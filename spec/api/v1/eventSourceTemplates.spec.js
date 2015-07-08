@@ -458,6 +458,47 @@ module.exports = baseTest('Event source template resource')
 	.expectStatusCode(422)
 	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
 
+	.describe('First user updates EST1 for the configuration part.')
+	.patch({}, function() {
+		return {
+			url: this.getData('locationEventSourceTemplate1'),
+			body: {
+				configuration: {
+					schema: {
+						test: false
+					},
+					url: 'http://somewhere.localhost.localdomain/est1',
+					token: 'sometokenThatIsDifferent'
+				}
+			}
+		};
+	})
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+
+	.describe('First user retrieves EST1 after updated for checks.')
+	.get({}, function() {
+		return {
+			url: this.getData('locationEventSourceTemplate1')
+		};
+	})
+	.expectStatusCode(200)
+	.expectJsonToBe(function() {
+		return {
+			id: this.getData('eventSourceTemplateId1'),
+			name: 'EST1 renamed',
+			public: true,
+			organizationId: this.getData('organizationId1'),
+			configuration: {
+				schema: {
+					test: false
+				},
+				url: 'http://somewhere.localhost.localdomain/est1',
+				token: 'sometokenThatIsDifferent'
+			}
+		};
+	})
+
 	.describe('Second user tries to update one of first user event source template')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {

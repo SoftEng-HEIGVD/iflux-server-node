@@ -116,12 +116,12 @@ router.route('/:id')
 				actionTargetTemplate.set('configurationSchema', data.configuration.schema);
 			}
 
-			if (data.configuration.callbackUrl !== undefined) {
-				actionTargetTemplate.set('callbackUrl', data.configuration.callbackUrl);
+			if (data.configuration.url !== undefined) {
+				actionTargetTemplate.set('configurationUrl', data.configuration.url);
 			}
 
-			if (data.configuration.callbackToken !== undefined) {
-				actionTargetTemplate.set('callbackToken', data.configuration.callbackToken);
+			if (data.configuration.token !== undefined) {
+				actionTargetTemplate.set('configurationToken', data.configuration.token);
 			}
 		}
 
