@@ -23,6 +23,8 @@ module.exports = {
 		_.each(ruleModel.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
+			convertedCondition.description = condition.description;
+
 			if (condition.eventSource) {
 				convertedCondition = _.extend(convertedCondition, {
 					eventSource: {
@@ -55,6 +57,8 @@ module.exports = {
 
 		_.each(ruleModel.get('transformations'), function(transformation) {
 			var convertedTransformations = {};
+
+			convertedTransformations.description = transformation.description;
 
 			if (transformation.actionTarget) {
 				convertedTransformations = _.extend(convertedTransformations, {
@@ -133,6 +137,8 @@ module.exports = {
 		_.each(ruleModel.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
+			convertedCondition.description = condition.description;
+
 			if (condition.eventSource && condition.eventSource.id) {
 				if (!cache.eventSources[condition.eventSource.generatedIdentifier] && !_.contains(eventSourceIds, condition.eventSource.id)) {
 					eventSourceIds.push(condition.eventSource.id);
@@ -174,6 +180,8 @@ module.exports = {
 
 		_.each(ruleModel.get('transformations'), function(transformation) {
 			var convertedTransformations = {};
+
+			convertedTransformations.description = transformation.description;
 
 			if (!cache.actionTargets[transformation.actionTarget.generatedIdentifier] && !_.contains(actionTargetIds, transformation.actionTarget.id)) {
 				actionTargetIds.push(transformation.actionTarget.id);
