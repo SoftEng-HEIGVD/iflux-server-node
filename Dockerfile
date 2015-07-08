@@ -1,4 +1,4 @@
-FROM node:0.12.0-wheezy
+FROM node:0.12.6-wheezy
 MAINTAINER Laurent Prevost <laurent.prevost@heig-vd.ch>
 
 # For later use when bower will be reintroduced
