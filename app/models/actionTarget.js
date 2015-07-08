@@ -19,6 +19,9 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 				model.set('generatedIdentifier', stringService.generateId());
 			}
 		});
+
+
+
 	},
 
 	generatedId: function() {
