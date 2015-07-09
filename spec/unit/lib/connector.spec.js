@@ -56,6 +56,36 @@ describe("Connector", function() {
 		expect(connector.executeActions).toHaveBeenCalled();
 	});
 
+	it ("should execute an action with a token", function() {
+		var connector = new Connector();
+
+		spyOn(connector, 'executeActions').andCallThrough();
+
+		var action = {
+			targetUrl: 'http://actionTarget/actions',
+			targetToken: 'token',
+			target: 'abcdef',
+			type: 'http://someTypeId',
+			properties: {
+				test: 1
+			}
+		};
+
+		connector.executeAction(action);
+
+		expect(restClientSpy.post).toHaveBeenCalledWith(
+			'http://actionTarget/actions', {
+				data: [ { target: 'abcdef', type: 'http://someTypeId', properties: { test: 1 }} ],
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": "bearer token"
+				}
+			},
+      jasmine.any(Function)
+		);
+		expect(connector.executeActions).toHaveBeenCalled();
+	});
+
 	it ("should execute actions", function() {
 		var connector = new Connector();
 
