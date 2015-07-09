@@ -76,7 +76,7 @@ module.exports = {
 	match: function(events) {
 		var actions = [];
 
-		var promise = bluebird.resolve();
+		var promise = Promise.resolve();
 
 		if (_.isUndefined(rules) || _.isNull(rules) || _.isEmpty(rules)) {
 			promise = promise.then(this.populate());
