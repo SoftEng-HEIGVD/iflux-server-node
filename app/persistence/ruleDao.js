@@ -1,8 +1,7 @@
 var
 	_ = require('underscore'),
 	Rule = require('../services/modelRegistry').rule,
-	dao = require('./dao'),
-	knex = require('../../config/bookshelf').knex;
+	dao = require('./dao');
 
 module.exports = _.extend(new dao(Rule), {
 	/**
@@ -83,7 +82,7 @@ module.exports = _.extend(new dao(Rule), {
 	 * @param eventType The event type to lookup
 	 */
 	countEventTypeUsed: function(eventType) {
-		return knex.raw(
+		return this.knex.raw(
 			'select count(distinct id) ' +
 			'from rules r, json_array_elements(r.conditions) condition, json_array_elements(r.transformations) transformation ' +
 			"where condition->'eventType'->>'id' = '" + eventType.get('id') + "' or transformation->'eventType'->>'id' = '" + eventType.get('id') + "'"
@@ -96,7 +95,7 @@ module.exports = _.extend(new dao(Rule), {
 	 * @param actionType The action type to lookup
 	 */
 	countActionTypeUsed: function(actionType) {
-		return knex.raw(
+		return this.knex.raw(
 			'select count(distinct id) ' +
 			'from rules r, json_array_elements(r.transformations) transformation ' +
 			"where transformation->'actionType'->>'id' = '" + actionType.get('id') + "'"
@@ -109,7 +108,7 @@ module.exports = _.extend(new dao(Rule), {
 	 * @param eventSource The action type to lookup
 	 */
 	countEventSourceUsed: function(eventSource) {
-		return knex.raw(
+		return this.knex.raw(
 			'select count(distinct id) ' +
 			'from rules r, json_array_elements(r.conditions) condition ' +
 			"where condition->'eventSource'->>'id' = '" + eventSource.get('id') + "'"
@@ -122,7 +121,7 @@ module.exports = _.extend(new dao(Rule), {
 	 * @param actionTarget The action target to lookup
 	 */
 	countActionTarget: function(actionTarget) {
-		return knex.raw(
+		return this.knex.raw(
 			'select count(distinct id) ' +
 			'from rules r, json_array_elements(r.transformations) transformation ' +
 			"where transformation->'actionTarget'->>'id' = '" + actionTarget.get('id') + "'"

@@ -523,7 +523,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.delete({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(204)
 
-	.describe('First user tries to retrieve a rule his deleted rule.')
+	.describe('First user tries to retrieve his deleted rule.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(403)
 

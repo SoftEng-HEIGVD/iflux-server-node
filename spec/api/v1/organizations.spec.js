@@ -11,10 +11,10 @@ module.exports = baseTest('Organization resource')
 	.post({
 		url: '/v1/organizations',
 		body: {
-			name: 'iFLUX'
-		},
-		_storeData: function() { this.setData('locationOrganization1', this.response.headers.location); }
+			name: 'Orga1'
+		}
 	})
+	.storeLocationAs('organization', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/organizations/:id')
 
@@ -23,10 +23,10 @@ module.exports = baseTest('Organization resource')
 	.post({
 		url: '/v1/organizations',
 		body: {
-			name: 'Another orga'
-		},
-		_storeData: function() { this.setData('locationOrganization2', this.response.headers.location); }
+			name: 'Orga2'
+		}
 	})
+	.storeLocationAs('organization', 2)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/organizations/:id')
 
@@ -40,7 +40,7 @@ module.exports = baseTest('Organization resource')
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ 'id', 'name' ])
 	.expectJsonToBeAtLeast({
-		name: 'iFLUX'
+		name: 'Orga1'
 	})
 
 	.describe('Retrieve the second organization with second user')
@@ -49,7 +49,7 @@ module.exports = baseTest('Organization resource')
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ 'id', 'name' ])
 	.expectJsonToBeAtLeast({
-		name: 'Another orga'
+		name: 'Orga2'
 	})
 
 	.describe('Retrieve all organizations with second user')
@@ -58,26 +58,37 @@ module.exports = baseTest('Organization resource')
 	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToHavePath([ '0.id', '0.name', '1.id', '1.name' ])
 	.expectJsonToBeAtLeast([{
-		name: 'iFLUX'
+		name: 'Orga1'
 	}, {
-		name: 'Another orga'
+		name: 'Orga2'
 	}])
 
 	.describe('Update the first organization with first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({
 		body: {
-			name: 'iFLUX 2'
+			name: 'Orga1 renamed'
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/organizations/:id')
 
+	.describe('Check the updated organization for the first user.')
+	.get({}, function() { return { url: this.getData('locationOrganization1') }; })
+	.expectStatusCode(200)
+	.expectJsonToBe(function() {
+		return {
+			id: this.getData('organizationId1'),
+			name: 'Orga1 renamed',
+			deletable: false
+		}
+	})
+
 	.describe('Update the first organization with second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({
 		body: {
-			name: 'iFLUX 3'
+			name: 'Orga1 renamed again'
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(403)
@@ -152,12 +163,12 @@ module.exports = baseTest('Organization resource')
 	}])
 
 	.describe('Retrieve organizations filtered by name for first user')
-	.get({ url: '/v1/organizations?name=iFL%' })
+	.get({ url: '/v1/organizations?name=%renamed' })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
 	.expectJsonToHavePath([ '0.id', '0.name' ])
 	.expectJsonToBeAtLeast([{
-		name: 'iFLUX 2'
+		name: 'Orga1 renamed'
 	}])
 
 	.describe('First user add again the second user into the first organization but this time with the userId')
@@ -207,4 +218,16 @@ module.exports = baseTest('Organization resource')
 		firstName: 'Henri',
 		lastName: 'Dupont'
 	}])
+
+	.describe('First user remove his organization.')
+	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
+	.expectStatusCode(204)
+
+	.describe('First user tries to retrieve his deleted organization.')
+	.get({}, function() { return { url: this.getData('locationOrganization1') }; })
+	.expectStatusCode(403)
+
+	.describe('First user tries to delete an organization where he is not a member.')
+	.get({}, function() { return { url: this.getData('locationOrganization2') }; })
+	.expectStatusCode(403)
 ;

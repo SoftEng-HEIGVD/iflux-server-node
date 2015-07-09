@@ -1,6 +1,7 @@
 var
 	_ = require('underscore'),
-	color = require('colors');
+	color = require('colors'),
+	knex = require('../../config/bookshelf').knex;
 
 /**
  * DAO factory
@@ -11,6 +12,7 @@ var
 module.exports = function(model) {
 	return {
 		model: model,
+		knex: knex,
 
 		/**
 		 * Save a model through the Bookshelf API

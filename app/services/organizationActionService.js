@@ -1,4 +1,5 @@
 var
+	Promise = require('bluebird'),
 	userDao = require('../persistence/userDao');
 
 module.exports = {
@@ -8,8 +9,13 @@ module.exports = {
 		if (params.userId) {
 			promise = userDao.findById(params.userId);
 		}
-		else {
+		else if (params.email) {
 			promise = userDao.findByEmail(params.email);
+		}
+		else {
+			promise = Promise.resolve().then(function() {
+				return user;
+			});
 		}
 
 		return promise
@@ -27,8 +33,13 @@ module.exports = {
 		if (params.userId) {
 			promise = userDao.findById(params.userId);
 		}
-		else {
+		else if (params.email) {
 			promise = userDao.findByEmail(params.email);
+		}
+		else {
+			promise = Promise.resolve().then(function() {
+				return user;
+			});
 		}
 
 		return promise

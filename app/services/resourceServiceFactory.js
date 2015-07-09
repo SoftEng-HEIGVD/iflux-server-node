@@ -68,6 +68,10 @@ module.exports = function(basePath) {
 			return res.status(403);
 		},
 
+		deleteForbidden: function(res, name) {
+			return res.status(403).json({ message: 'The ' + name + ' cannot be deleted. The model is referenced by other models.' });
+		},
+
 		validationError: function(res, error) {
 			if (error.errors) {
 				return res.status(422).json(error.errors);
