@@ -2,10 +2,10 @@ var
 	_ = require('underscore'),
 	Promise = require('bluebird'),
 	ruleDao = require('../persistence/ruleDao'),
-	ruleConverter = require('../converters/ruleConverter'),
 	actionService = require('./actionService'),
 	elasticSearchService = require('../../lib/ioc').create('elasticSearchService'),
 	timeService = require('./timeService'),
+	ruleConverter = require('../converters/ruleConverter'),
 	ruleEngineConverter = require('../converters/ruleEngineConverter');
 
 /**
@@ -76,7 +76,7 @@ module.exports = {
 	match: function(events) {
 		var actions = [];
 
-		var promise = Promise.resolve();
+		var promise = bluebird.resolve();
 
 		if (_.isUndefined(rules) || _.isNull(rules) || _.isEmpty(rules)) {
 			promise = promise.then(this.populate());
@@ -257,8 +257,8 @@ function matchConditionEventType(condition, event) {
 function matchConditionFunction(condition, event) {
 	return condition.fn.compiled(
 		event,
-		ruleConverter.convertEventSource(cache.eventSources[event.source]),
-		ruleConverter.convertEventType(cache.eventTypes[event.type]),
+		ruleEngineConverter.convertEventSource(cache.eventSources[event.source]),
+		ruleEngineConverter.convertEventType(cache.eventTypes[event.type]),
 		{ json: JSON, console: console }
 	);
 }
