@@ -23,8 +23,7 @@ module.exports = _.extend(new dao(Organization), {
 				.save(null, { transacting: t })
 				.then(function(orgaSaved) {
 					return orgaSaved
-						.users()
-						.attach(user.get('id'), { transacting: t })
+						.addUser(user, { transacting: t })
 						.then(function() {
 							return orgaSaved;
 						});

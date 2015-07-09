@@ -14,7 +14,7 @@ module.exports = {
 
 		return promise
 			.then(function(userToAdd) {
-				return organization.users().attach(userToAdd);
+				return organization.addUser(userToAdd);
 			})
 			.catch(userDao.model.NotFoundError, function(err) {
 				throw new ValidationError()
@@ -33,7 +33,7 @@ module.exports = {
 
 		return promise
 			.then(function(userToRemove) {
-				return organization.users().detach(userToRemove);
+				return organization.removeUser(userToRemove);
 			});
 	}
 };

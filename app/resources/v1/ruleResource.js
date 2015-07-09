@@ -256,7 +256,7 @@ router.route('/:id')
 	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
 	 */
 	.get(function(req, res, next) {
-		return resourceService.ok(res, ruleConverter.convert(req.rule));;
+		return resourceService.ok(res, ruleConverter.convert(req.rule));
 	})
 
 	/**

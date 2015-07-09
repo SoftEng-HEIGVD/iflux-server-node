@@ -1,4 +1,5 @@
 var
+	_ = require('underscore'),
 	bookshelf = require('../../config/bookshelf'),
 	modelRegistry = require('../services/modelRegistry'),
 	Promise  = require('bluebird');
@@ -11,14 +12,46 @@ var Organization = module.exports = bookshelf.Model.extend({
 		name: [ 'required', 'minLength:5', 'unique:organizations:name:Name is already taken.' ]
 	},
 
-	increaseReferenceCount: function() {
+	increaseReferenceCount: function(options) {
 		this.set('refCount', this.get('refCount') + 1);
-		return this.save();
+
+		options = _.defaults(options || {}, { save: true });
+
+		if (options.save && this.get('id')) {
+			return this.save();
+		}
 	},
 
-	decreaseReferenceCount: function() {
+	decreaseReferenceCount: function(options) {
 		this.set('refCount', this.get('refCount') - 1);
-		return this.save();
+
+		options = _.defaults(options || {}, { save: true });
+
+		if (options.save && this.get('id')) {
+			return this.save();
+		}
+	},
+
+	addUser: function(user, options) {
+		var orga = this;
+
+		return this
+			.users()
+			.attach(user.get('id'), options)
+			.then(function() {
+				return orga.increaseReferenceCount({ save: false });
+			});
+	},
+
+	removeUser: function(user, options) {
+		var orga = this;
+
+		return this
+			.users()
+			.detach(user.get('id'), options)
+			.then(function() {
+				return orga.decreaseReferenceCount();
+			});
 	},
 
 	users: function() {

@@ -1,7 +1,8 @@
 var
 	bookshelf = require('../../config/bookshelf'),
 	stringService = require('../services/stringService'),
-	modelRegistry = require('../services/modelRegistry');
+	modelRegistry = require('../services/modelRegistry'),
+	modelEnricher = require('./utils/modelEnricher');
 
 var ActionTarget = module.exports = bookshelf.Model.extend({
 	tableName: 'action_targets',
@@ -20,8 +21,7 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 			}
 		});
 
-
-
+		modelEnricher.addOrganizationEventHandlers(this);
 	},
 
 	generatedId: function() {

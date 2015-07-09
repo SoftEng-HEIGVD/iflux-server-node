@@ -71,10 +71,10 @@ router.route('/')
 	.post(function(req, res, next) {
 		var actionTargetTemplate = req.body;
 
-		organizationDao
+		return organizationDao
 			.findByIdAndUser(actionTargetTemplate.organizationId, req.userModel)
 			.then(function(organization) {
-				actionTargetTemplateDao
+				return actionTargetTemplateDao
 					.createAndSave(actionTargetTemplate, organization)
 					.then(function(actionTargetTempltateSaved) {
 						return resourceService.location(res, 201, actionTargetTempltateSaved).end();

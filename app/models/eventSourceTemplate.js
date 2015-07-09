@@ -1,7 +1,7 @@
 var
 	bookshelf = require('../../config/bookshelf'),
 	modelRegistry = require('../services/modelRegistry'),
-	Promise  = require('bluebird');
+	modelEnricher = require('./utils/modelEnricher');
 
 var EventSourceTemplate = module.exports = bookshelf.Model.extend({
 	tableName: 'event_source_templates',
@@ -9,6 +9,12 @@ var EventSourceTemplate = module.exports = bookshelf.Model.extend({
 
 	validations: {
 		name: [ 'required', 'minLength:3', 'unique:event_source_templates:[name, organization_id]:Name is already taken in this organization.' ]
+	},
+
+	constructor: function() {
+		bookshelf.Model.apply(this, arguments);
+
+		modelEnricher.addOrganizationEventHandlers(this);
 	},
 
 	organization: function() {

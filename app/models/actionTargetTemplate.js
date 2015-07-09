@@ -1,7 +1,7 @@
 var
 	bookshelf = require('../../config/bookshelf'),
 	modelRegistry = require('../services/modelRegistry'),
-	Promise  = require('bluebird');
+	modelEnricher = require('./utils/modelEnricher');
 
 var ActionTargetTemplate = module.exports = bookshelf.Model.extend({
 	tableName: 'action_target_templates',
@@ -9,6 +9,12 @@ var ActionTargetTemplate = module.exports = bookshelf.Model.extend({
 
 	validations: {
 		name: [ 'required', 'minLength:3', 'unique:action_target_templates:[name, organization_id]:Name is already taken in this organization.' ]
+	},
+
+	constructor: function() {
+		bookshelf.Model.apply(this, arguments);
+
+		modelEnricher.addOrganizationEventHandlers(this);
 	},
 
 	organization: function() {
