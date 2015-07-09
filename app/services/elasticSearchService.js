@@ -22,7 +22,7 @@ function renameIdFields(obj) {
 	}
 }
 
-module.exports = function(elasticsearch, print) {
+module.exports = function(elasticsearch, clone, print) {
 	var client = new elasticsearch.Client({
 	  host: config.elasticSearch.host + ':' + config.elasticSearch.port,
 	  log: 'info'
@@ -31,13 +31,14 @@ module.exports = function(elasticsearch, print) {
 	return {
 		saveEvent: function(event) {
 			if (config.elasticSearch.enable) {
-				renameIdFields(event);
+				var item = clone(event);
+				renameIdFields(item);
 
 				var esItem = {
 					index: 'iflux-events',
 					type: 'json',
-					id: stringService.hash(stringService.generateEventId() + '#' + event.timestamp),
-					body: event
+					id: stringService.hash(stringService.generateEventId() + '#' + item.timestamp),
+					body: item
 				};
 
 				client.create(esItem, function (error, response) {
@@ -54,13 +55,14 @@ module.exports = function(elasticsearch, print) {
 
 		saveMatch: function(match) {
 			if (config.elasticSearch.enable) {
-				renameIdFields(match);
+				var item = clone(match);
+				renameIdFields(item);
 
 				var esItem = {
 					index: 'iflux-event-matches',
 					type: 'json',
-					id: stringService.hash(stringService.generateEventId() + '#' + match.event.timestamp),
-					body: match
+					id: stringService.hash(stringService.generateEventId() + '#' + item.event.timestamp),
+					body: item
 				};
 
 				client.create(esItem, function (error, response) {
@@ -78,4 +80,4 @@ module.exports = function(elasticsearch, print) {
 };
 
 module.exports['@singleton'] = true;
-module.exports['@require'] = [ 'elasticsearch', 'print' ];
+module.exports['@require'] = [ 'elasticsearch', 'clone', 'print' ];
