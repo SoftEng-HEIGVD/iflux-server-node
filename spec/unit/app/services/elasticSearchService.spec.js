@@ -3,6 +3,7 @@ var
   elasticSearchServiceFactory = require('../../../../app/services/elasticSearchService.js');
 
 describe('elasticSearchService', function() {
+	var clone;
   var elasticSearch;
 	var elasticSearchSpy;
   var elasticSearchService;
@@ -18,7 +19,9 @@ describe('elasticSearchService', function() {
 	    Client: function() { return elasticSearchSpy; }
     };
 
-    elasticSearchService = elasticSearchServiceFactory(elasticSearch);
+	  clone = function(obj) { return obj; };
+
+    elasticSearchService = elasticSearchServiceFactory(elasticSearch, clone);
   });
 
 	it ('should save an event', function() {
