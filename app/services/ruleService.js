@@ -39,7 +39,8 @@ module.exports = {
 			ruleEngineConverter.convertEventType(eventType),
 			{
 				json: JSON, console: console
-			});
+			}
+		);
 	},
 
 	/**
@@ -62,6 +63,7 @@ module.exports = {
 			ruleEngineConverter.convertEventType(eventType),
 			{
 				json: JSON, console: console
-			});
+			}
+		);
 	}
 };
