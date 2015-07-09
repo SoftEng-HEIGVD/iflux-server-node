@@ -71,8 +71,6 @@ module.exports = _.extend(new dao(Organization), {
 	 * @param organization The organization
 	 */
 	countReferences: function(organization) {
-		var id = organization.get('id');
-
 		return this.knex.raw(
 			'select t1.c + t2.c + t3.c + t4.c + t5.c + t6.c + t7.c + t8.c from ' +
 		    '(select count(organization_id) as c from organizations_users where organization_id = $1) as t1, ' +
@@ -83,7 +81,7 @@ module.exports = _.extend(new dao(Organization), {
 			  '(select count(id) as c from action_types where organization_id = $1) as t6, ' +
 			  '(select count(id) as c from action_targets where organization_id = $1) as t7, ' +
 			  '(select count(id) as c from action_target_templates where organization_id = $1) as t8',
-			[ id ]
+			[ organization.get('id') ]
 		);
 	}
 });
