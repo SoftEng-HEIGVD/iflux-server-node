@@ -295,7 +295,7 @@ router.route('/:id')
 
 		ruleProcessingChain
 			.checkErrors()
-			.successUpdate(req.rule, function (options) {
+			.successUpdate(req.body, req.rule, function (options) {
 				var updatedRuleDefinition = createRuleDefinition('patch', options.entities, req);
 
 				var rule = req.rule;
@@ -349,17 +349,20 @@ router.route('/:id')
 	 * @see {@link http://www.iflux.io/api/reference/#rules|REST API Specification}
 	 */
 	.delete(function(req, res, next) {
-		return req.rule
-			.destroy()
-			.then(function() { return ruleEngineService.populate(); })
-			.then(function() {
-				return resourceService.deleted(res).end();
-			})
-			.error(function(err) {
-				if (err.stack) {
-					npmlog.info(err);
-				}
+		return new ruleResourceService.RuleProcessingChain(req, true)
+			.successDelete(req.rule, function(options) {
+				return req.rule
+					.destroy({ transacting: options.t })
+					.then(function() { return ruleEngineService.populate(); })
+					.then(function() {
+						return resourceService.deleted(res).end();
+					})
+					.error(function(err) {
+						if (err.stack) {
+							console.log(err);
+						}
 
-				return resourceService.serverError(res, { message: err.message }).end();
-			});
+						return resourceService.serverError(res, { message: err.message }).end();
+					});
+			})
 	});

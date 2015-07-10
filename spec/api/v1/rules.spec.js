@@ -530,4 +530,5 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.describe('First user tries to delete a rule in an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationRule3') }; })
 	.expectStatusCode(403)
+.noAfter()
 ;
