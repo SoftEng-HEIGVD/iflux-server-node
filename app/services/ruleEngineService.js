@@ -1,5 +1,6 @@
 var
 	_ = require('underscore'),
+	clone = require('clone'),
 	Promise = require('bluebird'),
 	ruleDao = require('../persistence/ruleDao'),
 	actionService = require('./actionService'),
@@ -41,7 +42,7 @@ module.exports = {
 			rules: {}
 		};
 
-		rules = [];
+		rules = {};
 
 		return ruleDao
 			.findAllEnabled()
@@ -49,7 +50,7 @@ module.exports = {
 				return ruleConverter
 					.convertForEvaluation(ruleRetrieved, cache)
 					.then(function(ruleConverted) {
-						rules.push(ruleConverted);
+						rules[ruleConverted.id] = clone(ruleConverted);
 					});
 			})
 			.then(function() {
@@ -114,8 +115,8 @@ module.exports = {
 								event.matchedAt = timeService.timestamp();
 
 								eventMatchingResults[rule.id] = {
-									rule: rule,
-									event: event,
+									rule: clone(rule),
+									event: clone(event),
 									matchedConditions: [],
 									transformations: []
 								};
