@@ -9,9 +9,10 @@ module.exports = _.extend(new dao(Rule), {
 	 *
 	 * @param ruleDefinition The rule definition to create the document
 	 * @param organization The organization where to assign the rule
+	 * @param options To set the transaction for example
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(ruleDefinition, organization) {
+	createAndSave: function(ruleDefinition, organization, options) {
 		var rule = new this.model({
 			organization_id: organization.get('id'),
 			name: ruleDefinition.name,
@@ -21,7 +22,7 @@ module.exports = _.extend(new dao(Rule), {
 			transformations: ruleDefinition.transformations
 		});
 
-		return this.save(rule);
+		return this.save(rule, options);
 	},
 
 	findByIdAndUser: function(id, user) {

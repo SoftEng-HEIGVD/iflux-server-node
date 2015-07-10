@@ -2,6 +2,7 @@ var
 	_ = require('underscore'),
 	moment = require('moment'),
 	Promise = require('bluebird'),
+	bookshelf = require('../../config/bookshelf'),
 	actionTargetDao = require('../persistence/actionTargetDao'),
 	actionTypeDao = require('../persistence/actionTypeDao'),
 	eventSourceDao = require('../persistence/eventSourceDao'),
@@ -54,6 +55,53 @@ function createDummyEvent(eventSource, eventType, properties) {
 }
 
 /**
+ * Extract the different ids from a rule (conditions, transformations)
+ *
+ * @param rule The rule where to do the extraction
+ * @returns {{actionTypes: Array, actionTargets: Array, eventTypes: Array, eventSources: Array}} The ids extracted
+ */
+function extractIds(rule) {
+	var ids = {
+		actionTypes: [],
+		actionTargets: [],
+		eventTypes: [],
+		eventSources: []
+	};
+
+	_.each(rule.get('conditions'), function(condition) {
+		if (condition.eventSource && condition.eventSource.id && !_.contains(ids.eventSources, condition.eventSource.id)) {
+			ids.eventSources.push(condition.eventSource.id);
+		}
+	});
+
+	_.each(rule.get('conditions'), function(condition) {
+		if (condition.eventType && condition.eventType.id && !_.contains(ids.eventTypes, condition.eventType.id)) {
+			ids.eventTypes.push(condition.eventType.id);
+		}
+	});
+
+	_.each(rule.get('transformations'), function(condition) {
+		if (condition.actionTarget && condition.actionTarget.id && !_.contains(ids.actionTargets, condition.actionTarget.id)) {
+			ids.actionTargets.push(condition.actionTarget.id);
+		}
+	});
+
+	_.each(rule.get('transformations'), function(condition) {
+		if (condition.actionType && condition.actionType.id && !_.contains(ids.actionTypes, condition.actionType.id)) {
+			ids.actionTypes.push(condition.actionType.id);
+		}
+	});
+
+	_.each(rule.get('transformations'), function(condition) {
+		if (condition.eventType && condition.eventType.id && !_.contains(ids.eventTypes, condition.eventType.id)) {
+			ids.eventTypes.push(condition.eventType.id);
+		}
+	});
+
+	return ids;
+}
+
+/**
  * Rule processing chain
  *
  * @param req The request to get the data for various validations and data collection
@@ -63,21 +111,23 @@ function createDummyEvent(eventSource, eventType, properties) {
 function RuleProcessingChain(req, collectionRequired) {
 	this.req = req;
 
+	this.entities = {
+		actionTargets: {},
+		eventSources: {},
+		eventTypes: {},
+		actionTypes: {},
+		errors: {
+			conditions: {},
+			transformations: {}
+		},
+		user: req.userModel
+	};
+
 	// Initialize the validation chain for the rules validation.
 	// This function is aimed to be used in POST and PATCH methods.
 	this.promise = Promise
-		.resolve({
-			actionTargets: {},
-			eventSources: {},
-			eventTypes: {},
-			actionTypes: {},
-			errors: {
-				conditions: {},
-				transformations: {}
-			},
-			user: req.userModel
-		})
-		.bind(this)
+		.resolve(this.entities)
+		.bind(this);
 
 	// If collection are required, then they must be present in the request
 	if (collectionRequired) {
@@ -472,13 +522,230 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 	},
 
 	/**
+	 * Increase the reference counters to keep track of referenced models in rules
+	 *
+	 * @param options For example to set the transaction
+	 * @returns {RuleProcessingChain} this
+	 */
+	increaseReferences: function(t) {
+		var promise = this.promise;
+
+		this.promise = this.promise.then(function(entities) {
+			//function promisify(promise, model) {
+			//	//if (promise) {
+			//	var innerPromise = model.save({ transacting: t });
+			//	promise.then(innerPromise);
+			//	return innerPromise;
+			//	//}
+			//	//else {
+			//	//	return Promise.resolve(model.save({ transacting: t }));
+			//	//}
+			//}
+
+			var models = [];
+
+			_.each(entities.actionTargets, function(actionTarget) {
+				actionTarget.set('refCount', actionTarget.get('refCount') + 1);
+				promise = promise.then(actionTarget.save(null, { transacting: t }));
+				//models.push(actionTarget.save(null, { transacting: t }));
+				//promise = promisify(promise, actionTarget);
+			});
+
+			_.each(entities.eventSources, function(eventSource) {
+				eventSource.set('refCount', eventSource.get('refCount') + 1);
+				promise = promise.then(eventSource.save(null, { transacting: t }));
+				//models.push(eventSource.save(null, { transacting: t }));
+				//promise = promisify(promise, eventSource);
+			});
+
+			_.each(entities.eventTypes, function(eventType) {
+				eventType.set('refCount', eventType.get('refCount') + 1);
+				promise = promise.then(eventType.save(null, { transacting: t }));
+				//models.push(eventType.save(null, { transacting: t }));
+				//promise = promisify(promise, eventType);
+			});
+
+			_.each(entities.actionTypes, function(actionType) {
+				actionType.set('refCount', actionType.get('refCount') + 1);
+				promise = promise.then(actionType.save(null, { transacting: t }));
+				//models.push(actionType.save(null, { transacting: t }));
+				//promise = promisify(promise, actionType);
+			});
+
+			//if (!promise) {
+			//	promise = Promise.resolve();
+			//}
+
+			promise = promise
+				//.all(models)
+				.then(function() { console.log('A'); return entities; });
+		});
+
+		return this;
+	},
+
+	///**
+	// * Decrease the reference counters to keep track of referenced models in rules
+	// *
+	// * @param fn The function to execute once the counters are updated
+	// * @returns {RuleProcessingChain} this
+	// */
+	//decreaseReferences: function(fn) {
+	//	this.promise = this.promise.then(function(entities) {
+	//		var saveModels = [];
+	//
+	//		_.each(entities.actionTargets, function(actionTarget) {
+	//			actionTarget.set('refCount', actionTarget.get('refCount') + 1);
+	//			saveModels.push(actionTarget.save());
+	//		});
+	//
+	//		_.each(entities.eventSources, function(eventSource) {
+	//			eventSource.set('refCount', eventSource.get('refCount') + 1);
+	//			saveModels.push(eventSource.save());
+	//		});
+	//
+	//		_.each(entities.eventTypes, function(eventType) {
+	//			eventType.set('refCount', eventType.get('refCount') + 1);
+	//			saveModels.push(eventType.save());
+	//		});
+	//
+	//		_.each(entities.actionTypes, function(actionType) {
+	//			actionType.set('refCount', actionType.get('refCount') + 1);
+	//			saveModels.push(actionType.save());
+	//		});
+	//
+	//		return Promise.all(saveModels).then(function() { return fn(entities); });
+	//	});
+	//
+	//	return this;
+	//},
+
+	/**
 	 * Do something in case of success
 	 *
 	 * @param fn The function to do
 	 * @returns {RuleProcessingChain} This
 	 */
-	success: function(fn) {
-		this.promise = this.promise.then(fn);
+	successCreate: function(fn) {
+		this.promise = this.promise.then(function(entities) {
+			return bookshelf.transaction(function (t) {
+				var transactionPromise = Promise.resolve();
+				_.each(entities.actionTargets, function(actionTarget) {
+					actionTarget.set('refCount', actionTarget.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(actionTarget.save(null, { transacting: t }));
+				});
+
+				_.each(entities.eventSources, function(eventSource) {
+					eventSource.set('refCount', eventSource.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(eventSource.save(null, { transacting: t }));
+				});
+
+				_.each(entities.eventTypes, function(eventType) {
+					eventType.set('refCount', eventType.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(eventType.save(null, { transacting: t }));
+				});
+
+				_.each(entities.actionTypes, function(actionType) {
+					actionType.set('refCount', actionType.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(actionType.save(null, { transacting: t }));
+				});
+
+				return transactionPromise
+					.then(function() {
+						return { entities: entities, t: t };
+					})
+					.then(fn);
+			})
+			.then(function() {
+				return entities;
+			})
+		});
+
+		return this;
+	},
+
+	successUpdate: function(rule, fn) {
+		this.promise = this.promise.then(function(entities) {
+			return bookshelf.transaction(function (t) {
+				var transactionPromise = Promise.resolve();
+
+				var gatheredIds = extractIds(rule);
+
+				_.each(gatheredIds.actionTargets, function(actionTargetId) {
+					transactionPromise = transactionPromise.then(function() {
+						return actionTargetDao
+							.findById(actionTargetId)
+							.then(function(actionTargetFound) {
+								actionTargetFound.set('refCount', actionTargetFound.get('refCount') - 1);
+								return actionTargetFound.save(null, { transacting: t })
+							})
+					});
+				});
+
+				_.each(gatheredIds.eventSources, function(eventSourceId) {
+					transactionPromise = transactionPromise.then(function() {
+						return eventSourceDao
+							.findById(eventSourceId)
+							.then(function(eventSourceFound) {
+								eventSourceFound.set('refCount', eventSourceFound.get('refCount') - 1);
+								return eventSourceFound.save(null, { transacting: t })
+							})
+					});
+				});
+
+				_.each(gatheredIds.eventTypes, function(eventTypeId) {
+					transactionPromise = transactionPromise.then(function() {
+						return eventTypeDao
+							.findById(eventTypeId)
+							.then(function(eventTypeFound) {
+								eventTypeFound.set('refCount', eventTypeFound.get('refCount') - 1);
+								return eventTypeFound.save(null, { transacting: t })
+							})
+					});
+				});
+
+				_.each(gatheredIds.actionTypes, function(actionTypeId) {
+					transactionPromise = transactionPromise.then(function() {
+						return actionTypeDao
+							.findById(actionTypeId)
+							.then(function(actionTypeFound) {
+								actionTypeFound.set('refCount', actionTypeFound.get('refCount') - 1);
+								return actionTypeFound.save(null, { transacting: t })
+							})
+					});
+				});
+
+				_.each(entities.actionTargets, function(actionTarget) {
+					actionTarget.set('refCount', actionTarget.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(actionTarget.save(null, { transacting: t }));
+				});
+
+				_.each(entities.eventSources, function(eventSource) {
+					eventSource.set('refCount', eventSource.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(eventSource.save(null, { transacting: t }));
+				});
+
+				_.each(entities.eventTypes, function(eventType) {
+					eventType.set('refCount', eventType.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(eventType.save(null, { transacting: t }));
+				});
+
+				_.each(entities.actionTypes, function(actionType) {
+					actionType.set('refCount', actionType.get('refCount') + 1);
+					transactionPromise = transactionPromise.then(actionType.save(null, { transacting: t }));
+				});
+
+				return transactionPromise
+					.then(function() {
+						return { entities: entities, t: t };
+					})
+					.then(fn);
+			})
+			.then(function() {
+				return entities;
+			})
+		});
+
 		return this;
 	},
 

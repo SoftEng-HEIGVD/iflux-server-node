@@ -222,30 +222,36 @@ router.route('/')
 			.checkConditions()
 			.checkTransformations()
 			.checkErrors()
-			.success(function (entities) {
-				var newRuleDefinition = createRuleDefinition('post', entities, req);
+			.successCreate(function (options) {
+				var newRuleDefinition = createRuleDefinition('post', options.entities, req);
 
 				return ruleDao
-					.createAndSave(newRuleDefinition, entities.organization)
-					.then(function(ruleSaved) { return ruleEngineService.populate(ruleSaved); })
-					.then(function(ruleSaved) {
-						return resourceService.location(res, 201, ruleSaved).end();
+					.createAndSave(newRuleDefinition, options.entities.organization, { transacting: options.t })
+					.then(function (ruleSaved) {
+						return ruleEngineService
+							.populate(ruleSaved)
+							.then(function() {
+								return resourceService.location(res, 201, ruleSaved).end();
+							});
 					})
-					.catch(ValidationError, function(e) {
-						return resourceService.validationError(res, e);
-					})
-					.error(function(err) {
-						if (err.stack(err)) {
-							console.log(err.stack);
-						}
-						return next(err)
+					.catch(ValidationError, function (e) {
+						return resourceService.validationError(res, e).end();
 					});
 			})
-			.validationError(function(e) {
+			.validationError(function (e) {
 				if (e.stack) {
-					npmlog.info(e);
+					console.log(e);
 				}
-				return resourceService.validationError(res, e.errors);
+				return resourceService.validationError(res, e.errors).end();
+			})
+			.promise.catch(function (err) {
+				if (_.isString(err)) {
+					console.log(err);
+				}
+				else {
+					console.log(err.stack);
+				}
+				return resourceService.serverError(res, err);
 			});
 	});
 
@@ -286,10 +292,11 @@ router.route('/:id')
 				.checkTransformations();
 		}
 
+
 		ruleProcessingChain
 			.checkErrors()
-			.success(function (entities) {
-				var updatedRuleDefinition = createRuleDefinition('patch', entities, req);
+			.successUpdate(req.rule, function (options) {
+				var updatedRuleDefinition = createRuleDefinition('patch', options.entities, req);
 
 				var rule = req.rule;
 

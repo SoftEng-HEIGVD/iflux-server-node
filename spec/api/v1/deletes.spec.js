@@ -193,4 +193,13 @@ module.exports = baseTest('Delete on resources')
 	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(403)
 	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
+
+	.describe('U1 deletes Rule1')
+	.delete({}, function() { return { url: this.getData('locationRule1') }; })
+	.expectStatusCode(204)
+
+	.describe('U1 tries to delete Orga1 - after rule removed')
+	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
+	.expectStatusCode(403)
+	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
 ;
