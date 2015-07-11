@@ -536,6 +536,12 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 		this.promise = this.promise.then(function(entities) {
 			return bookshelf.transaction(function (t) {
 				var transactionPromise = Promise.resolve();
+
+				/**
+				 * The following loops will update the ref counts for the different models used by the rule. The ref count
+				 * is updated only once for each model even if it is present multiple times in the rule.
+				 */
+
 				_.each(entities.actionTargets, function(actionTarget) {
 					actionTarget.set('refCount', actionTarget.get('refCount') + 1);
 					transactionPromise = transactionPromise.then(actionTarget.save(null, { transacting: t }));
@@ -584,7 +590,15 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 
 				var gatheredIds = extractIds(rule);
 
+				/**
+				 * All the following checks aims to reach the goal to update the ref count of the diffrent models
+				 * used by the rules only once per rule. For example, if an event type is used by 2 conditions and 1 transformation,
+				 * the ref count for this event type will be incremented only by 1 for this rule.
+				 */
+
+				// Check if the transformations are updated
 				if (payload.transformations) {
+					// Reset the count for all the action targets of the rule before update
 					_.each(gatheredIds.actionTargets, function (actionTargetId) {
 						transactionPromise = transactionPromise.then(function () {
 							return actionTargetDao
@@ -596,6 +610,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 						});
 					});
 
+					// Reset the count for all the action types of the rule before update
 					_.each(gatheredIds.actionTypes, function (actionTypeId) {
 						transactionPromise = transactionPromise.then(function () {
 							return actionTypeDao
@@ -607,6 +622,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 						});
 					});
 
+					// Reset the count for all the event types used only by transformations of the rule before update
 					_.each(gatheredIds.transformationEventTypes, function (eventTypeId) {
 						transactionPromise = transactionPromise.then(function () {
 							return eventTypeDao
@@ -619,7 +635,9 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 					});
 				}
 
+				// Check if the conditions are updated
 				if (payload.conditions) {
+					// Reset the count for all the event sources of the rule before update
 					_.each(gatheredIds.eventSources, function (eventSourceId) {
 						transactionPromise = transactionPromise.then(function () {
 							return eventSourceDao
@@ -631,6 +649,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 						});
 					});
 
+					// Reset the count for all the event types only present in conditions of the rule before update
 					_.each(gatheredIds.conditionEventTypes, function (eventTypeId) {
 						transactionPromise = transactionPromise.then(function () {
 							return eventTypeDao
@@ -643,7 +662,9 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 					});
 				}
 
+				// Check if the conditions and transformations are updated
 				if (payload.conditions && payload.transformations) {
+					// Reset the count for all the event types present both in conditions and transformations of the rule before update
 					_.each(gatheredIds.conditionAndTransformationEventTypes, function (eventTypeId) {
 						transactionPromise = transactionPromise.then(function () {
 							return eventTypeDao
@@ -656,27 +677,37 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 					});
 				}
 
+				// Check if the transformations are updated
 				if (payload.transformations) {
+					// Update the ref counts for action targets
 					_.each(entities.actionTargets, function (actionTarget) {
 						actionTarget.set('refCount', actionTarget.get('refCount') + 1);
 						transactionPromise = transactionPromise.then(actionTarget.save(null, {transacting: t}));
 					});
 
+					// Update the ref counts for action types
 					_.each(entities.actionTypes, function (actionType) {
 						actionType.set('refCount', actionType.get('refCount') + 1);
 						transactionPromise = transactionPromise.then(actionType.save(null, {transacting: t}));
 					});
 				}
 
+				// Check if the conditions are updated
 				if (payload.conditions) {
+					// Update the ref counts for event sources
 					_.each(entities.eventSources, function (eventSource) {
 						eventSource.set('refCount', eventSource.get('refCount') + 1);
 						transactionPromise = transactionPromise.then(eventSource.save(null, {transacting: t}));
 					});
 				}
 
+				// Check if the condition or transformations are updated
 				if (payload.conditions || payload.transformations) {
 					_.each(entities.eventTypes, function (eventType) {
+						// Update the ref counts for event types if transformations and conditions are updated, or if conditions
+						// are updated but the event type not already present in transformations, or if transformations are updated
+						// but the event type not already present in conditions. It will ensure to update the ref count only once
+						// for an event type used multiple times in a rule.
 						if (
 							(payload.conditions && payload.transformations) ||
 							(payload.conditions && !_.contains(gatheredIds.conditionAndTransformationEventTypes, eventType.get('id'))) ||
@@ -715,6 +746,12 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 				var transactionPromise = Promise.resolve();
 
 				var gatheredIds = extractIds(rule);
+
+				/**
+				 * When a rule is deleted, we need to reset the ref count of the models used by the rule. For that,
+				 * we gathered each model id only once to reduce the ref count of this model by one. We enforce this
+				 * ref count update to be done only once per model even if it is used multiple times by a rule.
+				 */
 
 				_.each(gatheredIds.actionTargets, function(actionTargetId) {
 					transactionPromise = transactionPromise.then(function() {
