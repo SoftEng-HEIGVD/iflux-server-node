@@ -489,12 +489,54 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 		return {
 			url: this.getData('locationRule1'),
 			body: {
-				name: 'First rule renamed'
+				name: 'First rule renamed',
+				description: 'Rule updated to check its body',
+				conditions: [{
+					eventSourceId: this.getData('eventSourceId2'),
+					eventTypeId: this.getData('eventTypeId2')
+				}],
+				transformations: [{
+					actionTargetId: this.getData('actionTargetId2'),
+					actionTypeId: this.getData('actionTypeId2'),
+					eventTypeId: this.getData('eventTypeId2')
+				}]
 			}
 		};
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/rules/:id')
+
+	.describe('First user retrieve his first rule to check the update done correctly.')
+	.get({}, function() { return { url: this.getData('locationRule1') }; })
+	.expectStatusCode(200)
+	.expectJsonToBeAtLeast(function() {
+		return {
+			id: this.getData('ruleId1'),
+			name: 'First rule renamed',
+			description: 'Rule updated to check its body',
+			active: true,
+			organizationId: this.getData('organizationId1'),
+			conditions: [{
+				eventSource:{
+					id: this.getData('eventSourceId2')
+				},
+				eventType:{
+					id: this.getData('eventTypeId2')
+				}
+			}],
+			transformations: [{
+				actionTarget:{
+					id: this.getData('actionTargetId2')
+				},
+				actionType:{
+					id: this.getData('actionTypeId2')
+				},
+				eventType:{
+					id: this.getData('eventTypeId2')
+				}
+			}]
+		};
+	})
 
 	.describe('First user updates hist first rule.')
 	.patch({}, function() {
