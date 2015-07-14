@@ -63,10 +63,10 @@ module.exports = _.extend(new dao(ActionType), {
 	},
 
 	findAllAccessible: function(user, criteria) {
+		var t = this;
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'action_types.organization_id', 'organizations.id')
-				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.leftJoin('organizations_users', 'action_types.organization_id', 'organizations_users.organization_id')
 				.where(function() {
 					return this
 						.where('organizations_users.user_id', user.get('id'))
@@ -77,7 +77,7 @@ module.exports = _.extend(new dao(ActionType), {
 				qb = qb.where('action_types.name', 'like', criteria.name);
 			}
 
-			return qb;
+			return qb.select(t.knex.raw('DISTINCT ON (action_types.id) *'));
 		});
 	},
 
