@@ -77,6 +77,7 @@ module.exports = _.extend(new dao(ActionTargetTemplate), {
 	},
 
 	findAllAccessible: function(user, criteria) {
+		var t = this;
 		return this.collection(function(qb) {
 			qb = qb
 				.leftJoin('organizations', 'action_target_templates.organization_id', 'organizations.id')
@@ -91,7 +92,8 @@ module.exports = _.extend(new dao(ActionTargetTemplate), {
 				qb = qb.where('action_target_templates.name', 'like', criteria.name);
 			}
 
-			return qb;
+			// TODO: Dirty hack to avoid duplicated data in the result set, try to find a way to do that properly
+			return qb.select(t.knex.raw('DISTINCT ON (action_target_templates.id) *'));
 		});
 	},
 
