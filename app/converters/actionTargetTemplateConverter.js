@@ -1,30 +1,31 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(actionTargetTemplate) {
+	convert: function(model) {
 		var data = {
-			id: actionTargetTemplate.get('id'),
-			name: actionTargetTemplate.get('name'),
-			public: actionTargetTemplate.get('public'),
-			organizationId: actionTargetTemplate.get('organization_id'),
+			id: model.get('id'),
+			name: model.get('name'),
+			public: model.get('public'),
+			organizationId: model.get('organization_id'),
+      deletable: model.get('refCount') == 0,
 			target: {
-				url: actionTargetTemplate.get('targetUrl'),
-				token: actionTargetTemplate.get('targetToken')
+				url: model.get('targetUrl'),
+				token: model.get('targetToken')
 			}
 		};
 
-		if (actionTargetTemplate.get('configurationSchema')) {
+		if (model.get('configurationSchema')) {
 			data = _.extend(data, {
 				configuration: {
-					schema: actionTargetTemplate.get('configurationSchema'),
-					url: actionTargetTemplate.get('configurationUrl'),
-					token: actionTargetTemplate.get('configurationToken')
+					schema: model.get('configurationSchema'),
+					url: model.get('configurationUrl'),
+					token: model.get('configurationToken')
 				}
 			});
 		}
 
-		if (actionTargetTemplate.get('configurationUi')) {
-			data = _.extend(data, { configurationUi: actionTargetTemplate.get('configurationUi') });
+		if (model.get('configurationUi')) {
+			data = _.extend(data, { configurationUi: model.get('configurationUi') });
 		}
 
 		return data;

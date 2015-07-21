@@ -1,15 +1,16 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(eventType) {
+	convert: function(model) {
 		return {
-			id: eventType.get('id'),
-			type: eventType.get('type'),
-			public: eventType.get('public'),
-			name: eventType.get('name'),
-			description: eventType.get('description'),
-			organizationId: eventType.get('organization_id'),
-			schema: eventType.get('eventTypeSchema')
+			id: model.get('id'),
+			type: model.get('type'),
+			public: model.get('public'),
+			name: model.get('name'),
+			description: model.get('description'),
+			organizationId: model.get('organization_id'),
+      deletable: model.get('refCount') == 0,
+			schema: model.get('eventTypeSchema')
 		};
 	}
 };

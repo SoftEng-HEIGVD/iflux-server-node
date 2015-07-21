@@ -489,6 +489,7 @@ module.exports = baseTest('Event source template resource')
 			name: 'EST1 renamed',
 			public: true,
 			organizationId: this.getData('organizationId1'),
+      deletable: true,
 			configuration: {
 				schema: {
 					test: false

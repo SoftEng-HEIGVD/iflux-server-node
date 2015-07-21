@@ -1,17 +1,18 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(actionTarget) {
+	convert: function(model) {
 		var data = {
-			id: actionTarget.get('id'),
-			generatedIdentifier: actionTarget.get('generatedIdentifier'),
-			name: actionTarget.get('name'),
-			actionTargetTemplateId: actionTarget.get('action_target_template_id'),
-			organizationId: actionTarget.get('organization_id')
+			id: model.get('id'),
+			generatedIdentifier: model.get('generatedIdentifier'),
+			name: model.get('name'),
+			actionTargetTemplateId: model.get('action_target_template_id'),
+			organizationId: model.get('organization_id'),
+      deletable: model.get('refCount') == 0
 		};
 
-		if (actionTarget.get('configuration')) {
-			data.configuration = actionTarget.get('configuration');
+		if (model.get('configuration')) {
+			data.configuration = model.get('configuration');
 		}
 
 		return data;

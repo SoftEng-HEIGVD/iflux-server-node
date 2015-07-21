@@ -1,9 +1,9 @@
 module.exports = {
-	convert: function(organizationModel) {
+	convert: function(model) {
 		return {
-			id: organizationModel.get('id'),
-			name: organizationModel.get('name'),
-			deletable: organizationModel.get('refCount') == 0
+			id: model.get('id'),
+			name: model.get('name'),
+			deletable: model.get('refCount') == 0
 		};
 	}
 };

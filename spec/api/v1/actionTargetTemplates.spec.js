@@ -634,6 +634,7 @@ module.exports = baseTest('Action target template resource')
 			name: 'ATT3',
 			public: true,
 			organizationId: this.getData('organizationId1'),
+      deletable: true,
 			configuration: {
 				schema: {
 					test: false
