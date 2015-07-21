@@ -511,4 +511,18 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.expectStatusCode(403)
+
+
+  .describe('First user remove EST1.')
+  .jwtAuthentication(function() { return this.getData('token1'); })
+ 	.delete({}, function() { return { url: this.getData('locationEventSourceTemplate1') }; })
+ 	.expectStatusCode(204)
+
+ 	.describe('First user tries to retrieve EST1.')
+ 	.get({}, function() { return { url: this.getData('locationEventSourceTemplate1') }; })
+ 	.expectStatusCode(403)
+
+ 	.describe('First user tries to delete EST4 in an organization where he is not a member.')
+ 	.get({}, function() { return { url: this.getData('locationEventSourceTemplate4') }; })
+ 	.expectStatusCode(403)
 ;
