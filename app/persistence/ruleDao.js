@@ -9,9 +9,10 @@ module.exports = _.extend(new dao(Rule), {
 	 *
 	 * @param ruleDefinition The rule definition to create the document
 	 * @param organization The organization where to assign the rule
+	 * @param options To set the transaction for example
 	 * @returns {Promise} A promise
 	 */
-	createAndSave: function(ruleDefinition, organization) {
+	createAndSave: function(ruleDefinition, organization, options) {
 		var rule = new this.model({
 			organization_id: organization.get('id'),
 			name: ruleDefinition.name,
@@ -21,7 +22,7 @@ module.exports = _.extend(new dao(Rule), {
 			transformations: ruleDefinition.transformations
 		});
 
-		return this.save(rule);
+		return this.save(rule, options);
 	},
 
 	findByIdAndUser: function(id, user) {
@@ -74,5 +75,57 @@ module.exports = _.extend(new dao(Rule), {
 		return this.model.where({ active: true }).fetchAll().then(function(result) {
 			return result.models;
 		});
+	},
+
+	/**
+	 * Count the number of rules where the event type appears at least once in condition or transformation
+	 *
+	 * @param eventType The event type to lookup
+	 */
+	countEventTypeUsed: function(eventType) {
+		return this.knex.raw(
+			'select count(distinct id) ' +
+			'from rules r, json_array_elements(r.conditions) condition, json_array_elements(r.transformations) transformation ' +
+			"where condition->'eventType'->>'id' = '" + eventType.get('id') + "' or transformation->'eventType'->>'id' = '" + eventType.get('id') + "'"
+		);
+	},
+
+	/**
+	 * Count the number of rules where the action type appears at least once in transformation
+	 *
+	 * @param actionType The action type to lookup
+	 */
+	countActionTypeUsed: function(actionType) {
+		return this.knex.raw(
+			'select count(distinct id) ' +
+			'from rules r, json_array_elements(r.transformations) transformation ' +
+			"where transformation->'actionType'->>'id' = '" + actionType.get('id') + "'"
+		)
+	},
+
+	/**
+	 * Count the number of rules where the event source appears at least once in condition
+	 *
+	 * @param eventSource The action type to lookup
+	 */
+	countEventSourceUsed: function(eventSource) {
+		return this.knex.raw(
+			'select count(distinct id) ' +
+			'from rules r, json_array_elements(r.conditions) condition ' +
+			"where condition->'eventSource'->>'id' = '" + eventSource.get('id') + "'"
+		)
+	},
+
+	/**
+	 * Count the number of rules where the action target appears at least once in transformation
+	 *
+	 * @param actionTarget The action target to lookup
+	 */
+	countActionTargetUsed: function(actionTarget) {
+		return this.knex.raw(
+			'select count(distinct id) ' +
+			'from rules r, json_array_elements(r.transformations) transformation ' +
+			"where transformation->'actionTarget'->>'id' = '" + actionTarget.get('id') + "'"
+		)
 	}
 });

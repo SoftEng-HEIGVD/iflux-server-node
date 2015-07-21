@@ -9,18 +9,18 @@ var
 	ruleService = require('../services/ruleService');
 
 module.exports = {
-	convert: function(ruleModel) {
+	convert: function(model) {
 		var rule = {
-			id: ruleModel.get('id'),
-			organizationId: ruleModel.get('organization_id'),
-			name: ruleModel.get('name'),
-			description: ruleModel.get('description'),
-			active: ruleModel.get('active'),
+			id: model.get('id'),
+			organizationId: model.get('organization_id'),
+			name: model.get('name'),
+			description: model.get('description'),
+			active: model.get('active'),
 			conditions: [],
 			transformations: []
 		};
 
-		_.each(ruleModel.get('conditions'), function(condition) {
+		_.each(model.get('conditions'), function(condition) {
 			var convertedCondition = {};
 
 			convertedCondition.description = condition.description;
@@ -55,7 +55,7 @@ module.exports = {
 			rule.conditions.push(convertedCondition);
 		});
 
-		_.each(ruleModel.get('transformations'), function(transformation) {
+		_.each(model.get('transformations'), function(transformation) {
 			var convertedTransformations = {};
 
 			convertedTransformations.description = transformation.description;

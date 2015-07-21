@@ -1,9 +1,9 @@
 module.exports = {
-	convert: function(userModel) {
+	convert: function(model) {
 		return {
-			id: userModel.get('id'),
-			firstName: userModel.get('firstName'),
-			lastName: userModel.get('lastName')
+			id: model.get('id'),
+			firstName: model.get('firstName'),
+			lastName: model.get('lastName')
 		};
 	}
 };

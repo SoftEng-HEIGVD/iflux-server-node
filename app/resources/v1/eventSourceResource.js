@@ -9,6 +9,7 @@ var
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
 	eventSourceDao = require('../../persistence/eventSourceDao'),
 	organizationDao = require('../../persistence/organizationDao'),
+  ruleDao = require('../../persistence/ruleDao'),
 	eventSourceConverter = require('../../converters/eventSourceConverter'),
 	jsonValidatorService = require('../../services/jsonValidatorService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/eventSources');
@@ -197,7 +198,11 @@ router.route('/:id')
 		else {
 			return resourceService.location(res, 304, eventSource).end();
 		}
-	});
+	})
+
+  .delete(function(req, res, next) {
+    return resourceService.manageDelete(res, req.eventSource, 'event source', _.bind(ruleDao.countEventSourceUsed, ruleDao));
+  });
 
 router.route('/:id/configure')
 	.post(function(req, res, next) {
@@ -221,4 +226,3 @@ router.route('/:id/configure')
 				}
 			});
 	});
-

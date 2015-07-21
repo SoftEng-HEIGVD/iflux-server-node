@@ -1,26 +1,27 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(eventSourceTemplate) {
+	convert: function(model) {
 		var data = {
-			id: eventSourceTemplate.get('id'),
-			name: eventSourceTemplate.get('name'),
-			public: eventSourceTemplate.get('public'),
-			organizationId: eventSourceTemplate.get('organization_id')
+			id: model.get('id'),
+			name: model.get('name'),
+			public: model.get('public'),
+			organizationId: model.get('organization_id'),
+      deletable: model.get('refCount') == 0
 		};
 
-		if (eventSourceTemplate.get('configurationSchema')) {
+		if (model.get('configurationSchema')) {
 			data = _.extend(data, {
 				configuration: {
-					schema: eventSourceTemplate.get('configurationSchema'),
-					url: eventSourceTemplate.get('configurationUrl'),
-					token: eventSourceTemplate.get('configurationToken')
+					schema: model.get('configurationSchema'),
+					url: model.get('configurationUrl'),
+					token: model.get('configurationToken')
 				}
 			});
 		}
 
-		if (eventSourceTemplate.get('configurationUi')) {
-			data = _.extend(data, { configurationUi: eventSourceTemplate.get('configurationUi') });
+		if (model.get('configurationUi')) {
+			data = _.extend(data, { configurationUi: model.get('configurationUi') });
 		}
 
 		return data;

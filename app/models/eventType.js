@@ -1,7 +1,8 @@
 var
 	bookshelf = require('../../config/bookshelf'),
 	stringService = require('../services/stringService'),
-	modelRegistry = require('../services/modelRegistry');
+	modelRegistry = require('../services/modelRegistry'),
+	modelEnricher = require('./utils/modelEnricher');
 
 var EventType = module.exports = bookshelf.Model.extend({
 	tableName: 'event_types',
@@ -20,6 +21,8 @@ var EventType = module.exports = bookshelf.Model.extend({
 				model.set('generatedIdentifier', stringService.generateId());
 			}
 		});
+
+		modelEnricher.addOrganizationEventHandlers(this);
 	},
 
 	generatedId: function() {

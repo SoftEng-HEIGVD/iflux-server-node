@@ -1,15 +1,16 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(actionType) {
+	convert: function(model) {
 		return {
-			id: actionType.get('id'),
-			type: actionType.get('type'),
-			public: actionType.get('public'),
-			name: actionType.get('name'),
-			description: actionType.get('description'),
-			organizationId: actionType.get('organization_id'),
-			schema: actionType.get('actionTypeSchema')
+			id: model.get('id'),
+			type: model.get('type'),
+			public: model.get('public'),
+			name: model.get('name'),
+			description: model.get('description'),
+			organizationId: model.get('organization_id'),
+      deletable: model.get('refCount') == 0,
+			schema: model.get('actionTypeSchema')
 		};
 	}
 };

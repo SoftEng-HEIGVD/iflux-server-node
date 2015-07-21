@@ -1,17 +1,18 @@
 var _ = require('underscore');
 
 module.exports = {
-	convert: function(eventSource) {
+	convert: function(model) {
 		var data = {
-			id: eventSource.get('id'),
-			generatedIdentifier: eventSource.get('generatedIdentifier'),
-			name: eventSource.get('name'),
-			eventSourceTemplateId: eventSource.get('event_source_template_id'),
-			organizationId: eventSource.get('organization_id')
+			id: model.get('id'),
+			generatedIdentifier: model.get('generatedIdentifier'),
+			name: model.get('name'),
+			eventSourceTemplateId: model.get('event_source_template_id'),
+			organizationId: model.get('organization_id'),
+      deletable: model.get('refCount') == 0
 		};
 
-		if (eventSource.get('configuration')) {
-			data.configuration = eventSource.get('configuration');
+		if (model.get('configuration')) {
+			data.configuration = model.get('configuration');
 		}
 
 		return data;

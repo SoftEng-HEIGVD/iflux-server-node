@@ -92,6 +92,47 @@ router.route('/:id')
 		else {
 			return resourceService.location(res, 304, organization).end();
 		}
+	})
+
+	.delete(function(req, res, next) {
+		var organization = req.organization;
+
+		// 1 means the current user is the remaining reference to an organization
+		if (organization.get('refCount') > 1) {
+			return resourceService.deleteForbidden(res, 'organization').end();
+		}
+		else {
+			return organizationDao
+				.countReferences(organization)
+				.then(function(realCount) {
+					// 1 means the same as before but directly retrieved from the DB and not from the cached field in the orga.
+					if (realCount > 1) {
+						console.log(
+							'There is a mismatch with the cached refCount: %s and the realRefCount: %s for the organization: %s',
+							organization.get('refCount'), realCount, organization.get('id')
+						);
+						return resourceService.deleteForbidden(res, 'organization').end();
+					}
+					else {
+						return organizationActionService
+							.removeUser({}, organization, req.userModel)
+							.then(function() {
+								return organization
+									.destroy()
+									.then(function() {
+										return resourceService.deleted(res).end();
+									});
+							})
+							.error(function(err) {
+								if (err.stack) {
+									console.log(err);
+								}
+
+								return resourceService.serverError(res, { message: err.message }).end();
+							});
+					}
+				})
+		}
 	});
 
 router.route('/:id/users')

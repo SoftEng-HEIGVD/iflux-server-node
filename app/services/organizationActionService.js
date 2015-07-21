@@ -1,4 +1,5 @@
 var
+	Promise = require('bluebird'),
 	userDao = require('../persistence/userDao');
 
 module.exports = {
@@ -8,13 +9,18 @@ module.exports = {
 		if (params.userId) {
 			promise = userDao.findById(params.userId);
 		}
-		else {
+		else if (params.email) {
 			promise = userDao.findByEmail(params.email);
+		}
+		else {
+			promise = Promise.resolve().then(function() {
+				return user;
+			});
 		}
 
 		return promise
 			.then(function(userToAdd) {
-				return organization.users().attach(userToAdd);
+				return organization.addUser(userToAdd);
 			})
 			.catch(userDao.model.NotFoundError, function(err) {
 				throw new ValidationError()
@@ -27,13 +33,18 @@ module.exports = {
 		if (params.userId) {
 			promise = userDao.findById(params.userId);
 		}
-		else {
+		else if (params.email) {
 			promise = userDao.findByEmail(params.email);
+		}
+		else {
+			promise = Promise.resolve().then(function() {
+				return user;
+			});
 		}
 
 		return promise
 			.then(function(userToRemove) {
-				return organization.users().detach(userToRemove);
+				return organization.removeUser(userToRemove);
 			});
 	}
 };

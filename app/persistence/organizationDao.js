@@ -16,15 +16,16 @@ module.exports = _.extend(new dao(Organization), {
 
 		return bookshelf.transaction(function(t) {
 			var orgaModel = new self.model({
-				name: organization.name
+				name: organization.name,
+        refCount: 1
 			});
 
 			return orgaModel
 				.save(null, { transacting: t })
 				.then(function(orgaSaved) {
 					return orgaSaved
-						.users()
-						.attach(user.get('id'), { transacting: t })
+            .users()
+            .attach(user.get('id'), { transacting: t })
 						.then(function() {
 							return orgaSaved;
 						});
@@ -64,5 +65,25 @@ module.exports = _.extend(new dao(Organization), {
 			.then(function (result) {
 				return result.models;
 			});
+	},
+
+	/**
+	 * Count the references of an organization in the different models
+	 *
+	 * @param organization The organization
+	 */
+	countReferences: function(organization) {
+		return this.knex.raw(
+			'select t1.c + t2.c + t3.c + t4.c + t5.c + t6.c + t7.c + t8.c from ' +
+		    '(select count(organization_id) as c from organizations_users where organization_id = $1) as t1, ' +
+		    '(select count(id) as c from rules where organization_id = $1) as t2, ' +
+			  '(select count(id) as c from event_types where organization_id = $1) as t3, ' +
+			  '(select count(id) as c from event_sources where organization_id = $1) as t4, ' +
+			  '(select count(id) as c from event_source_templates where organization_id = $1) as t5, ' +
+			  '(select count(id) as c from action_types where organization_id = $1) as t6, ' +
+			  '(select count(id) as c from action_targets where organization_id = $1) as t7, ' +
+			  '(select count(id) as c from action_target_templates where organization_id = $1) as t8',
+			[ organization.get('id') ]
+		);
 	}
 });

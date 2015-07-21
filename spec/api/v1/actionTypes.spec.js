@@ -968,4 +968,17 @@ module.exports = baseTest('Action type resource')
 	.describe('Retrieve an action type schema from its type (url) but nothing is found.')
 	.get({ url: '/v1/schemas/actionTypes/111' })
 	.expectStatusCode(404)
+
+  .describe('First user remove AT1.')
+ 	.jwtAuthentication(function() { return this.getData('token1'); })
+ 	.delete({}, function() { return { url: this.getData('locationActionType1') }; })
+ 	.expectStatusCode(204)
+
+ 	.describe('First user tries to retrieve AT1.')
+ 	.get({}, function() { return { url: this.getData('locationActionType1') }; })
+ 	.expectStatusCode(403)
+
+ 	.describe('First user tries to delete AT4 in an organization where he is not a member.')
+ 	.get({}, function() { return { url: this.getData('locationActionType4') }; })
+ 	.expectStatusCode(403)
 ;

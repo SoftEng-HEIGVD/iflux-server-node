@@ -1,7 +1,8 @@
 var
 	bookshelf = require('../../config/bookshelf'),
 	stringService = require('../services/stringService'),
-	modelRegistry = require('../services/modelRegistry');
+	modelRegistry = require('../services/modelRegistry'),
+	modelEnricher = require('./utils/modelEnricher');
 
 var ActionTarget = module.exports = bookshelf.Model.extend({
 	tableName: 'action_targets',
@@ -19,6 +20,28 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 				model.set('generatedIdentifier', stringService.generateId());
 			}
 		});
+
+    this.on('created', function(model, attrs, options) {
+      if (model.get('action_target_template_id')) {
+        model.actionTargetTemplate()
+          .fetch()
+          .then(function(actionTargetTemplate) {
+            return actionTargetTemplate.increaseReferenceCount();
+          });
+      }
+    });
+
+    this.on('destroying', function(model, attrs, options) {
+      if (model.get('action_target_template_id')) {
+        model.actionTargetTemplate()
+          .fetch()
+          .then(function(actionTargetTemplate) {
+            return actionTargetTemplate.decreaseReferenceCount();
+          });
+      }
+    });
+
+		modelEnricher.addOrganizationEventHandlers(this);
 	},
 
 	generatedId: function() {

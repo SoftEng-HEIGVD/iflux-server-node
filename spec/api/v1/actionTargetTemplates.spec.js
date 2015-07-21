@@ -634,6 +634,7 @@ module.exports = baseTest('Action target template resource')
 			name: 'ATT3',
 			public: true,
 			organizationId: this.getData('organizationId1'),
+      deletable: true,
 			configuration: {
 				schema: {
 					test: false
@@ -659,4 +660,17 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(403)
+
+  .describe('First user remove ATT1.')
+  .jwtAuthentication(function() { return this.getData('token1'); })
+ 	.delete({}, function() { return { url: this.getData('locationActionTargetTemplate1') }; })
+ 	.expectStatusCode(204)
+
+ 	.describe('First user tries to retrieve ATT1.')
+ 	.get({}, function() { return { url: this.getData('locationActionTargetTemplate1') }; })
+ 	.expectStatusCode(403)
+
+ 	.describe('First user tries to delete ATT4 in an organization where he is not a member.')
+ 	.get({}, function() { return { url: this.getData('locationActionTargetTemplate4') }; })
+ 	.expectStatusCode(403)
 ;

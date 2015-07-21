@@ -142,4 +142,8 @@ router.route('/:id')
 		else {
 			return resourceService.location(res, 304, eventSourceTemplate).end();
 		}
-	});
+	})
+
+  .delete(function(req, res, next) {
+    return resourceService.manageDelete(res, req.eventSourceTemplate, 'event source template', _.bind(eventSourceTemplateDao.countReferences, eventSourceTemplateDao));
+  });

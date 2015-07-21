@@ -959,4 +959,16 @@ module.exports = baseTest('Event source resource')
 		};
 	})
 	.expectStatusCode(404)
+
+  .describe('First user remove ES1.')
+ 	.delete({}, function() { return { url: this.getData('locationEventSource1') }; })
+ 	.expectStatusCode(204)
+
+ 	.describe('First user tries to retrieve ES1.')
+ 	.get({}, function() { return { url: this.getData('locationEventSource1') }; })
+ 	.expectStatusCode(403)
+
+ 	.describe('First user tries to delete ES4 in an organization where he is not a member.')
+ 	.get({}, function() { return { url: this.getData('locationEventSource4') }; })
+ 	.expectStatusCode(403)
 ;

@@ -9,6 +9,7 @@ var
 	actionTargetTemplateDao = require('../../persistence/actionTargetTemplateDao'),
 	actionTargetDao = require('../../persistence/actionTargetDao'),
 	organizationDao = require('../../persistence/organizationDao'),
+  ruleDao = require('../../persistence/ruleDao'),
 	actionTargetConverter = require('../../converters/actionTargetConverter'),
 	jsonValidatorService = require('../../services/jsonValidatorService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTargets');
@@ -197,7 +198,11 @@ router.route('/:id')
 		else {
 			return resourceService.location(res, 304, actionTarget).end();
 		}
-	});
+	})
+
+  .delete(function(req, res, next) {
+    return resourceService.manageDelete(res, req.actionTarget, 'action target', _.bind(ruleDao.countActionTargetUsed, ruleDao));
+  });
 
 router.route('/:id/configure')
 	.post(function(req, res, next) {
@@ -221,4 +226,3 @@ router.route('/:id/configure')
 				}
 			});
 	});
-

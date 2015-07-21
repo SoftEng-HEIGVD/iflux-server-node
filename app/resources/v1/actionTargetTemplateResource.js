@@ -71,10 +71,10 @@ router.route('/')
 	.post(function(req, res, next) {
 		var actionTargetTemplate = req.body;
 
-		organizationDao
+		return organizationDao
 			.findByIdAndUser(actionTargetTemplate.organizationId, req.userModel)
 			.then(function(organization) {
-				actionTargetTemplateDao
+				return actionTargetTemplateDao
 					.createAndSave(actionTargetTemplate, organization)
 					.then(function(actionTargetTempltateSaved) {
 						return resourceService.location(res, 201, actionTargetTempltateSaved).end();
@@ -152,4 +152,9 @@ router.route('/:id')
 		else {
 			return resourceService.location(res, 304, actionTargetTemplate).end();
 		}
-	});
+	})
+
+  .delete(function(req, res, next) {
+    return resourceService.manageDelete(res, req.actionTargetTemplate, 'action target template', _.bind(actionTargetTemplateDao.countReferences, actionTargetTemplateDao));
+  });
+
