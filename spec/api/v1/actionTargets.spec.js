@@ -964,4 +964,16 @@ module.exports = baseTest('Action target resource')
 		};
 	})
 	.expectStatusCode(404)
+
+  .describe('First user remove AT1.')
+ 	.delete({}, function() { return { url: this.getData('locationActionTarget1') }; })
+ 	.expectStatusCode(204)
+
+ 	.describe('First user tries to retrieve AT1.')
+ 	.get({}, function() { return { url: this.getData('locationActionTarget1') }; })
+ 	.expectStatusCode(403)
+
+ 	.describe('First user tries to delete AT4 in an organization where he is not a member.')
+ 	.get({}, function() { return { url: this.getData('locationActionTarget4') }; })
+ 	.expectStatusCode(403)
 ;

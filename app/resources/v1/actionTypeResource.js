@@ -190,4 +190,19 @@ router.route('/:id')
 		else {
 			return resourceService.location(res, 304, actionType).end();
 		}
-	});
+	})
+
+  .delete(function(req, res, next) {
+    return req.actionType
+      .destroy()
+      .then(function() {
+        return resourceService.deleted(res).end();
+      })
+      .error(function(err) {
+        if (err.stack) {
+          console.log(err);
+        }
+
+        return resourceService.serverError(res, { message: err.message }).end();
+      });
+  });

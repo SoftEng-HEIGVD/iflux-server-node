@@ -924,4 +924,17 @@ module.exports = baseTest('Event type resource')
 	.describe('Retrieve an event type schema from its type (url) but nothing is found.')
 	.get({ url: '/v1/schemas/eventTypes/111' })
 	.expectStatusCode(404)
+
+  .describe('First user remove ET1.')
+ 	.jwtAuthentication(function() { return this.getData('token1'); })
+ 	.delete({}, function() { return { url: this.getData('locationEventType1') }; })
+ 	.expectStatusCode(204)
+
+ 	.describe('First user tries to retrieve ET1.')
+ 	.get({}, function() { return { url: this.getData('locationEventType1') }; })
+ 	.expectStatusCode(403)
+
+ 	.describe('First user tries to delete ET4 in an organization where he is not a member.')
+ 	.get({}, function() { return { url: this.getData('locationEventType4') }; })
+ 	.expectStatusCode(403)
 ;
