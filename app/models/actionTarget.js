@@ -21,6 +21,26 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 			}
 		});
 
+    this.on('created', function(model, attrs, options) {
+      if (model.get('action_target_id')) {
+        model.actionTargetTemplate()
+          .fetch()
+          .then(function(actionTargetTemplate) {
+            return actionTargetTemplate.increaseReferenceCount();
+          });
+      }
+    });
+
+    this.on('destroyed', function(model, attrs, options) {
+      if (model.get('action_target_template_id')) {
+        model.actionTargetTemplate()
+          .fetch()
+          .then(function(actionTargetTemplate) {
+            return actionTargetTemplate.decreaseReferenceCount();
+          });
+      }
+    });
+
 		modelEnricher.addOrganizationEventHandlers(this);
 	},
 

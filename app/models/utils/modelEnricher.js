@@ -18,6 +18,6 @@ module.exports = {
 						return organization.decreaseReferenceCount();
 					});
 			}
-		})
-	}
+		});
+ 	}
 };

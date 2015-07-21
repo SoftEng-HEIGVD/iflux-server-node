@@ -17,6 +17,26 @@ var EventSourceTemplate = module.exports = bookshelf.Model.extend({
 		modelEnricher.addOrganizationEventHandlers(this);
 	},
 
+  increaseReferenceCount: function(options) {
+ 		this.set('refCount', this.get('refCount') + 1);
+
+ 		options = _.defaults(options || {}, { save: true });
+
+ 		if (options.save && this.get('id')) {
+ 			return this.save();
+ 		}
+ 	},
+
+ 	decreaseReferenceCount: function(options) {
+ 		this.set('refCount', this.get('refCount') - 1);
+
+ 		options = _.defaults(options || {}, { save: true });
+
+ 		if (options.save && this.get('id')) {
+ 			return this.save();
+ 		}
+ 	},
+
 	organization: function() {
 		return this.belongsTo(modelRegistry.organization);
 	},
