@@ -22,7 +22,7 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
 		});
 
     this.on('created', function(model, attrs, options) {
-      if (model.get('action_target_id')) {
+      if (model.get('action_target_template_id')) {
         model.actionTargetTemplate()
           .fetch()
           .then(function(actionTargetTemplate) {
@@ -31,7 +31,7 @@ var ActionTarget = module.exports = bookshelf.Model.extend({
       }
     });
 
-    this.on('destroyed', function(model, attrs, options) {
+    this.on('destroying', function(model, attrs, options) {
       if (model.get('action_target_template_id')) {
         model.actionTargetTemplate()
           .fetch()

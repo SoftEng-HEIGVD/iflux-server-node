@@ -131,5 +131,17 @@ module.exports = _.extend(new dao(ActionTargetTemplate), {
 
 			return qb;
 		});
-	}
+	},
+
+  /**
+ 	 * Count the references of an action target templates
+ 	 *
+ 	 * @param actionTargetTemplate The action target template
+ 	 */
+ 	countReferences: function(actionTargetTemplate) {
+ 		return this.knex.raw(
+ 			'select count(action_target_template_id) from action_targets where action_target_template_id = $1',
+ 			[ actionTargetTemplate.get('id') ]
+ 		);
+ 	}
 });

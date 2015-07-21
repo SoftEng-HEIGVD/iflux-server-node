@@ -13,13 +13,21 @@ var Organization = module.exports = bookshelf.Model.extend({
 	},
 
 	increaseReferenceCount: function(options) {
-		this.set('refCount', this.get('refCount') + 1);
+    if (this.get('refCount') >= 0) {
+		  this.set('refCount', this.get('refCount') + 1);
+    }
+    else {
+      this.set('refCount', 1);
+    }
 
 		options = _.defaults(options || {}, { save: true });
 
 		if (options.save && this.get('id')) {
 			return this.save();
 		}
+    else {
+      return this;
+    }
 	},
 
 	decreaseReferenceCount: function(options) {
@@ -30,6 +38,9 @@ var Organization = module.exports = bookshelf.Model.extend({
 		if (options.save && this.get('id')) {
 			return this.save();
 		}
+    else {
+      return this;
+    }
 	},
 
 	addUser: function(user, options) {
@@ -39,7 +50,7 @@ var Organization = module.exports = bookshelf.Model.extend({
 			.users()
 			.attach(user.get('id'), options)
 			.then(function() {
-				return orga.increaseReferenceCount({ save: false });
+				return orga.increaseReferenceCount();
 			});
 	},
 

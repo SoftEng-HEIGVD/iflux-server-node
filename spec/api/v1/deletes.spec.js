@@ -189,17 +189,108 @@ module.exports = baseTest('Delete on resources')
 	.storeLocationAs('rule', 1)
 	.expectStatusCode(201)
 
-	.describe('U1 tries to delete Orga1 - all models are present')
-	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
-	.expectStatusCode(403)
-	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // START - Deletes when rule is not deleted
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	.describe('U1 deletes Rule1')
-	.delete({}, function() { return { url: this.getData('locationRule1') }; })
-	.expectStatusCode(204)
+  .describe('U1 tries to delete Orga1 - all models are present')
+ 	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
+ 	.expectStatusCode(403)
+ 	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
 
-	.describe('U1 tries to delete Orga1 - after rule removed')
-	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
-	.expectStatusCode(403)
-	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
+  .describe('U1 tries to delete ATT1')
+ 	.delete({}, function() { return { url: this.getData('locationActionTargetTemplate1') }; })
+ 	.expectStatusCode(403)
+  .expectJsonToBe({ message: 'The action target template cannot be deleted. The model is referenced by other models.' })
+
+  .describe('U1 tries to delete EST1')
+ 	.delete({}, function() { return { url: this.getData('locationEventSourceTemplate1') }; })
+ 	.expectStatusCode(403)
+  .expectJsonToBe({ message: 'The event source template cannot be deleted. The model is referenced by other models.' })
+
+  .describe('U1 tries to delete ATA1')
+ 	.delete({}, function() { return { url: this.getData('locationActionTarget1') }; })
+ 	.expectStatusCode(403)
+  .expectJsonToBe({ message: 'The action target cannot be deleted. The model is referenced by other models.' })
+
+  .describe('U1 tries to delete ESO1')
+ 	.delete({}, function() { return { url: this.getData('locationEventSource1') }; })
+ 	.expectStatusCode(403)
+  .expectJsonToBe({ message: 'The event source cannot be deleted. The model is referenced by other models.' })
+
+  .describe('U1 tries to delete AT1')
+ 	.delete({}, function() { return { url: this.getData('locationActionType1') }; })
+ 	.expectStatusCode(403)
+  .expectJsonToBe({ message: 'The action type cannot be deleted. The model is referenced by other models.' })
+
+  .describe('U1 tries to delete ET1')
+ 	.delete({}, function() { return { url: this.getData('locationEventType1') }; })
+ 	.expectStatusCode(403)
+  .expectJsonToBe({ message: 'The event type cannot be deleted. The model is referenced by other models.' })
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // START - Delete rule, action type, event type, action target and event source
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  .describe('U1 deletes Rule1')
+ 	.delete({}, function() { return { url: this.getData('locationRule1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 deletes ATA1')
+ 	.delete({}, function() { return { url: this.getData('locationActionTarget1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 deletes ESO1')
+ 	.delete({}, function() { return { url: this.getData('locationEventSource1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 deletes AT1')
+ 	.delete({}, function() { return { url: this.getData('locationActionType1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 deletes ET1')
+ 	.delete({}, function() { return { url: this.getData('locationEventType1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 tries to delete Orga1 - after action/event types, event source and action target removed')
+ 	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
+ 	.expectStatusCode(403)
+ 	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // START - Delete action target template and event source template
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  .describe('U1 deletes ATT1')
+ 	.delete({}, function() { return { url: this.getData('locationActionTargetTemplate1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 deletes EST1')
+ 	.delete({}, function() { return { url: this.getData('locationEventSourceTemplate1') }; })
+ 	.expectStatusCode(204)
+
+  .describe('U1 tries to delete Orga1 - after templates removed')
+ 	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
+ 	.expectStatusCode(403)
+ 	.expectJsonToBe({ message: 'The organization cannot be deleted. The model is referenced by other models.' })
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // START - Remove user U2 from organization and delete the organization
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  .describe('U1 remove U2 in Orga1')
+ 	.post({}, function() {
+ 		return {
+ 			url: this.getData('locationOrganization1') + '/actions',
+ 			body: {
+ 				type: "removeUser",
+ 				email: "henri.dutoit@localhost.localdomain"
+ 			}
+ 		};
+ 	})
+ 	.expectStatusCode(200)
+
+ 	.describe('U1 deletes Orga1')
+ 	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
+ 	.expectStatusCode(204)
 ;

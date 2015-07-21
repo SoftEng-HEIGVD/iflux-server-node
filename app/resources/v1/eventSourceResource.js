@@ -9,6 +9,7 @@ var
 	eventSourceTemplateDao = require('../../persistence/eventSourceTemplateDao'),
 	eventSourceDao = require('../../persistence/eventSourceDao'),
 	organizationDao = require('../../persistence/organizationDao'),
+  ruleDao = require('../../persistence/ruleDao'),
 	eventSourceConverter = require('../../converters/eventSourceConverter'),
 	jsonValidatorService = require('../../services/jsonValidatorService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/eventSources');
@@ -200,18 +201,7 @@ router.route('/:id')
 	})
 
   .delete(function(req, res, next) {
-    return req.eventSource
-      .destroy()
-      .then(function() {
-        return resourceService.deleted(res).end();
-      })
-      .error(function(err) {
-        if (err.stack) {
-          console.log(err);
-        }
-
-        return resourceService.serverError(res, { message: err.message }).end();
-      });
+    return resourceService.manageDelete(res, req.eventSource, 'event source', _.bind(ruleDao.countEventSourceUsed, ruleDao));
   });
 
 router.route('/:id/configure')

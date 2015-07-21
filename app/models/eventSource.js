@@ -22,7 +22,7 @@ var EventSource = module.exports = bookshelf.Model.extend({
 		});
 
     this.on('created', function(model, attrs, options) {
-      if (model.get('event_source_id')) {
+      if (model.get('event_source_template_id')) {
         model.eventSourceTemplate()
           .fetch()
           .then(function(eventSourceTemplate) {
@@ -31,7 +31,7 @@ var EventSource = module.exports = bookshelf.Model.extend({
       }
     });
 
-    this.on('destroyed', function(model, attrs, options) {
+    this.on('destroying', function(model, attrs, options) {
       if (model.get('event_source_template_id')) {
         model.eventSourceTemplate()
           .fetch()

@@ -10,7 +10,7 @@ module.exports = {
 			}
 		});
 
-		entity.on('destroyed', function(model, attrs, options) {
+		entity.on('destroying', function(model, attrs, options) {
 			if (model.get('organization_id')) {
 				model.organization()
 					.fetch()

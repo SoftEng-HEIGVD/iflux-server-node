@@ -7,6 +7,7 @@ var
 	ValidationError = require('checkit').Error,
 	models = require('../../models/models'),
 	organizationDao = require('../../persistence/organizationDao'),
+  ruleDao = require('../../persistence/ruleDao'),
 	eventTypeDao = require('../../persistence/eventTypeDao'),
 	eventTypeConverter = require('../../converters/eventTypeConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/eventTypes');
@@ -194,16 +195,5 @@ router.route('/:id')
 	})
 
   .delete(function(req, res, next) {
-     return req.eventType
-       .destroy()
-       .then(function() {
-         return resourceService.deleted(res).end();
-       })
-       .error(function(err) {
-         if (err.stack) {
-           console.log(err);
-         }
-
-         return resourceService.serverError(res, { message: err.message }).end();
-       });
+    return resourceService.manageDelete(res, req.eventType, 'event type', _.bind(ruleDao.countEventTypeUsed, ruleDao));
    });

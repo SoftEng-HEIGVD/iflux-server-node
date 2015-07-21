@@ -145,16 +145,5 @@ router.route('/:id')
 	})
 
   .delete(function(req, res, next) {
-    return req.eventSourceTemplate
-      .destroy()
-      .then(function() {
-        return resourceService.deleted(res).end();
-      })
-      .error(function(err) {
-        if (err.stack) {
-          console.log(err);
-        }
-
-        return resourceService.serverError(res, { message: err.message }).end();
-      });
+    return resourceService.manageDelete(res, req.eventSourceTemplate, 'event source template', _.bind(eventSourceTemplateDao.countReferences, eventSourceTemplateDao));
   });

@@ -16,14 +16,16 @@ module.exports = _.extend(new dao(Organization), {
 
 		return bookshelf.transaction(function(t) {
 			var orgaModel = new self.model({
-				name: organization.name
+				name: organization.name,
+        refCount: 1
 			});
 
 			return orgaModel
 				.save(null, { transacting: t })
 				.then(function(orgaSaved) {
 					return orgaSaved
-						.addUser(user, { transacting: t })
+            .users()
+            .attach(user.get('id'), { transacting: t })
 						.then(function() {
 							return orgaSaved;
 						});

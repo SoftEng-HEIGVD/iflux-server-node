@@ -8,6 +8,7 @@ var
 	models = require('../../models/models'),
 	actionTypeDao = require('../../persistence/actionTypeDao'),
 	organizationDao = require('../../persistence/organizationDao'),
+  ruleDao = require('../../persistence/ruleDao'),
 	actionTypeConverter = require('../../converters/actionTypeConverter'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTypes');
 
@@ -193,16 +194,5 @@ router.route('/:id')
 	})
 
   .delete(function(req, res, next) {
-    return req.actionType
-      .destroy()
-      .then(function() {
-        return resourceService.deleted(res).end();
-      })
-      .error(function(err) {
-        if (err.stack) {
-          console.log(err);
-        }
-
-        return resourceService.serverError(res, { message: err.message }).end();
-      });
+    return resourceService.manageDelete(res, req.actionType, 'action type', _.bind(ruleDao.countActionTypeUsed, ruleDao));
   });

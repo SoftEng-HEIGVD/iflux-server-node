@@ -155,17 +155,6 @@ router.route('/:id')
 	})
 
   .delete(function(req, res, next) {
-    return req.actionTargetTemplate
-      .destroy()
-      .then(function() {
-        return resourceService.deleted(res).end();
-      })
-      .error(function(err) {
-        if (err.stack) {
-          console.log(err);
-        }
-
-        return resourceService.serverError(res, { message: err.message }).end();
-      });
+    return resourceService.manageDelete(res, req.actionTargetTemplate, 'action target template', _.bind(actionTargetTemplateDao.countReferences, actionTargetTemplateDao));
   });
 

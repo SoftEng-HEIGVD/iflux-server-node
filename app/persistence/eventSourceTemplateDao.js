@@ -130,5 +130,17 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 
 			return qb;
 		});
-	}
+	},
+
+  /**
+ 	 * Count the references of an event source templates
+ 	 *
+ 	 * @param eventSourceTemplate The event source template
+ 	 */
+ 	countReferences: function(eventSourceTemplate) {
+ 		return this.knex.raw(
+ 			'select count(event_source_template_id) from event_sources where event_source_template_id = $1',
+ 			[ eventSourceTemplate.get('id') ]
+ 		);
+ 	}
 });

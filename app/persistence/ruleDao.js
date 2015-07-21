@@ -121,7 +121,7 @@ module.exports = _.extend(new dao(Rule), {
 	 *
 	 * @param actionTarget The action target to lookup
 	 */
-	countActionTarget: function(actionTarget) {
+	countActionTargetUsed: function(actionTarget) {
 		return this.knex.raw(
 			'select count(distinct id) ' +
 			'from rules r, json_array_elements(r.transformations) transformation ' +

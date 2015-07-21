@@ -1,4 +1,5 @@
 var
+  _ = require('underscore'),
 	bookshelf = require('../../config/bookshelf'),
 	modelRegistry = require('../services/modelRegistry'),
 	modelEnricher = require('./utils/modelEnricher');

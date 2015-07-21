@@ -9,6 +9,7 @@ var
 	actionTargetTemplateDao = require('../../persistence/actionTargetTemplateDao'),
 	actionTargetDao = require('../../persistence/actionTargetDao'),
 	organizationDao = require('../../persistence/organizationDao'),
+  ruleDao = require('../../persistence/ruleDao'),
 	actionTargetConverter = require('../../converters/actionTargetConverter'),
 	jsonValidatorService = require('../../services/jsonValidatorService'),
 	resourceService = require('../../services/resourceServiceFactory')('/v1/actionTargets');
@@ -200,18 +201,7 @@ router.route('/:id')
 	})
 
   .delete(function(req, res, next) {
-    return req.actionTarget
-      .destroy()
-      .then(function() {
-        return resourceService.deleted(res).end();
-      })
-      .error(function(err) {
-        if (err.stack) {
-          console.log(err);
-        }
-
-        return resourceService.serverError(res, { message: err.message }).end();
-      });
+    return resourceService.manageDelete(res, req.actionTarget, 'action target', _.bind(ruleDao.countActionTargetUsed, ruleDao));
   });
 
 router.route('/:id/configure')
