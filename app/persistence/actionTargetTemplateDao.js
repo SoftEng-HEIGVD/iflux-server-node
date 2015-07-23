@@ -15,7 +15,7 @@ module.exports = _.extend(new dao(ActionTargetTemplate), {
 	createAndSave: function(actionTargetTemplate, organization) {
 		var data = {
 			name: actionTargetTemplate.name,
-			public: actionTargetTemplate.public,
+			public: _.isUndefined(actionTargetTemplate.public) ? false : actionTargetTemplate.public,
 			organization_id: organization.get('id'),
 			targetUrl: actionTargetTemplate.target.url,
 			targetToken: actionTargetTemplate.target.token

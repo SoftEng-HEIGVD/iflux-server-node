@@ -16,7 +16,7 @@ module.exports = _.extend(new dao(EventType), {
 			name: eventType.name,
 			description: eventType.description,
 			type: eventType.type,
-			public: eventType.public,
+      public: _.isUndefined(eventType.public) ? false : eventType.public,
 			eventTypeSchema: eventType.schema,
 			organization_id: organization.id
 		};

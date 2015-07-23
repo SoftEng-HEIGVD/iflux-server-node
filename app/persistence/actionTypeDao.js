@@ -16,7 +16,7 @@ module.exports = _.extend(new dao(ActionType), {
 			name: actionType.name,
 			type: actionType.type,
 			description: actionType.description,
-			public: actionType.public,
+      public: _.isUndefined(actionType.public) ? false : actionType.public,
 			actionTypeSchema: actionType.schema,
 			organization_id: organization.id
 		};

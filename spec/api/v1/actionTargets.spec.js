@@ -2,7 +2,7 @@ var
 	config = require('../../../config/config'),
 	baseTest = require('../base');
 
-module.exports = baseTest('Action target resource')
+var testSuite = baseTest('Action target resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
@@ -67,8 +67,9 @@ module.exports = baseTest('Action target resource')
 				"required": [ "test" ]
 			}
 		}
-	}, 1, 1 )
+	}, 1, 1 );
 
+testSuite
 	.describe('First user tries to creates AT1 action target with too short name.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/actionTargets' }, function() {
@@ -85,9 +86,10 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name.0')
-	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]});
 
-	.describe('First user tries to creates AT1 action target in an organization he has no access.')
+testSuite
+  .describe('First user tries to creates AT1 action target in an organization he has no access.')
 	.post({	url: '/v1/actionTargets' }, function() {
 		return {
 			body: {
@@ -102,8 +104,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
-	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
+	.expectJsonToBe({ organizationId: [ 'No organization found.' ]});
 
+testSuite
 	.describe('First user tries to create AT1 action target from an action target template he has no access.')
 	.post({	url: '/v1/actionTargets' }, function() {
 		return {
@@ -119,8 +122,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('actionTargetTemplateId.0')
-	.expectJsonToBe({ actionTargetTemplateId: [ 'No action target template found.' ]})
+	.expectJsonToBe({ actionTargetTemplateId: [ 'No action target template found.' ]});
 
+testSuite
 	.describe('First user tries to create AT1 action target with a wrong configuration.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -139,8 +143,9 @@ module.exports = baseTest('Action target resource')
 	.expectJsonToBe({ configuration: [{
 		wrongProperty: [ "additionalProperty 'wrongProperty' exists in instance when not allowed" ],
 		botId: [ "requires property \"botId\"" ]
-	}]})
+	}]});
 
+testSuite
 	.describe('First user tries to create AT1 action target without configuration when it is mandatory.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -153,14 +158,16 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('configuration')
-	.expectJsonToBe({ configuration: [ 'The action target template requires an action target configured.' ] })
+	.expectJsonToBe({ configuration: [ 'The action target template requires an action target configured.' ] });
 
+testSuite
 	.describe('First user creates a AT1 action target for his second organization and first action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
 			body: {
 				name: 'AT1',
 				organizationId: this.getData('organizationId2'),
+        public: true,
 				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
 				configuration: {
 					botId: 'amazingSensor'
@@ -171,8 +178,9 @@ module.exports = baseTest('Action target resource')
 	.storeLocationAs('actionTarget', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user tries to re-create AT1 action target.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -188,8 +196,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name')
-	.expectJsonToBe({ name: [ "Name is already taken for this action target template and this organization." ] })
+	.expectJsonToBe({ name: [ "Name is already taken for this action target template and this organization." ] });
 
+testSuite
 	.describe('First user tries to re-create AT1 action target but in a different action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -206,8 +215,9 @@ module.exports = baseTest('Action target resource')
 	.storeLocationAs('actionTarget', 100)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user tries to re-create AT1 action target but in a different organization.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -224,8 +234,9 @@ module.exports = baseTest('Action target resource')
 	.storeLocationAs('actionTarget', 101)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user creates AT2 action target for his second organization and second action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -238,8 +249,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.storeLocationAs('actionTarget', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargets/:id')
+	.expectLocationHeader('/v1/actionTargets/:id');
 
+testSuite
 	.describe('First user tries to create AT3  action target for his first organization and second action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -255,8 +267,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('actionTargetTemplateId.0')
-	.expectJsonToBe({ actionTargetTemplateId: [ 'No action target template found.' ]})
+	.expectJsonToBe({ actionTargetTemplateId: [ 'No action target template found.' ]});
 
+testSuite
 	.describe('First user creates AT3 action target for his first organization and first action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -272,14 +285,16 @@ module.exports = baseTest('Action target resource')
 	})
 	.storeLocationAs('actionTarget', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargets/:id')
+	.expectLocationHeader('/v1/actionTargets/:id');
 
+testSuite
 	.describe('Second user creates AT4 action target for his organization and first action target template.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
 			body: {
 				name: 'AT4',
+        public: true,
 				organizationId: this.getData('organizationId3'),
 				actionTargetTemplateId: this.getData('actionTargetTemplateId1'),
 				configuration: {
@@ -290,8 +305,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.storeLocationAs('actionTarget', 4)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargets/:id')
+	.expectLocationHeader('/v1/actionTargets/:id');
 
+testSuite
 	.describe('Second user creates AT5 action target for his organization and third action target template.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -304,8 +320,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.storeLocationAs('actionTarget', 5)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargets/:id')
+	.expectLocationHeader('/v1/actionTargets/:id');
 
+testSuite
 	.describe('Second user creates AT6 action target for his organization and template in a different organization.')
 	.post({ url: '/v1/actionTargets' }, function() {
 		return {
@@ -321,8 +338,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.storeLocationAs('actionTarget', 6)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargets/:id')
+	.expectLocationHeader('/v1/actionTargets/:id');
 
+testSuite
 	.describe('Second user retrieve AT6 action target.')
 	.get({}, function() { return { url: '/v1/actionTargets?name=%6&actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') }; })
 	.expectStatusCode(200)
@@ -336,19 +354,117 @@ module.exports = baseTest('Action target resource')
 				botId: 'amazingSensorForAT6'
 			}
 		}];
-	})
+	});
 
-	.describe('First user tries to retrieve action targets.')
+testSuite
+  .describe('Second user retrieve all action targets that he has access.')
+ 	.get({ url: '/v1/actionTargets' })
+ 	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(4)
+  .expectJsonToBeAtLeast(function() {
+    return [{
+      id: this.getData('actionTargetId1'),
+      name: 'AT1',
+      organizationId: this.getData('organizationId2'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }, {
+      id: this.getData('actionTargetId4'),
+      name: 'AT4',
+      organizationId: this.getData('organizationId3'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }, {
+      id: this.getData('actionTargetId5'),
+      name: 'AT5',
+      organizationId: this.getData('organizationId3'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId3')
+    }, {
+      id: this.getData('actionTargetId6'),
+      name: 'AT6',
+      organizationId: this.getData('organizationId3'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }];
+  });
+
+testSuite
+  .describe('Second user retrieve all public action targets.')
+ 	.get({ url: '/v1/actionTargets?public' })
+ 	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(2)
+  .expectJsonToBeAtLeast(function() {
+    return [{
+      id: this.getData('actionTargetId1'),
+      name: 'AT1',
+      organizationId: this.getData('organizationId2'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }, {
+      id: this.getData('actionTargetId4'),
+      name: 'AT4',
+      organizationId: this.getData('organizationId3'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }];
+  });
+
+testSuite
+	.describe('First user retrieve all action targets that he has access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/actionTargets' })
-	.expectStatusCode(422)
-	.expectJsonToHavePath([ 'actionTargetTemplateId', 'organizationId', 'allOrganizations' ])
-	.expectJsonToBe({
-		actionTargetTemplateId: [ 'Action target template id should be provided.' ],
-		organizationId: [ 'Organization id should be provided.' ],
-		allOrganizations: [ 'allOrganizations should be provided.' ]
-	})
+	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(6)
+ 	.expectJsonToBeAtLeast(function() {
+ 		return [{
+ 			id: this.getData('actionTargetId1'),
+ 			name: 'AT1',
+ 			organizationId: this.getData('organizationId2'),
+ 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+ 		}, {
+      id: this.getData('actionTargetId100'),
+      name: 'AT1',
+      organizationId: this.getData('organizationId2'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId2')
+    }, {
+      id: this.getData('actionTargetId101'),
+      name: 'AT1',
+      organizationId: this.getData('organizationId1'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }, {
+ 			id: this.getData('actionTargetId2'),
+ 			name: 'AT2',
+ 			organizationId: this.getData('organizationId2'),
+ 			actionTargetTemplateId: this.getData('actionTargetTemplateId2')
+    }, {
+ 			id: this.getData('actionTargetId3'),
+ 			name: 'AT3',
+ 			organizationId: this.getData('organizationId1'),
+ 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }, {
+      id: this.getData('actionTargetId4'),
+      name: 'AT4',
+      organizationId: this.getData('organizationId3'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+ 		}];
+ 	});
 
+testSuite
+	.describe('First user retrieve all public action targets.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({ url: '/v1/actionTargets?public' })
+	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(2)
+ 	.expectJsonToBeAtLeast(function() {
+ 		return [{
+ 			id: this.getData('actionTargetId1'),
+ 			name: 'AT1',
+ 			organizationId: this.getData('organizationId2'),
+ 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+    }, {
+      id: this.getData('actionTargetId4'),
+      name: 'AT4',
+      organizationId: this.getData('organizationId3'),
+      actionTargetTemplateId: this.getData('actionTargetTemplateId1')
+ 		}];
+ 	});
+
+testSuite
 	.describe('First user tries to mix different way to retrieve action targets (actionTargetTemplateId is used).')
 	.get({}, function() {
 		return {
@@ -377,8 +493,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user tries to mix different way to retrieve action targets (organizationId is used).')
 	.get({}, function() { return { url: '/v1/actionTargets?allOrganizations&organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -395,8 +512,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets.')
 	.get({ url: '/v1/actionTargets?allOrganizations' })
 	.expectStatusCode(200)
@@ -430,8 +548,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets filtered by name.')
 	.get({ url: '/v1/actionTargets?allOrganizations&name=AT1' })
 	.expectStatusCode(200)
@@ -454,8 +573,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets for his first organization.')
 	.get({}, function() { return { url: '/v1/actionTargets?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -473,8 +593,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets for his second organization.')
 	.get({}, function() { return { url: '/v1/actionTargets?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
@@ -500,8 +621,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets for his second organization filtered by name.')
 	.get({}, function() { return { url: '/v1/actionTargets?organizationId=' + this.getData('organizationId2') + '&name=%2'}; })
 	.expectStatusCode(200)
@@ -513,8 +635,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets for his first action target template.')
 	.get({}, function() { return { url: '/v1/actionTargets?actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') }; })
 	.expectStatusCode(200)
@@ -540,8 +663,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets for his first action target template filtered by name.')
 	.get({}, function() { return { url: '/v1/actionTargets?actionTargetTemplateId=' + this.getData('actionTargetTemplateId1') + '&name=%3'}; })
 	.expectStatusCode(200)
@@ -553,8 +677,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId1'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all action targets for his second action target template.')
 	.get({}, function() { return { url: '/v1/actionTargets?actionTargetTemplateId=' + this.getData('actionTargetTemplateId2') }; })
 	.expectStatusCode(200)
@@ -572,8 +697,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId2'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieves all action targets.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/actionTargets?allOrganizations' })
@@ -597,8 +723,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId3'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieves all action targets for his organization.')
 	.get({}, function() { return { url: '/v1/actionTargets?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
@@ -621,8 +748,9 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId3'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieves all action targets for his action target template.')
 	.get({}, function() { return { url: '/v1/actionTargets?actionTargetTemplateId=' + this.getData('actionTargetTemplateId3') }; })
 	.expectStatusCode(200)
@@ -635,17 +763,20 @@ module.exports = baseTest('Action target resource')
 			organizationId: this.getData('organizationId3'),
 			actionTargetTemplateId: this.getData('actionTargetTemplateId3')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user tries to retrieve an action target that does not exist.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: this.getData('locationActionTarget1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to retrieve an action target from an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationActionTarget4') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user retrieve ES1 (1) action target.')
 	.get({}, function() { return { url: this.getData('locationActionTarget1') }; })
 	.expectStatusCode(200)
@@ -659,8 +790,9 @@ module.exports = baseTest('Action target resource')
 				botId: 'amazingSensor'
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user updates AT1 (1) action target.')
 	.patch({}, function() {
 		return {
@@ -672,8 +804,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('AT1 not updated should let it unchanged.')
 	.patch({}, function() {
 		return {
@@ -683,8 +816,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates the configuration of AT1 (1) action target.')
 	.patch({}, function() {
 		return {
@@ -698,8 +832,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('Check AT1 (1) action target has been correctly updated.')
 	.get({}, function() {
 		return {
@@ -712,8 +847,9 @@ module.exports = baseTest('Action target resource')
 		configuration: {
 			botId: 'SuperBot'
 		}
-	})
+	});
 
+testSuite
 	.describe('First user updates AT1 (100) action target with a name used by AT2.')
 	.patch({}, function() {
 		return {
@@ -724,8 +860,9 @@ module.exports = baseTest('Action target resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken for this action target template and this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken for this action target template and this organization.' ]});
 
+testSuite
 	.describe('First user updates AT1 (100) action target with a name used by AT3.')
 	.patch({}, function() {
 		return {
@@ -737,8 +874,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates AT1 (100) action target with a name used by AT1 (1).')
 	.patch({}, function() {
 		return {
@@ -750,8 +888,9 @@ module.exports = baseTest('Action target resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTargets/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('Second user tries to update AT1 action target of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
@@ -762,8 +901,9 @@ module.exports = baseTest('Action target resource')
 			}
 		};
 	})
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user creates AT7 action target with a configuration call to remote system.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.mockRequest({
@@ -811,8 +951,9 @@ module.exports = baseTest('Action target resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user creates AT8 action target with a configuration and a token call to remote system.')
 	.mockRequest({
 		method: 'POST',
@@ -863,8 +1004,9 @@ module.exports = baseTest('Action target resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user updates AT8 action target with a configuration and a token call to remote system.')
 	.mockRequest({
 		method: 'POST',
@@ -912,8 +1054,9 @@ module.exports = baseTest('Action target resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user reconfigure AT8 action target.')
 	.mockRequest({
 		method: 'POST',
@@ -955,25 +1098,30 @@ module.exports = baseTest('Action target resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user tries to reconfigure AT2 action target that has no configuration.')
 	.post({}, function() {
 		return {
 			url: this.getData('locationActionTarget2') + '/configure'
 		};
 	})
-	.expectStatusCode(404)
+	.expectStatusCode(404);
 
+testSuite
   .describe('First user remove AT1.')
  	.delete({}, function() { return { url: this.getData('locationActionTarget1') }; })
- 	.expectStatusCode(204)
+ 	.expectStatusCode(204);
 
+testSuite
  	.describe('First user tries to retrieve AT1.')
  	.get({}, function() { return { url: this.getData('locationActionTarget1') }; })
- 	.expectStatusCode(403)
+ 	.expectStatusCode(403);
 
+testSuite
  	.describe('First user tries to delete AT4 in an organization where he is not a member.')
  	.get({}, function() { return { url: this.getData('locationActionTarget4') }; })
- 	.expectStatusCode(403)
-;
+ 	.expectStatusCode(403);
+
+module.exports = testSuite;

@@ -63,17 +63,30 @@ router.route('/')
 	.get(function(req, res, next) {
 		var promise = null;
 
+    // Find by action target template
 		if (req.actionTargetTemplate) {
 			promise = actionTargetDao.findByActionTargetTemplateAndUser(req.actionTargetTemplate, req.userModel, { name: req.query.name });
 		}
 
+    // Find by organization
 		else if (req.organization) {
 			promise = actionTargetDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 
+    // Find for all user organizations
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
 			promise = actionTargetDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
+
+    // Find all public
+    else if (req.query.public != undefined || req.query.public) {
+      promise = actionTargetDao.findAllPublic({ name: req.query.name });
+    }
+
+    // Find all accessible
+    else {
+      promise = actionTargetDao.findAllAccessible(req.userModel, { name: req.query.name });
+    }
 
 		if (promise) {
 			return promise.then(function (actionTargets) {
@@ -172,6 +185,10 @@ router.route('/:id')
 		if (data.name !== undefined) {
 			actionTarget.set('name', data.name);
 		}
+
+    if (data.public !== undefined) {
+      actionTarget.set('public', data.public);
+    }
 
 		if (data.configuration !== undefined) {
 			actionTarget.set('configuration', data.configuration);

@@ -63,17 +63,30 @@ router.route('/')
 	.get(function(req, res, next) {
 		var promise = null;
 
+    // Find by action target template
 		if (req.eventSourceTemplate) {
 			promise = eventSourceDao.findByEventSourceTemplateAndUser(req.eventSourceTemplate, req.userModel, { name: req.query.name });
 		}
 
+    // Find by organization
 		else if (req.organization) {
 			promise = eventSourceDao.findByOrganization(req.organization, { name: req.query.name });
 		}
 
+    // Find for all user organizations
 		else if (req.query.allOrganizations != undefined || req.query.allOrganizations) {
 			promise = eventSourceDao.findAllByUser(req.userModel, { name: req.query.name });
 		}
+
+    // Find all public
+    else if (req.query.public != undefined || req.query.public) {
+      promise = eventSourceDao.findAllPublic({ name: req.query.name });
+    }
+
+    // Find all accessible
+    else {
+      promise = eventSourceDao.findAllAccessible(req.userModel, { name: req.query.name });
+    }
 
 		if (promise) {
 			return promise.then(function (eventSources) {
@@ -172,6 +185,10 @@ router.route('/:id')
 		if (data.name !== undefined) {
 			eventSource.set('name', data.name);
 		}
+
+    if (data.public !== undefined) {
+      eventSource.set('public', data.public);
+    }
 
 		if (data.configuration !== undefined) {
 			eventSource.set('configuration', data.configuration);

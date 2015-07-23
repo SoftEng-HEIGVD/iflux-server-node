@@ -15,7 +15,7 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 	createAndSave: function(eventSourceTemplate, organization) {
 		var data = {
 			name: eventSourceTemplate.name,
-			public: eventSourceTemplate.public,
+      public: _.isUndefined(eventSourceTemplate.public) ? false : eventSourceTemplate.public,
 			organization_id: organization.get('id')
 		};
 
