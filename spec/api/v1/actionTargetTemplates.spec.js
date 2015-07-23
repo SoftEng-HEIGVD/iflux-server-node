@@ -1,15 +1,16 @@
 var  baseTest = require('../base');
 
-module.exports = baseTest('Action target template resource')
+var testSuite = baseTest('Action target template resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
 	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' })
 	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 1, 1)
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1, 2)
-	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3)
+	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3);
 
-	.describe('Create new action target template with too short name')
+testSuite
+  .describe('Create new action target template with too short name')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
 		return {
@@ -26,8 +27,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name.0')
-	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]});
 
+testSuite
 	.describe('Create ATT1 action target template in organization where user does not have access')
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
 		return {
@@ -44,8 +46,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
-	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
+	.expectJsonToBe({ organizationId: [ 'No organization found.' ]});
 
+testSuite
 	.describe('Create ATT1 (public) action target template for first user in his first organization')
 	.post({ url: '/v1/actionTargetTemplates' }, function() {
 		return {
@@ -67,8 +70,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.storeLocationAs('actionTargetTemplate', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('Try to re-create ATT1 action target template for first user in his first organization')
 	.post({ url: '/v1/actionTargetTemplates' },
 	function() {
@@ -90,8 +94,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('Re-create ATT1 action target template for first user in his second organization')
 	.post({ url: '/v1/actionTargetTemplates' },
 	function() {
@@ -108,8 +113,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.storeLocationAs('actionTargetTemplate', 100)
-	.expectStatusCode(201)
+	.expectStatusCode(201);
 
+testSuite
 	.describe('Create ATT2 (private) action target template for first user in his first organization')
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
 		return {
@@ -126,8 +132,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.storeLocationAs('actionTargetTemplate', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('Create ATT3 (public) action target template for first user in his second organization')
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
 		return {
@@ -144,8 +151,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.storeLocationAs('actionTargetTemplate', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('Create ATT4 (public) action target template for second user in his organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
@@ -163,8 +171,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.storeLocationAs('actionTargetTemplate', 4)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('Create ATT5 (private) action target template for second user in his organization')
 	.post({	url: '/v1/actionTargetTemplates' }, function() {
 		return {
@@ -181,8 +190,9 @@ module.exports = baseTest('Action target template resource')
 	})
 	.storeLocationAs('actionTargetTemplate', 5)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('Retrieve all the public action target templates for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/actionTargetTemplates?public' })
@@ -228,8 +238,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public action target templates for first user filtered by name')
 	.get({ url: '/v1/actionTargetTemplates?public=true&name=%3' })
 	.expectStatusCode(200)
@@ -244,8 +255,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for first user')
 	.get({ url: '/v1/actionTargetTemplates?allOrganizations' })
 	.expectStatusCode(200)
@@ -290,8 +302,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for first user filtered by name')
 	.get({ url: '/v1/actionTargetTemplates?allOrganizations&name=%1' })
 	.expectStatusCode(200)
@@ -319,8 +332,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for first user for the first organization')
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -349,8 +363,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for first user for the first organization filtered by name')
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId1') + '&name=%1'}; })
 	.expectStatusCode(200)
@@ -370,8 +385,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for first user for the second organization')
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
@@ -391,8 +407,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/actionTargetTemplates' })
@@ -446,8 +463,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action target templates for second user filtered by name')
 	.get({ url: '/v1/actionTargetTemplates?name=%3' })
 	.expectStatusCode(200)
@@ -462,8 +480,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public action target templates for second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/actionTargetTemplates?public' })
@@ -509,8 +528,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public action target templates for second user filtered by name')
 	.get({ url: '/v1/actionTargetTemplates?public=true&name=%3' })
 	.expectStatusCode(200)
@@ -525,8 +545,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Try to retrieve all action target templates and all for a specific organization, only the specific organization is taken into account.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: '/v1/actionTargetTemplates?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
@@ -551,8 +572,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Try to retrieve action target templates where the user is not member of the organization')
 	.get({}, function() { return { url: this.getData('locationActionTargetTemplate1') + '100' }; })
 	.expectStatusCode(403)
@@ -567,8 +589,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('No update sent must let the resource unchanged')
 	.patch({}, function() {
 		return {
@@ -577,8 +600,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(304)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('First user updates his first action target template with a name used for a different organization.')
 	.patch({}, function() {
 		return {
@@ -589,8 +613,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('First user updates his first action target template with a name used for in the same organization.')
 	.patch({}, function() {
 		return {
@@ -601,8 +626,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('First user updates ATT1 for the configuration part.')
 	.patch({}, function() {
 		return {
@@ -619,8 +645,9 @@ module.exports = baseTest('Action target template resource')
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTargetTemplates/:id')
+	.expectLocationHeader('/v1/actionTargetTemplates/:id');
 
+testSuite
 	.describe('First user retrieves ATT1 after updated for checks.')
 	.get({}, function() {
 		return {
@@ -647,8 +674,9 @@ module.exports = baseTest('Action target template resource')
 				token: 'token'
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('Second user tries to update one of first user action target template')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
@@ -659,18 +687,22 @@ module.exports = baseTest('Action target template resource')
 			}
 		};
 	})
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
   .describe('First user remove ATT1.')
   .jwtAuthentication(function() { return this.getData('token1'); })
  	.delete({}, function() { return { url: this.getData('locationActionTargetTemplate1') }; })
- 	.expectStatusCode(204)
+ 	.expectStatusCode(204);
 
+testSuite
  	.describe('First user tries to retrieve ATT1.')
  	.get({}, function() { return { url: this.getData('locationActionTargetTemplate1') }; })
- 	.expectStatusCode(403)
+ 	.expectStatusCode(403);
 
+testSuite
  	.describe('First user tries to delete ATT4 in an organization where he is not a member.')
  	.get({}, function() { return { url: this.getData('locationActionTargetTemplate4') }; })
- 	.expectStatusCode(403)
-;
+ 	.expectStatusCode(403);
+
+module.exports = testSuite;

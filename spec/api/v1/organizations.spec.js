@@ -1,11 +1,12 @@
 var baseTest = require('../base');
 
-module.exports = baseTest('Organization resource')
+var testSuite = baseTest('Organization resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
-	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' }, 'token2')
+	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' }, 'token2');
 
+testSuite
 	.describe('Create new organization with first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({
@@ -16,8 +17,9 @@ module.exports = baseTest('Organization resource')
 	})
 	.storeLocationAs('organization', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/organizations/:id')
+	.expectLocationHeader('/v1/organizations/:id');
 
+testSuite
 	.describe('Create new organization with second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({
@@ -28,21 +30,24 @@ module.exports = baseTest('Organization resource')
 	})
 	.storeLocationAs('organization', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/organizations/:id')
+	.expectLocationHeader('/v1/organizations/:id');
 
+testSuite
 	.describe('Retrieve unknown organization with first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: this.getData('locationOrganization1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('Retrieve the first organization with first user')
 	.get({}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ 'id', 'name' ])
 	.expectJsonToBeAtLeast({
 		name: 'Orga1'
-	})
+	});
 
+testSuite
 	.describe('Retrieve the second organization with second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({}, function() { return { url: this.getData('locationOrganization2') }; })
@@ -50,8 +55,9 @@ module.exports = baseTest('Organization resource')
 	.expectJsonToHavePath([ 'id', 'name' ])
 	.expectJsonToBeAtLeast({
 		name: 'Orga2'
-	})
+	});
 
+testSuite
 	.describe('Retrieve all organizations with second user')
 	.get({ url: '/v1/organizations' })
 	.expectStatusCode(200)
@@ -61,8 +67,9 @@ module.exports = baseTest('Organization resource')
 		name: 'Orga1'
 	}, {
 		name: 'Orga2'
-	}])
+	}]);
 
+testSuite
 	.describe('Update the first organization with first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({
@@ -71,8 +78,9 @@ module.exports = baseTest('Organization resource')
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/organizations/:id')
+	.expectLocationHeader('/v1/organizations/:id');
 
+testSuite
 	.describe('Check the updated organization for the first user.')
 	.get({}, function() { return { url: this.getData('locationOrganization1') }; })
 	.expectStatusCode(200)
@@ -82,8 +90,9 @@ module.exports = baseTest('Organization resource')
 			name: 'Orga1 renamed',
 			deletable: false
 		}
-	})
+	});
 
+testSuite
 	.describe('Update the first organization with second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({
@@ -91,8 +100,9 @@ module.exports = baseTest('Organization resource')
 			name: 'Orga1 renamed again'
 		}
 	}, function() { return { url: this.getData('locationOrganization1') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to do an unknown action')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({}, function() {
@@ -104,8 +114,9 @@ module.exports = baseTest('Organization resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ type: [ 'Unknown action type.' ] })
+	.expectJsonToBe({ type: [ 'Unknown action type.' ] });
 
+testSuite
 	.describe('First user add the second user into the first organization')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({}, function() {
@@ -117,8 +128,9 @@ module.exports = baseTest('Organization resource')
 			}
 		};
 	})
-	.expectStatusCode(200)
+	.expectStatusCode(200);
 
+testSuite
 	.describe('Retrieve the list of users for organization where first user is a member')
 	.get({
 		_storeData: function() { this.setData('user2AddedId', this.response.body[1].id); }
@@ -134,12 +146,14 @@ module.exports = baseTest('Organization resource')
 	}, {
 		firstName: 'Henri',
 		lastName: 'Dutoit'
-	}])
+	}]);
 
+testSuite
 	.describe('User cannot retrieve users for an organization where he is not a member')
 	.get({}, function() { return { url: this.getData('locationOrganization2') + '/users' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user remove the second user from the first organization')
 	.post({}, function() {
 		return {
@@ -150,8 +164,9 @@ module.exports = baseTest('Organization resource')
 			}
 		};
 	})
-	.expectStatusCode(200)
+	.expectStatusCode(200);
 
+testSuite
 	.describe('Retrieve the list of users for organization where first user is a member')
 	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
 	.expectStatusCode(200)
@@ -160,8 +175,9 @@ module.exports = baseTest('Organization resource')
 	.expectJsonToBeAtLeast([{
 		firstName: 'Henri',
 		lastName: 'Dupont'
-	}])
+	}]);
 
+testSuite
 	.describe('Retrieve organizations filtered by name for first user')
 	.get({ url: '/v1/organizations?name=%renamed' })
 	.expectStatusCode(200)
@@ -169,8 +185,9 @@ module.exports = baseTest('Organization resource')
 	.expectJsonToHavePath([ '0.id', '0.name' ])
 	.expectJsonToBeAtLeast([{
 		name: 'Orga1 renamed'
-	}])
+	}]);
 
+testSuite
 	.describe('First user add again the second user into the first organization but this time with the userId')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({}, function() {
@@ -182,8 +199,9 @@ module.exports = baseTest('Organization resource')
 			}
 		};
 	})
-	.expectStatusCode(200)
+	.expectStatusCode(200);
 
+testSuite
 	.describe('Retrieve the list of users for organization where first user is a member (userId used)')
 	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
 	.expectStatusCode(200)
@@ -195,8 +213,9 @@ module.exports = baseTest('Organization resource')
 	}, {
 		firstName: 'Henri',
 		lastName: 'Dutoit'
-	}])
+	}]);
 
+testSuite
 	.describe('First user remove again the second user from the first organization but this time with the userId')
 	.post({}, function() {
 		return {
@@ -207,8 +226,9 @@ module.exports = baseTest('Organization resource')
 			}
 		};
 	})
-	.expectStatusCode(200)
+	.expectStatusCode(200);
 
+testSuite
 	.describe('Retrieve the list of users for organization where first user is a member (userId used)')
 	.get({}, function() { return { url: this.getData('locationOrganization1') + '/users' }; })
 	.expectStatusCode(200)
@@ -217,17 +237,21 @@ module.exports = baseTest('Organization resource')
 	.expectJsonToBeAtLeast([{
 		firstName: 'Henri',
 		lastName: 'Dupont'
-	}])
+	}]);
 
+testSuite
 	.describe('First user remove his organization.')
 	.delete({}, function() { return { url: this.getData('locationOrganization1') }; })
-	.expectStatusCode(204)
+	.expectStatusCode(204);
 
+testSuite
 	.describe('First user tries to retrieve his deleted organization.')
 	.get({}, function() { return { url: this.getData('locationOrganization1') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to delete an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationOrganization2') }; })
-	.expectStatusCode(403)
-;
+	.expectStatusCode(403);
+
+module.exports = testSuite;

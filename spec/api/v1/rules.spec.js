@@ -2,7 +2,9 @@ var
 	helpers = require('./helpers/rules-helpers'),
 	baseTest = require('../base');
 
-module.exports = helpers.setup(baseTest('Rule resource'))
+var testSuite = helpers.setup(baseTest('Rule resource'));
+
+testSuite
 	.describe('First user create first rule with [first orga, first event source, first event type, first action target, first action type].')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules'}, function() {
@@ -42,8 +44,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	})
 	.storeLocationAs('rule', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user create first rule with [second orga, first event source, first action target, first action type].')
 	.post({ url: '/v1/rules'}, function() {
 		return {
@@ -93,8 +96,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
  	})
  	.storeLocationAs('rule', 4)
  	.expectStatusCode(201)
- 	.expectLocationHeader('/v1/rules/:id')
+ 	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('Second user create first rule with [third orga, fourth event source, fourth action target, fourth action type].')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/rules'}, function() {
@@ -122,17 +126,20 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	})
 	.storeLocationAs('rule', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user tries to retrieve rules.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') + 100 }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to retrieve rules in an organization where he is not a member.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId3') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user retrieve rules in his first organization.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -182,8 +189,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieve rules in his first organization filtered by name.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') + '&name=First%' }; })
 	.expectStatusCode(200)
@@ -232,8 +240,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieve rules in his second organization.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
@@ -290,8 +299,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
         }
       }]
     }];
-	})
+	});
 
+testSuite
 	.describe('First user retrieve rules in all his organizations.')
 	.get({ url: '/v1/rules' })
 	.expectStatusCode(200)
@@ -389,8 +399,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
         }
       }]
     }];
-	})
+	});
 
+testSuite
 	.describe('First user retrieve rules in all his organizations filtered by name.')
 	.get({ url: '/v1/rules?name=Second%' })
 	.expectStatusCode(200)
@@ -422,13 +433,15 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user tries to retrieve rules in an organization where he is not a member.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('Second user retrieve rules in his organization.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
@@ -461,8 +474,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieve rules in all his organizations.')
 	.get({ url: '/v1/rules' })
 	.expectStatusCode(200)
@@ -494,17 +508,20 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user tries to retrieve a rule that does not exist.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: this.getData('locationRule1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to retrieve a rule from an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationRule3') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user retrieve his first rule.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(200)
@@ -553,8 +570,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		};
-	})
+	});
 
+testSuite
 	.describe('First user updates hist first rule.')
 	.patch({}, function() {
 		return {
@@ -575,8 +593,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user retrieve his first rule to check the update done correctly.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(200)
@@ -607,8 +626,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 				}
 			}]
 		};
-	})
+	});
 
+testSuite
 	.describe('First user updates hist first rule.')
 	.patch({}, function() {
 		return {
@@ -617,8 +637,9 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 		};
 	})
 	.expectStatusCode(304)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('Second user tries to update the first rule of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
@@ -629,18 +650,22 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 			}
 		};
 	})
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user remove his first rule.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.delete({}, function() { return { url: this.getData('locationRule1') }; })
-	.expectStatusCode(204)
+	.expectStatusCode(204);
 
+testSuite
 	.describe('First user tries to retrieve his deleted rule.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to delete a rule in an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationRule3') }; })
-	.expectStatusCode(403)
-;
+	.expectStatusCode(403);
+
+module.exports = testSuite;

@@ -2,15 +2,16 @@ var
 	config = require('../../../config/config'),
 	baseTest = require('../base');
 
-module.exports = baseTest('Action type resource')
+var testSuite = baseTest('Action type resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
 	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' })
 	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 1)
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1)
-	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2)
+	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2);
 
+testSuite
 	.describe('Create AT1 (public) action type in organization with missing type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/actionTypes' }, function() {
@@ -34,8 +35,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('type.0')
-	.expectJsonToBe({ type: [ 'Type is mandatory.' ]})
+	.expectJsonToBe({ type: [ 'Type is mandatory.' ]});
 
+testSuite
 	.describe('Create AT1 (public) action type in organization with invalid type')
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {
@@ -59,8 +61,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('type.0')
-	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
+	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]});
 
+testSuite
 	.describe('Create AT1 (public) action type with too short name.')
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {
@@ -84,8 +87,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name.0')
-	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]});
 
+testSuite
 	.describe('Create AT1 (public) action type in organization where user does not have access')
 	.post({	url: '/v1/actionTypes' }, function() {
 		return {
@@ -109,8 +113,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
-	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
+	.expectJsonToBe({ organizationId: [ 'No organization found.' ]});
 
+testSuite
 	.describe('Create AT1 (public) action type for first user in his first organization')
 	.post({ url: '/v1/actionTypes'}, function() {
 		return {
@@ -135,8 +140,9 @@ module.exports = baseTest('Action type resource')
 	.storeLocationAs('actionType', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('Try to re-create AT1 action type for first user in his first organization')
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -159,8 +165,9 @@ module.exports = baseTest('Action type resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('Re-create AT1 action type for first user in his second organization with same name from one of the first organization')
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -184,8 +191,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.storeLocationAs('actionType', 100)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectLocationHeader('/v1/actionTypes/:id');
 
+testSuite
 	.describe('Try to create AT1 action type for first user in his first organization with type already taken.')
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -209,8 +217,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('type.0')
-	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
+	.expectJsonToBe({ type: [ 'Type must be unique.' ]});
 
+testSuite
 	.describe('Create a AT2 (private) action type for first user in his first organization')
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -234,8 +243,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.storeLocationAs('actionType', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectLocationHeader('/v1/actionTypes/:id');
 
+testSuite
 	.describe('Create AT3 action type for first user in his second organization')
 	.post({ url: '/v1/actionTypes' }, function() {
 		return {
@@ -259,8 +269,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.storeLocationAs('actionType', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectLocationHeader('/v1/actionTypes/:id');
 
+testSuite
 	.describe('Create AT4 (public) action type for second user in his first organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/actionTypes' }, function() {
@@ -285,8 +296,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.storeLocationAs('actionType', 4)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectLocationHeader('/v1/actionTypes/:id');
 
+testSuite
 	.describe('Create AT5 (private) action type for second user in his first organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/actionTypes' }, function() {
@@ -311,8 +323,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.storeLocationAs('actionType', 5)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/actionTypes/:id')
+	.expectLocationHeader('/v1/actionTypes/:id');
 
+testSuite
 	.describe('Retrieve all the public action types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/actionTypes?public' })
@@ -381,8 +394,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public action types for first user filtered by name')
 	.get({ url: '/v1/actionTypes?public=true&name=%4' })
 	.expectStatusCode(200)
@@ -404,8 +418,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for first user')
 	.get({ url: '/v1/actionTypes?allOrganizations' })
 	.expectStatusCode(200)
@@ -470,8 +485,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for first user filtered by name')
 	.get({ url: '/v1/actionTypes?allOrganizations&name=%1' })
 	.expectStatusCode(200)
@@ -507,8 +523,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for first user for the first organization')
 	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -544,8 +561,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for first user for the first organization filtered by name')
 	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId1') + '&name=%2'}; })
 	.expectStatusCode(200)
@@ -566,8 +584,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for first user for the second organization')
 	.get({}, function() { return { url: '/v1/actionTypes?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
@@ -604,8 +623,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/actionTypes' })
@@ -689,8 +709,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the action types for second user filtered by name')
 	.get({ url: '/v1/actionTypes?name=%4' })
 	.expectStatusCode(200)
@@ -712,8 +733,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public action types for second user')
 	.get({ url: '/v1/actionTypes?public' })
 	.expectStatusCode(200)
@@ -781,8 +803,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public action types for second user filtered by name')
 	.get({ url: '/v1/actionTypes?public=true&name=%4' })
 	.expectStatusCode(200)
@@ -804,8 +827,9 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Try to retrieve all action types and all for a specific organization, only the specific organization is taken into account.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: '/v1/actionTypes?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
@@ -843,12 +867,14 @@ module.exports = baseTest('Action type resource')
 				}
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Try to retrieve action type where the user is not member of the organization')
 	.get({}, function() { return { url: this.getData('locationActionType1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user updates AT1 action type')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({}, function() {
@@ -861,8 +887,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('No update sent must let the resource unchanged')
 	.patch({}, function() {
 		return {
@@ -872,8 +899,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTypes/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates AT1 action type with the same type')
 	.patch({}, function() {
 		return {
@@ -885,8 +913,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/actionTypes/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates AT1 action type with invalid type')
 	.patch({}, function() {
 		return {
@@ -897,8 +926,9 @@ module.exports = baseTest('Action type resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]})
+	.expectJsonToBe({ type: [ 'Type must be a valid URL.' ]});
 
+testSuite
 	.describe('First user updates AT1 action type with different type but not unique')
 	.patch({}, function() {
 		return {
@@ -909,8 +939,9 @@ module.exports = baseTest('Action type resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ type: [ 'Type must be unique.' ]})
+	.expectJsonToBe({ type: [ 'Type must be unique.' ]});
 
+testSuite
 	.describe('First user updates AT1 action type with valid and unique different type')
 	.patch({}, function() {
 		return {
@@ -922,8 +953,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates AT1 action type with a name used in a different organization')
 	.patch({}, function() {
 		return {
@@ -935,8 +967,9 @@ module.exports = baseTest('Action type resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/actionTypes/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates AT1 action type with a name used in the same organization')
 	.patch({}, function() {
 		return {
@@ -947,8 +980,9 @@ module.exports = baseTest('Action type resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('Second user tries to update AT1 action type of first user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
@@ -959,26 +993,32 @@ module.exports = baseTest('Action type resource')
 			}
 		};
 	})
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('Retrieve an action type schema from its type (url).')
 	.get({ url: '/v1/schemas/actionTypes/11' })
-	.expectStatusCode(200)
+	.expectStatusCode(200);
 
+testSuite
 	.describe('Retrieve an action type schema from its type (url) but nothing is found.')
 	.get({ url: '/v1/schemas/actionTypes/111' })
-	.expectStatusCode(404)
+	.expectStatusCode(404);
 
-  .describe('First user remove AT1.')
- 	.jwtAuthentication(function() { return this.getData('token1'); })
- 	.delete({}, function() { return { url: this.getData('locationActionType1') }; })
- 	.expectStatusCode(204)
+testSuite
+ 	.describe('First user remove AT1.')
+  .jwtAuthentication(function() { return this.getData('token1'); })
+  .delete({}, function() { return { url: this.getData('locationActionType1') }; })
+  .expectStatusCode(204);
 
- 	.describe('First user tries to retrieve AT1.')
- 	.get({}, function() { return { url: this.getData('locationActionType1') }; })
- 	.expectStatusCode(403)
+testSuite
+  .describe('First user tries to retrieve AT1.')
+  .get({}, function() { return { url: this.getData('locationActionType1') }; })
+  .expectStatusCode(403);
 
- 	.describe('First user tries to delete AT4 in an organization where he is not a member.')
- 	.get({}, function() { return { url: this.getData('locationActionType4') }; })
- 	.expectStatusCode(403)
-;
+testSuite
+  .describe('First user tries to delete AT4 in an organization where he is not a member.')
+  .get({}, function() { return { url: this.getData('locationActionType4') }; })
+  .expectStatusCode(403);
+
+module.exports = testSuite;

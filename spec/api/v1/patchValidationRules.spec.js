@@ -2,7 +2,9 @@ var
 	helpers = require('./helpers/rules-helpers'),
 	baseTest = require('../base');
 
-module.exports = helpers.setup(baseTest('Validations on rule resource'))
+var testSuite = helpers.setup(baseTest('Validations on rule resource'));
+
+testSuite
 	.describe('First user create RU1 rule with [first orga, first event source, first event type, first action target, first action type].')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules' }, function() {
@@ -42,8 +44,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	})
 	.storeLocationAs('rule', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user create RU2 rule with [first orga, first event source, first event type, first action target, first action type].')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules' }, function() {
@@ -65,8 +68,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	})
 	.storeLocationAs('rule', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user tries to re-create RU2 rule with same name.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules' }, function() {
@@ -87,8 +91,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('First user re-create RU2 rule with same name in different organization.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({ url: '/v1/rules' }, function() {
@@ -110,8 +115,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 	})
 	.storeLocationAs('rule', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user can rename RU1 with a name not already used in the organization.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({ }, function() {
@@ -123,8 +129,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/rules/:id')
+	.expectLocationHeader('/v1/rules/:id');
 
+testSuite
 	.describe('First user cannot rename RU1 with a name already used in the organization.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.patch({ }, function() {
@@ -136,8 +143,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('First user tries to update a rule with empty conditions.')
 	.patch({}, function() {
 		return {
@@ -148,8 +156,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: [ 'At least one condition must be defined.' ] })
+	.expectJsonToBe({ conditions: [ 'At least one condition must be defined.' ] });
 
+testSuite
 	.describe('First user tries to update a rule with empty transformations.')
 	.patch({}, function() {
 		return {
@@ -160,8 +169,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: [ 'At least one transformation must be defined.' ] })
+	.expectJsonToBe({ transformations: [ 'At least one transformation must be defined.' ] });
 
+testSuite
 	.describe('First user tries to update a rule with a empty condition.')
 	.patch({}, function() {
 		return {
@@ -172,8 +182,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: [ 'At least one of eventSourceId, eventTypeId or fn must be provided.' ] }})
+	.expectJsonToBe({ conditions: { 0: [ 'At least one of eventSourceId, eventTypeId or fn must be provided.' ] }});
 
+testSuite
 	.describe('First user tries to update a rule with a condition where the event source does not exists.')
 	.patch({}, function() {
 		return {
@@ -186,8 +197,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { eventSourceId: [ 'Event source not found.' ] }}})
+	.expectJsonToBe({ conditions: { 0: { eventSourceId: [ 'Event source not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition where the event source where user does not have access.')
 	.patch({}, function() {
 		return {
@@ -200,8 +212,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { eventSourceId: [ 'Event source not found.' ] }}})
+	.expectJsonToBe({ conditions: { 0: { eventSourceId: [ 'Event source not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition where the event type does not exist.')
 	.patch({}, function() {
 		return {
@@ -215,8 +228,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
+	.expectJsonToBe({ conditions: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition with event type where user does not have access.')
 	.patch({}, function() {
 		return {
@@ -230,8 +244,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
+	.expectJsonToBe({ conditions: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition with wrong function.')
 	.patch({}, function() {
 		return {
@@ -246,8 +261,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Expression is mandatory.' ], sampleEvent: [ 'Sample event is mandatory.' ] }}}})
+	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Expression is mandatory.' ], sampleEvent: [ 'Sample event is mandatory.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition with missing expression.')
 	.patch({}, function() {
 		return {
@@ -269,8 +285,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Expression is mandatory.' ] }}}})
+	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Expression is mandatory.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition where the event type with missing sample.')
 	.patch({}, function() {
 		return {
@@ -287,8 +304,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { fn: { sampleEvent: [ 'Sample event is mandatory.' ] }}}})
+	.expectJsonToBe({ conditions: { 0: { fn: { sampleEvent: [ 'Sample event is mandatory.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition with syntax error.')
 	.patch({}, function() {
 		return {
@@ -311,8 +329,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'An error occurred during expression evaluation: Line 1: Unexpected identifier' ] }}}})
+	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'An error occurred during expression evaluation: Line 1: Unexpected identifier' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a condition evaluated to false.')
 	.patch({}, function() {
 		return {
@@ -335,8 +354,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }}}})
+	.expectJsonToBe({ conditions: { 0: { fn: { expression: [ 'Sample evaluation against expression returned false.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with missing action target id.')
 	.patch({}, function() {
 		return {
@@ -349,8 +369,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target id is mandatory.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target id is mandatory.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with missing action type id.')
 	.patch({}, function() {
 		return {
@@ -363,8 +384,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type id is mandatory.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type id is mandatory.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation where the action target does not exists.')
 	.patch({}, function() {
 		return {
@@ -378,8 +400,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation where the action target where user does not have access.')
 	.patch({}, function() {
 		return {
@@ -393,8 +416,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTargetId: [ 'Action target not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation where the action type does not exist.')
 	.patch({}, function() {
 		return {
@@ -408,8 +432,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with action type where user does not have access.')
 	.patch({}, function() {
 		return {
@@ -423,8 +448,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation where the event type does not exist.')
 	.patch({}, function() {
 		return {
@@ -439,8 +465,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with event type where user does not have access.')
 	.patch({}, function() {
 		return {
@@ -455,8 +482,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}})
+	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with wrong function.')
 	.patch({}, function() {
 		return {
@@ -472,8 +500,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'Expression is mandatory.' ], sample: [ 'Sample is mandatory.' ] }}}})
+	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'Expression is mandatory.' ], sample: [ 'Sample is mandatory.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with missing expression.')
 	.patch({}, function() {
 		return {
@@ -498,8 +527,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'Expression is mandatory.' ] }}}})
+	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'Expression is mandatory.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with missing sample.')
 	.patch({}, function() {
 		return {
@@ -517,8 +547,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { fn: { sample: [ 'Sample is mandatory.' ] }}}})
+	.expectJsonToBe({ transformations: { 0: { fn: { sample: [ 'Sample is mandatory.' ] }}}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with missing sample event.')
 	.patch({}, function() {
 		return {
@@ -537,8 +568,9 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { fn: { sample: { event: [ 'Event is mandatory.' ] }}}}})
+	.expectJsonToBe({ transformations: { 0: { fn: { sample: { event: [ 'Event is mandatory.' ] }}}}});
 
+testSuite
 	.describe('First user tries to update a rule with a transformation with syntax error.')
 	.patch({}, function() {
 		return {
@@ -561,5 +593,6 @@ module.exports = helpers.setup(baseTest('Validations on rule resource'))
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'An error occurred during expression evaluation: Line 1: Unexpected string' ] }}}})
-;
+	.expectJsonToBe({ transformations: { 0: { fn: { expression: [ 'An error occurred during expression evaluation: Line 1: Unexpected string' ] }}}});
+
+module.exports = testSuite;

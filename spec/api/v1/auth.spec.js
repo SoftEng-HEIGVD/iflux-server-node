@@ -1,7 +1,9 @@
 var
 	baseTest = require('../base');
 
-module.exports = baseTest('Authentication resource')
+var testSuite = baseTest('Authentication resource');
+
+testSuite
 	.describe('Unknown user cannot signin')
 	.post({
 		url: '/v1/auth/signin',
@@ -10,8 +12,9 @@ module.exports = baseTest('Authentication resource')
 			password: 'password'
 		}
 	})
-	.expectStatusCode(401)
+	.expectStatusCode(401);
 
+testSuite
 	.describe('Register new user')
 	.post	({
 		url: '/v1/auth/register',
@@ -24,8 +27,9 @@ module.exports = baseTest('Authentication resource')
 		}
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/me')
+	.expectLocationHeader('/v1/me');
 
+testSuite
 	.describe('Valid authentication')
 	.post({
 		url: '/v1/auth/signin',
@@ -35,5 +39,6 @@ module.exports = baseTest('Authentication resource')
 		}
 	})
 	.expectStatusCode(200)
-	.expectJsonToHavePath('token')
-;
+	.expectJsonToHavePath('token');
+
+module.exports = testSuite;

@@ -1,14 +1,15 @@
 var  baseTest = require('../base');
 
-module.exports = baseTest('Event source template resource')
+var testSuite = baseTest('Event source template resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
 	.signinUser('Signing first user', { email: 'henri.dutoit@localhost.localdomain' })
 	.createOrganization('Create new organization for first user', { name: 'Orga 1' }, 1, 1)
 	.createOrganization('Create second organization for first user', { name: 'Orga 2' }, 1, 2)
-	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3)
+	.createOrganization('Create new organization for second user', { name: 'Orga 3' }, 2, 3);
 
+testSuite
 	.describe('Create new event source template with too short name')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventSourceTemplates' }, function() {
@@ -22,8 +23,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name.0')
-	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]});
 
+testSuite
 	.describe('Create EST1 event source template in organization where user does not have access')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventSourceTemplates' }, function() {
@@ -37,8 +39,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
-	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
+	.expectJsonToBe({ organizationId: [ 'No organization found.' ]});
 
+testSuite
 	.describe('Create EST1 (public) event source template for first user in his first organization')
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
 		return {
@@ -56,8 +59,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.storeLocationAs('eventSourceTemplate', 1)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('Try to re-create EST1 event source template for first user in his first organization')
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
 		return {
@@ -74,8 +78,9 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('Re-create EST1 (public) event source template for first user in his second organization')
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
 		return {
@@ -87,8 +92,9 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.storeLocationAs('eventSourceTemplate', 100)
-	.expectStatusCode(201)
+	.expectStatusCode(201);
 
+testSuite
 	.describe('Create EST2 (private) event source template for first user in his first organization')
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
 		return {
@@ -101,8 +107,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.storeLocationAs('eventSourceTemplate', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('Create EST3 (public) event source template for first user in his second organization')
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
 		return {
@@ -115,8 +122,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.storeLocationAs('eventSourceTemplate', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('Create EST4 (public) event source template for second user in his organization')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
@@ -130,8 +138,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.storeLocationAs('eventSourceTemplate', 4)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('Create EST5 (private) event source template for second user in his organization')
 	.post({ url: '/v1/eventSourceTemplates' }, function() {
 		return {
@@ -144,8 +153,9 @@ module.exports = baseTest('Event source template resource')
 	})
 	.storeLocationAs('eventSourceTemplate', 5)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('Retrieve all the public event source templates for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/eventSourceTemplates?public=true' })
@@ -175,8 +185,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId3')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public event source templates for first user filtered by name')
 	.get({ url: '/v1/eventSourceTemplates?public=true&name=%4' })
 	.expectStatusCode(200)
@@ -187,8 +198,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId3')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for first user')
 	.get({ url: '/v1/eventSourceTemplates?allOrganizations' })
 	.expectStatusCode(200)
@@ -217,8 +229,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for first user filtered by name')
 	.get({ url: '/v1/eventSourceTemplates?allOrganizations&name=%1' })
 	.expectStatusCode(200)
@@ -238,8 +251,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for first user for the first organization')
 	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
@@ -260,8 +274,9 @@ module.exports = baseTest('Event source template resource')
 			public: false,
 			organizationId: this.getData('organizationId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for first user for the first organization filtered by name')
 	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId1') + '&name=%1' }; })
 	.expectStatusCode(200)
@@ -276,8 +291,9 @@ module.exports = baseTest('Event source template resource')
 				token: 'sometoken'
 			}
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for first user for the second organization')
 	.get({}, function() { return { url: '/v1/eventSourceTemplates?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
@@ -293,8 +309,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for second user')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/eventSourceTemplates' })
@@ -328,8 +345,9 @@ module.exports = baseTest('Event source template resource')
 			public: false,
 			organizationId: this.getData('organizationId3')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the event source templates for second user filtered by name')
 	.get({ url: '/v1/eventSourceTemplates?name=%1' })
 	.expectStatusCode(200)
@@ -349,8 +367,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public event source templates for second user')
 	.get({ url: '/v1/eventSourceTemplates?public=true' })
 	.expectStatusCode(200)
@@ -379,8 +398,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId3')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Retrieve all the public event source templates for second user filtered by name')
 	.get({ url: '/v1/eventSourceTemplates?public=true&name=%1' })
 	.expectStatusCode(200)
@@ -400,8 +420,9 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Try to retrieve all event source templates and all for a specific organization, only the specific organization is taken into account.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: '/v1/eventSourceTemplates?allOrganizations&organizationId=' + this.getData('organizationId2') }; })
@@ -418,12 +439,14 @@ module.exports = baseTest('Event source template resource')
 			public: true,
 			organizationId: this.getData('organizationId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Try to retrieve event source templates where the user is not member of the organization')
 	.get({}, function() { return { url: this.getData('locationEventSourceTemplate1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user updates one of his event source template')
 	.patch({}, function() {
 		return {
@@ -434,8 +457,9 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('No update sent must let the resource unchanged')
 	.patch({}, function() {
 		return {
@@ -444,8 +468,9 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.expectStatusCode(304)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('First user updates his first event source template with a name used for in the same organization.')
 	.patch({}, function() {
 		return {
@@ -456,8 +481,9 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken in this organization.' ]});
 
+testSuite
 	.describe('First user updates EST1 for the configuration part.')
 	.patch({}, function() {
 		return {
@@ -474,8 +500,9 @@ module.exports = baseTest('Event source template resource')
 		};
 	})
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSourceTemplates/:id')
+	.expectLocationHeader('/v1/eventSourceTemplates/:id');
 
+testSuite
 	.describe('First user retrieves EST1 after updated for checks.')
 	.get({}, function() {
 		return {
@@ -498,8 +525,9 @@ module.exports = baseTest('Event source template resource')
 				token: 'sometokenThatIsDifferent'
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('Second user tries to update one of first user event source template')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
@@ -510,19 +538,22 @@ module.exports = baseTest('Event source template resource')
 			}
 		};
 	})
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
-
+testSuite
   .describe('First user remove EST1.')
   .jwtAuthentication(function() { return this.getData('token1'); })
  	.delete({}, function() { return { url: this.getData('locationEventSourceTemplate1') }; })
- 	.expectStatusCode(204)
+ 	.expectStatusCode(204);
 
+testSuite
  	.describe('First user tries to retrieve EST1.')
  	.get({}, function() { return { url: this.getData('locationEventSourceTemplate1') }; })
- 	.expectStatusCode(403)
+ 	.expectStatusCode(403);
 
+testSuite
  	.describe('First user tries to delete EST4 in an organization where he is not a member.')
  	.get({}, function() { return { url: this.getData('locationEventSourceTemplate4') }; })
- 	.expectStatusCode(403)
-;
+ 	.expectStatusCode(403);
+
+module.exports = testSuite;
