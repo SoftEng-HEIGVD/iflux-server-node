@@ -40,8 +40,7 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
-					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.leftJoin('organizations_users', 'event_source_templates.organization_id', 'organizations_users.organization_id')
 					.where('event_source_templates.id', id)
 					.where('organizations_users.user_id', user.get('id'));
 			})
@@ -52,8 +51,7 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
-					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.leftJoin('organizations_users', 'event_source_templates.organization_id', 'organizations_users.organization_id')
 					.where('event_source_templates.id', id)
 					.where(function() {
 						return this
@@ -79,8 +77,11 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
-				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.leftJoin('organizations_users', function() {
+          return this
+            .on('event_source_templates.organization_id', 'organizations_users.organization_id')
+            .andOn('organizations_users.user_id', '=', user.get('id'));
+        })
 				.where(function() {
 					return this
 						.where('organizations_users.user_id', user.get('id'))
@@ -91,8 +92,7 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 				qb = qb.where('event_source_templates.name', 'like', criteria.name);
 			}
 
-			// TODO: Dirty hack to avoid duplicated data in the result set, try to find a way to do that properly
-			return qb.select(t.knex.raw('DISTINCT ON (event_source_templates.id) *'));
+			return qb;
 		});
 	},
 
@@ -120,8 +120,7 @@ module.exports = _.extend(new dao(EventSourceTemplate), {
 	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'event_source_templates.organization_id', 'organizations.id')
-				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.leftJoin('organizations_users', 'event_source_templates.organization_id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
 
 			if (criteria.name) {

@@ -32,8 +32,7 @@ module.exports = _.extend(new dao(EventSource), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
-					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.leftJoin('organizations_users', 'event_sources.organization_id', 'organizations_users.organization_id')
 					.where('event_sources.id', id)
 					.where('organizations_users.user_id', user.get('id'));
 			})
@@ -79,8 +78,7 @@ module.exports = _.extend(new dao(EventSource), {
 	findByEventSourceTemplateAndUser: function(eventSourceTemplate, user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
-				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.leftJoin('organizations_users', 'event_sources.organization_id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'))
 				.where('event_sources.event_source_template_id', eventSourceTemplate.get('id'));
 
@@ -95,8 +93,7 @@ module.exports = _.extend(new dao(EventSource), {
 	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'event_sources.organization_id', 'organizations.id')
-				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.leftJoin('organizations_users', 'event_sources.organization_id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
 
 			if (criteria.name) {
@@ -122,7 +119,11 @@ module.exports = _.extend(new dao(EventSource), {
 
  		return this.collection(function(qb) {
  			qb = qb
- 				.leftJoin('organizations_users', 'event_sources.organization_id', 'organizations_users.organization_id')
+ 				.leftJoin('organizations_users', function() {
+          return this
+            .on('event_sources.organization_id', 'organizations_users.organization_id')
+            .andOn('organizations_users.user_id', '=', user.get('id'));
+        })
  				.where(function() {
  					return this
  						.where('organizations_users.user_id', user.get('id'))
@@ -133,8 +134,7 @@ module.exports = _.extend(new dao(EventSource), {
  				qb = qb.where('event_sources.name', 'like', criteria.name);
  			}
 
- 			// TODO: Dirty hack to avoid duplicated data in the result set, try to find a way to do that properly
- 			return qb.select(t.knex.raw('DISTINCT ON (event_sources.id) *'));
+ 			return qb;
  		});
  	},
 });

@@ -29,8 +29,7 @@ module.exports = _.extend(new dao(Rule), {
 		return this.model
 			.query(function(qb) {
 				return qb
-					.leftJoin('organizations', 'rules.organization_id', 'organizations.id')
-					.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+					.leftJoin('organizations_users', 'rules.organization_id', 'organizations_users.organization_id')
 					.where('rules.id', id)
 					.where('organizations_users.user_id', user.get('id'));
 			})
@@ -54,8 +53,7 @@ module.exports = _.extend(new dao(Rule), {
 	findAllByUser: function(user, criteria) {
 		return this.collection(function(qb) {
 			qb = qb
-				.leftJoin('organizations', 'rules.organization_id', 'organizations.id')
-				.leftJoin('organizations_users', 'organizations.id', 'organizations_users.organization_id')
+				.leftJoin('organizations_users', 'rules.organization_id', 'organizations_users.organization_id')
 				.where('organizations_users.user_id', user.get('id'));
 
 			if (criteria.name) {
