@@ -2,7 +2,7 @@ var
 	config = require('../../../config/config'),
 	baseTest = require('../base');
 
-module.exports = baseTest('Event source resource')
+var testSuite = baseTest('Event source resource')
 	.createUser('Register first user')
 	.createUser('Register second user', { lastName: 'Dutoit', email: 'henri.dutoit@localhost.localdomain' })
 	.signinUser('Signing first user')
@@ -66,8 +66,9 @@ module.exports = baseTest('Event source resource')
 				"required": [ "test" ]
 			}
 		}
-	}, 1, 1)
+	}, 1, 1);
 
+testSuite
 	.describe('First user tries to creates ES1 event source with too short name.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventSources' }, function() {
@@ -84,8 +85,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name.0')
-	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]})
+	.expectJsonToBe({ name: [ 'The name must be at least 3 characters long' ]});
 
+testSuite
 	.describe('First user tries to creates ES1 event source in an organization he has no access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.post({	url: '/v1/eventSources' }, function() {
@@ -102,8 +104,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('organizationId.0')
-	.expectJsonToBe({ organizationId: [ 'No organization found.' ]})
+	.expectJsonToBe({ organizationId: [ 'No organization found.' ]});
 
+testSuite
 	.describe('First user tries to create ES1 event source from an event source template he has no access.')
 	.post({	url: '/v1/eventSources' }, function() {
 		return {
@@ -119,8 +122,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('eventSourceTemplateId.0')
-	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]})
+	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]});
 
+testSuite
 	.describe('First user tries to create ES1 event source with a wrong configuration.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -139,8 +143,9 @@ module.exports = baseTest('Event source resource')
 	.expectJsonToBe({ configuration: [{
 		wrongProperty: [ "additionalProperty 'wrongProperty' exists in instance when not allowed" ],
 		sensorId: [ "requires property \"sensorId\"" ]
-	}]})
+	}]});
 
+testSuite
 	.describe('First user tries to create ES1 event source without configuration.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -153,13 +158,15 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('configuration')
-	.expectJsonToBe({ configuration: [ 'The event source template requires an event source configured.' ] })
+	.expectJsonToBe({ configuration: [ 'The event source template requires an event source configured.' ] });
 
+testSuite
 	.describe('First user creates ES1 event source for his second organization and first event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
 				name: 'ES1',
+        public: 1,
 				organizationId: this.getData('organizationId2'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				configuration: {
@@ -171,8 +178,9 @@ module.exports = baseTest('Event source resource')
 	.storeLocationAs('eventSource', 1)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user tries to re-create ES1 event source.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -188,8 +196,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('name')
-	.expectJsonToBe({ name: [ "Name is already taken for this event source template and this organization." ] })
+	.expectJsonToBe({ name: [ "Name is already taken for this event source template and this organization." ] });
 
+testSuite
 	.describe('First user tries to re-create ES1 event source but in a different event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -206,8 +215,9 @@ module.exports = baseTest('Event source resource')
 	.storeLocationAs('eventSource', 100)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user tries to re-create ES1 event source but in a different organization.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -224,8 +234,9 @@ module.exports = baseTest('Event source resource')
 	.storeLocationAs('eventSource', 101)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user creates ES2 event source for his second organization and second event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -238,8 +249,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.storeLocationAs('eventSource', 2)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSources/:id')
+	.expectLocationHeader('/v1/eventSources/:id');
 
+testSuite
 	.describe('First user tries to create ES3 event source for his first organization and second event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -252,8 +264,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(422)
 	.expectJsonToHavePath('eventSourceTemplateId.0')
-	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]})
+	.expectJsonToBe({ eventSourceTemplateId: [ 'No event source template found.' ]});
 
+testSuite
 	.describe('First user creates ES3 event source for his first organization and first event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -269,14 +282,16 @@ module.exports = baseTest('Event source resource')
 	})
 	.storeLocationAs('eventSource', 3)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSources/:id')
+	.expectLocationHeader('/v1/eventSources/:id');
 
+testSuite
 	.describe('Second user creates ES4 event source for his organization and first event source template.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
 			body: {
 				name: 'ES4',
+        public: true,
 				organizationId: this.getData('organizationId3'),
 				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
 				configuration: {
@@ -287,8 +302,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.storeLocationAs('eventSource', 4)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSources/:id')
+	.expectLocationHeader('/v1/eventSources/:id');
 
+testSuite
 	.describe('Second user creates ES5 event source for his organization and third event source template.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -301,8 +317,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.storeLocationAs('eventSource', 5)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSources/:id')
+	.expectLocationHeader('/v1/eventSources/:id');
 
+testSuite
 	.describe('Second user creates ES6 event source for his organization and template in a different organization.')
 	.post({ url: '/v1/eventSources' }, function() {
 		return {
@@ -318,8 +335,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.storeLocationAs('eventSource', 6)
 	.expectStatusCode(201)
-	.expectLocationHeader('/v1/eventSources/:id')
+	.expectLocationHeader('/v1/eventSources/:id');
 
+testSuite
 	.describe('Second user retrieve ES6 event source.')
 	.get({}, function() { return { url: '/v1/eventSources?name=%6&eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
 	.expectStatusCode(200)
@@ -330,20 +348,118 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
-	.describe('First user tries to retrieve event sources.')
+testSuite
+  .describe('Second user retrieve all event sources that he has access.')
+ 	.get({ url: '/v1/eventSources' })
+ 	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(4)
+  .expectJsonToBeAtLeast(function() {
+    return [{
+      id: this.getData('eventSourceId1'),
+      name: 'ES1',
+      organizationId: this.getData('organizationId2'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId4'),
+      name: 'ES4',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId5'),
+      name: 'ES5',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId3')
+    }, {
+      id: this.getData('eventSourceId6'),
+      name: 'ES6',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }];
+  });
+
+testSuite
+  .describe('Second user retrieve all public event sources.')
+ 	.get({ url: '/v1/eventSources?public' })
+ 	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(2)
+  .expectJsonToBeAtLeast(function() {
+    return [{
+      id: this.getData('eventSourceId1'),
+      name: 'ES1',
+      organizationId: this.getData('organizationId2'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId4'),
+      name: 'ES4',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }];
+  });
+
+testSuite
+	.describe('First user retrieve all event sources that he has access.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/eventSources' })
-	.expectStatusCode(422)
-	.expectJsonToHavePath([ 'eventSourceTemplateId', 'organizationId', 'allOrganizations' ])
-	.expectJsonToBe({
-		eventSourceTemplateId: [ 'Event source template id should be provided.' ],
-		organizationId: [ 'Organization id should be provided.' ],
-		allOrganizations: [ 'allOrganizations should be provided.' ]
-	})
+	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(6)
+ 	.expectJsonToBeAtLeast(function() {
+ 		return [{
+ 			id: this.getData('eventSourceId1'),
+ 			name: 'ES1',
+ 			organizationId: this.getData('organizationId2'),
+ 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+ 		}, {
+      id: this.getData('eventSourceId100'),
+      name: 'ES1',
+      organizationId: this.getData('organizationId2'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId2')
+    }, {
+      id: this.getData('eventSourceId101'),
+      name: 'ES1',
+      organizationId: this.getData('organizationId1'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+ 			id: this.getData('eventSourceId2'),
+ 			name: 'ES2',
+ 			organizationId: this.getData('organizationId2'),
+ 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
+    }, {
+ 			id: this.getData('eventSourceId3'),
+ 			name: 'ES3',
+ 			organizationId: this.getData('organizationId1'),
+ 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId4'),
+      name: 'ES4',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+ 		}];
+ 	});
 
-	.describe('First user tries to mix different way to retrieve event sources (eventSourceTemplateId is used).')
+testSuite
+	.describe('First user retrieve all public action targets.')
+	.jwtAuthentication(function() { return this.getData('token1'); })
+	.get({ url: '/v1/eventSources?public' })
+	.expectStatusCode(200)
+  .expectJsonCollectionToHaveSize(2)
+ 	.expectJsonToBeAtLeast(function() {
+ 		return [{
+ 			id: this.getData('eventSourceId1'),
+ 			name: 'ES1',
+ 			organizationId: this.getData('organizationId2'),
+ 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId4'),
+      name: 'ES4',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+ 		}];
+ 	});
+
+testSuite
+  .describe('First user tries to mix different way to retrieve event sources (eventSourceTemplateId is used).')
 	.get({}, function() {
 		return {
 			url: '/v1/eventSources?allOrganizations&organizationId=' +
@@ -371,9 +487,10 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
-	.describe('First user tries to mix different way to retrieve event sources (organizationId is used).')
+testSuite
+  .describe('First user tries to mix different way to retrieve event sources (organizationId is used).')
 	.get({}, function() { return { url: '/v1/eventSources?allOrganizations&organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(2)
@@ -389,8 +506,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all event sources.')
 	.get({ url: '/v1/eventSources?allOrganizations' })
 	.expectStatusCode(200)
@@ -426,8 +544,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all event sources filtered by name.')
 	.get({ url: '/v1/eventSources?allOrganizations&name=%1' })
 	.expectStatusCode(200)
@@ -452,9 +571,10 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
-	.describe('First user retrieves all event sources for his first organization.')
+testSuite
+  .describe('First user retrieves all event sources for his first organization.')
 	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.organizationId', '0.eventSourceTemplateId' ])
@@ -471,8 +591,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all event sources for his second organization.')
 	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
@@ -496,8 +617,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all event sources for his second organization filtered by name.')
 	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId2') + '&name=%2'}; })
 	.expectStatusCode(200)
@@ -509,10 +631,10 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}];
-	})
+	});
 
-
-	.describe('First user retrieves all event sources for his first event source template.')
+testSuite
+  .describe('First user retrieves all event sources for his first event source template.')
 	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
@@ -535,8 +657,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all event sources for his first event source template filtered by name.')
 	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId1') + '&name=%3' }; })
 	.expectStatusCode(200)
@@ -548,8 +671,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId1'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user retrieves all event sources for his second event source template.')
 	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId2') }; })
 	.expectStatusCode(200)
@@ -567,8 +691,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId2'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId2')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieves all event sources.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.get({ url: '/v1/eventSources?allOrganizations' })
@@ -592,8 +717,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieves all event sources for his organization.')
 	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
@@ -616,8 +742,9 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
-	})
+	});
 
+testSuite
 	.describe('Second user retrieves all event sources for his event source template.')
 	.get({}, function() { return { url: '/v1/eventSources?eventSourceTemplateId=' + this.getData('eventSourceTemplateId3') }; })
 	.expectStatusCode(200)
@@ -630,17 +757,20 @@ module.exports = baseTest('Event source resource')
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId3')
 		}];
-	})
+	});
 
+testSuite
 	.describe('First user tries to retrieve an event source that does not exist.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({}, function() { return { url: this.getData('locationEventSource1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user tries to retrieve an event source from an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationEventSource4') }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user retrieve ES1 (1) event source.')
 	.get({}, function() { return { url: this.getData('locationEventSource1') }; })
 	.expectStatusCode(200)
@@ -654,8 +784,9 @@ module.exports = baseTest('Event source resource')
 				sensorId: 'amazingSensor'
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user updates ES1 (1) event source.')
 	.patch({}, function() {
 		return {
@@ -667,8 +798,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('ES1 not updated should let it unchanged.')
 	.patch({}, function() {
 		return {
@@ -678,8 +810,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(304)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates the configuration ES1 (1) event source.')
 	.patch({}, function() {
 		return {
@@ -693,8 +826,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('Check ES1 (1) event source has been correctly updated.')
 	.get({}, function() {
 		return {
@@ -707,8 +841,9 @@ module.exports = baseTest('Event source resource')
 		configuration: {
 			sensorId: 'HighTemperatureSensor'
 		}
-	})
+	});
 
+testSuite
 	.describe('First user updates ES1 (100) event source with a name used by ES2.')
 	.patch({}, function() {
 		return {
@@ -719,8 +854,9 @@ module.exports = baseTest('Event source resource')
 		};
 	})
 	.expectStatusCode(422)
-	.expectJsonToBe({ name: [ 'Name is already taken for this event source template and this organization.' ]})
+	.expectJsonToBe({ name: [ 'Name is already taken for this event source template and this organization.' ]});
 
+testSuite
 	.describe('First user updates ES1 (100) event source with a name used by ES3.')
 	.patch({}, function() {
 		return {
@@ -732,8 +868,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('First user updates ES1 (100) event source with a name used by ES1 (1).')
 	.patch({}, function() {
 		return {
@@ -745,8 +882,9 @@ module.exports = baseTest('Event source resource')
 	})
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventSources/:id')
-	.expectHeaderToBePresent('x-iflux-generated-id')
+	.expectHeaderToBePresent('x-iflux-generated-id');
 
+testSuite
 	.describe('Second user tries to update ES1 event source of first user.')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.patch({}, function() {
@@ -757,8 +895,9 @@ module.exports = baseTest('Event source resource')
 			}
 		};
 	})
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user creates ES7 event source with a configuration call to remote system.')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.mockRequest({
@@ -806,8 +945,9 @@ module.exports = baseTest('Event source resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user creates ES8 event source with a configuration and a token call to remote system.')
 	.mockRequest({
 		method: 'POST',
@@ -858,8 +998,9 @@ module.exports = baseTest('Event source resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First user updates ES8 event source with a configuration and a token call to remote system.')
 	.mockRequest({
 		method: 'POST',
@@ -907,8 +1048,9 @@ module.exports = baseTest('Event source resource')
 				})
 			}
 		};
-	})
+  });
 
+testSuite
 	.describe('First reconfigure ES8 event source.')
 	.mockRequest({
 		method: 'POST',
@@ -950,25 +1092,30 @@ module.exports = baseTest('Event source resource')
 				})
 			}
 		};
-	})
+	});
 
+testSuite
 	.describe('First tries to reconfigure ES2 event source that has no configuration.')
 	.post({}, function() {
 		return {
 			url: this.getData('locationEventSource2') + '/configure'
 		};
 	})
-	.expectStatusCode(404)
+	.expectStatusCode(404);
 
+testSuite
   .describe('First user remove ES1.')
  	.delete({}, function() { return { url: this.getData('locationEventSource1') }; })
- 	.expectStatusCode(204)
+ 	.expectStatusCode(204);
 
+testSuite
  	.describe('First user tries to retrieve ES1.')
  	.get({}, function() { return { url: this.getData('locationEventSource1') }; })
- 	.expectStatusCode(403)
+ 	.expectStatusCode(403);
 
+testSuite
  	.describe('First user tries to delete ES4 in an organization where he is not a member.')
  	.get({}, function() { return { url: this.getData('locationEventSource4') }; })
- 	.expectStatusCode(403)
-;
+ 	.expectStatusCode(403);
+
+module.exports = testSuite;

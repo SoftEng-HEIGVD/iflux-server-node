@@ -30,6 +30,7 @@ module.exports = {
 
 			.createEventSource('Create first event source for second user, first template in third orga', { name: 'Fourth source' }, 2, 3, 1)
 			.createEventSource('Create second event source for second user, third template in third orga', { name: 'Fifth source' }, 2, 3, 3)
+      .createEventSource('Create third event source (public) for second user, third template in third orga', { name: 'Sixth source', public: true }, 2, 3, 3)
 
 			.createActionTargetTemplate('Create first action target template for first user', { name: 'Action target template 1', public: true }, 1, 1)
 			.createActionTargetTemplate('Create second action target template for first user', { name: 'Action target template 2', public: false }, 1, 2)
@@ -49,6 +50,7 @@ module.exports = {
 
 			.createActionTarget('Create first action target for second user, first template in third orga', { name: 'Fourth target' }, 2, 3, 1)
 			.createActionTarget('Create second action target for second user, third template in third orga', { name: 'Fifth target' }, 2, 3, 3)
+      .createActionTarget('Create third action target for second user, third template in third orga', { name: 'Sixth target', public: true }, 2, 3, 3)
 		;
 	}
 };

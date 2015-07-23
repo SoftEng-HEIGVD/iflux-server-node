@@ -8,6 +8,7 @@ module.exports = {
 			name: model.get('name'),
 			eventSourceTemplateId: model.get('event_source_template_id'),
 			organizationId: model.get('organization_id'),
+      public: model.get('public'),
       deletable: model.get('refCount') == 0
 		};
 

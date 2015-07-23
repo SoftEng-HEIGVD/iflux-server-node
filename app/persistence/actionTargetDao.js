@@ -17,7 +17,8 @@ module.exports = _.extend(new dao(ActionTarget), {
 		var data = {
 			name: actionTarget.name,
 			action_target_template_id: actionTargetTemplate.get('id'),
-			organization_id: organization.get('id')
+			organization_id: organization.get('id'),
+      public: _.isUndefined(actionTarget.public) ? false : actionTarget.public
 		};
 
 		if (actionTargetTemplate.get('configurationSchema') && actionTarget.configuration) {
@@ -38,6 +39,21 @@ module.exports = _.extend(new dao(ActionTarget), {
 			})
 			.fetch({require: true});
 	},
+
+  findByIdAndUserOrPublic: function(id, user) {
+ 		return this.model
+ 			.query(function(qb) {
+ 				return qb
+ 					.leftJoin('organizations_users', 'action_targets.organization_id', 'organizations_users.organization_id')
+ 					.where('action_targets.id', id)
+ 					.where(function() {
+ 						return this
+ 							.where('organizations_users.user_id', user.get('id'))
+ 							.orWhere('action_targets.public', true);
+ 					})
+ 			})
+ 			.fetch({require: true});
+ 	},
 
 	findByOrganizationId: function(organizationId) {
 		return this.collection(
@@ -89,5 +105,35 @@ module.exports = _.extend(new dao(ActionTarget), {
 
 			return qb;
 		});
-	}
+	},
+
+  findAllPublic: function(criteria) {
+ 		var whereClause = [{ public: true }];
+
+ 		if (criteria.name) {
+ 			whereClause.push(['name', 'like', criteria.name]);
+ 		}
+
+ 		return this.collectionFromModel(whereClause);
+ 	},
+
+ 	findAllAccessible: function(user, criteria) {
+ 		var t = this;
+ 		return this.collection(function(qb) {
+ 			qb = qb
+ 				.leftJoin('organizations_users', 'action_targets.organization_id', 'organizations_users.organization_id')
+ 				.where(function() {
+ 					return this
+ 						.where('organizations_users.user_id', user.get('id'))
+ 						.orWhere('public', true);
+ 				});
+
+ 			if (criteria.name) {
+ 				qb = qb.where('action_targets.name', 'like', criteria.name);
+ 			}
+
+ 			// TODO: Dirty hack to avoid duplicated data in the result set, try to find a way to do that properly
+ 			return qb.select(t.knex.raw('DISTINCT ON (action_targets.id) *'));
+ 		});
+ 	},
 });

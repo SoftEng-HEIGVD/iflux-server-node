@@ -8,6 +8,7 @@ module.exports = {
 			name: model.get('name'),
 			actionTargetTemplateId: model.get('action_target_template_id'),
 			organizationId: model.get('organization_id'),
+      public: model.get('public'),
       deletable: model.get('refCount') == 0
 		};
 

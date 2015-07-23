@@ -72,6 +72,29 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/rules/:id')
 
+  .describe('First user create a rule with public event source, event type, action target and action type.')
+ 	.post({ url: '/v1/rules'}, function() {
+ 		return {
+ 			body: {
+ 				name: 'Rule with public data',
+ 				active: true,
+ 				organizationId: this.getData('organizationId2'),
+ 				conditions: [{
+ 					eventSourceId: this.getData('eventSourceId6'),
+          eventTypeId: this.getData('eventTypeId4')
+ 				}],
+ 				transformations: [{
+ 					actionTargetId: this.getData('actionTargetId6'),
+ 					actionTypeId: this.getData('actionTypeId4'),
+          eventTypeId: this.getData('eventTypeId4')
+ 				}]
+ 			}
+ 		};
+ 	})
+ 	.storeLocationAs('rule', 4)
+ 	.expectStatusCode(201)
+ 	.expectLocationHeader('/v1/rules/:id')
+
 	.describe('Second user create first rule with [third orga, fourth event source, fourth action target, fourth action type].')
 	.jwtAuthentication(function() { return this.getData('token2'); })
 	.post({ url: '/v1/rules'}, function() {
@@ -214,7 +237,7 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 	.describe('First user retrieve rules in his second organization.')
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId2') }; })
 	.expectStatusCode(200)
-	.expectJsonCollectionToHaveSize(1)
+	.expectJsonCollectionToHaveSize(2)
 	.expectJsonToHavePath([ '0.conditions.0.eventSource.generatedIdentifier', '0.transformations.0.actionTarget.generatedIdentifier', '0.transformations.0.actionType' ])
 	.expectJsonToBeAtLeast(function() {
 		return [{
@@ -242,13 +265,37 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 					}
 				}
 			}]
-		}];
+		}, {
+      id: this.getData('ruleId4'),
+      name: 'Rule with public data',
+      active: true,
+      organizationId: this.getData('organizationId2'),
+      conditions: [{
+        eventSource: {
+          id: this.getData('eventSourceId6')
+        },
+        eventType: {
+          id: this.getData('eventTypeId4')
+        }
+      }],
+      transformations: [{
+        actionTarget: {
+          id: this.getData('actionTargetId6')
+        },
+        actionType: {
+          id: this.getData('actionTypeId4')
+        },
+        eventType: {
+          id: this.getData('eventTypeId4')
+        }
+      }]
+    }];
 	})
 
 	.describe('First user retrieve rules in all his organizations.')
 	.get({ url: '/v1/rules' })
 	.expectStatusCode(200)
-	.expectJsonCollectionToHaveSize(2)
+	.expectJsonCollectionToHaveSize(3)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('ruleId1'),
@@ -317,7 +364,31 @@ module.exports = helpers.setup(baseTest('Rule resource'))
 					}
 				}
 			}]
-		}];
+		}, {
+      id: this.getData('ruleId4'),
+      name: 'Rule with public data',
+      active: true,
+      organizationId: this.getData('organizationId2'),
+      conditions: [{
+        eventSource: {
+          id: this.getData('eventSourceId6')
+        },
+        eventType: {
+          id: this.getData('eventTypeId4')
+        }
+      }],
+      transformations: [{
+        actionTarget: {
+          id: this.getData('actionTargetId6')
+        },
+        actionType: {
+          id: this.getData('actionTypeId4')
+        },
+        eventType: {
+          id: this.getData('eventTypeId4')
+        }
+      }]
+    }];
 	})
 
 	.describe('First user retrieve rules in all his organizations filtered by name.')
