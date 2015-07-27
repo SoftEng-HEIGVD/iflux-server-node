@@ -26,23 +26,13 @@ var cache = null;
  */
 module.exports = {
 	/**
-	 * Populate the rules for the evaluation. This will
-	 * act as a caching mechanism to avoid retrieving the rules
-	 * for each event received.
-	 *
-	 * @param {object} payload Something to return at the end of the promise chain
+	 * Populate the rules for the evaluation. This will act as a caching
+   * mechanism to avoid retrieving the rules for each event received.
 	 */
-	populate: function(payload) {
-		cache = {
-			actionTargets: {},
-			actionTargetTemplates: {},
-			actionTypes: {},
-			eventSources: {},
-			eventTypes: {},
-			rules: {}
-		};
+	populate: function() {
+    cache = createEmptyCache();
 
-		rules = {};
+    rules = {};
 
 		return ruleDao
 			.findAllEnabled()
@@ -55,10 +45,9 @@ module.exports = {
 			})
 			.then(function() {
 				console.log('Rules reloaded');
-				return payload;
 			})
 			.catch(function(err) {
-				console.log("Unable to populate the rules.");
+				console.log('Unable to populate the rules.');
 				console.log(err);
 			})
 			//.then(function() {
@@ -75,121 +64,192 @@ module.exports = {
 	 * @param events The events to evaluate
 	 */
 	match: function(events) {
-		var actions = [];
-
 		var promise = Promise.resolve();
 
 		if (_.isUndefined(rules) || _.isNull(rules) || _.isEmpty(rules)) {
 			promise = promise.then(this.populate());
 		}
 
-		return promise.then(function() {
-			// Analyze each received events
-			_.each(_.isArray(events) ? events : [events], function (event) {
-				if (_.isUndefined(event) || _.isNull(event)) {
-					console.log('The event is null for a strange reason');
-					return;
-				}
+		return promise
+      .then(function() {
+        return evaluate(cache, rules, events);
+      })
+      .then(function(data) {
+        // Save the matched results to ElasticSearch
+        _.each(data.matched, function(matched) {
+          elasticSearchService.saveMatch(matched);
+        });
 
-				var eventMatchingResults = {};
+        // Finally process the actions
+        if (!_.isEmpty(data.actions)) {
+          actionService.processActions(data.actions);
+        }
+    });
+	},
 
-				// Analyze each active rule
-				_.each(rules, function (rule) {
+  /**
+   * Validate a single rule
+   *
+   * @param rule The rule to validate
+   * @param event The event to validate
+   * @returns {Object} The result of the validation
+   */
+  validate: function(rule, event) {
+    var validationCache = createEmptyCache();
+    var validationRules = {};
 
-					// Analyze each condition in the rule
-					_.each(rule.conditions, function (condition) {
-						// Define the fields that can be evaluated
-						var matchingBy = {
-							source: isEventSourceDefined(condition),
-							type: isEventTypeDefined(condition),
-							function: !_.isUndefined(condition.fn)
-						};
-
-						// Retrieve the evaluator function
-						var evaluationFn = eventMatchEngine[(matchingBy.source ? 's' : '') + (matchingBy.type ? 't' : '') + (matchingBy.function ? 'f' : '')];
-
-						// Evaluate the condition
-						if (evaluationFn(condition, event)) {
-							// First match
-							if (!eventMatchingResults[rule.id]) {
-								event.matchedAt = timeService.timestamp();
-
-								eventMatchingResults[rule.id] = {
-									rule: clone(rule),
-									event: clone(event),
-									matchedConditions: [],
-									transformations: []
-								};
-							}
-
-							// Store match
-							eventMatchingResults[rule.id].matchedConditions.push(_.extend({matchingBy: matchingBy}, condition));
-						}
-					}, this);
-				}, this);
-
-				// Evaluate the matches
-				_.each(eventMatchingResults, function (eventMatchingResult) {
-					// Evaluate the transformations
-					_.each(eventMatchingResult.rule.transformations, function (transformation) {
-						// Define the fields that can be evaluated
-						var matchingBy = {
-							targetAndType: true, // Mandatory evaluation
-							eventType: isEventTypeDefined(transformation)
-						};
-
-						// Evaluate the transformation
-						if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
-							var actionTarget = cache.actionTargets[transformation.actionTarget.generatedIdentifier];
-							var actionTargetTemplate = cache.actionTargetTemplates[actionTarget.get('action_target_template_id')];
-							var actionType = cache.actionTypes[transformation.actionType.type];
-
-							// Process the transformation of the event to the target format
-							var transformed;
-
-							// Only apply transformation if an expression is available
-							if (transformation.fn) {
-								transformed = transformation.fn.compiled(
-									event,
-									ruleEngineConverter.convertActionTarget(actionTarget),
-									ruleEngineConverter.convertActionType(actionType),
-									ruleEngineConverter.convertEventSource(event.source ? cache.eventSources[event.source] : null),
-									ruleEngineConverter.convertEventType(event.type ? cache.eventTypes[event.type] : null),
-									{ json: JSON, console: console }
-								);
-							}
-							else {
-								transformed = event;
-							}
-
-							// Store transformation
-							eventMatchingResult.transformations.push(_.extend({
-								matchingBy: matchingBy,
-								transformed: transformed
-							}, transformation));
-
-							actions.push({
-								targetUrl: actionTargetTemplate.get('targetUrl'),
-								targetToken: actionTargetTemplate.get('targetToken'),
-								target: actionTarget.get('generatedIdentifier'),
-								type: actionType.get('type'),
-								properties: transformed
-							});
-						}
-					}, this);
-
-					// Save in elastic search the event matching result
-					elasticSearchService.saveMatch(eventMatchingResult);
-				}, this);
-			}, this);
-
-			// Finally process the actions
-			if (!_.isEmpty(actions)) {
-				actionService.processActions(actions);
-			}
-		});
-	}
+    return Promise.resolve()
+      .then(function() {
+        return ruleConverter
+          .convertForEvaluation(rule, validationCache)
+          .then(function(ruleConverted) {
+            validationRules[ruleConverted.id] = clone(ruleConverted);
+          })
+          .then(function() {
+            return evaluate(validationCache, validationRules, [ event ]);
+          });
+      })
+      .catch(function(err) {
+        console.log('Unable to validate rule %s.', rule.get('id'));
+        console.log(err);
+      });
+  }
 };
+
+/**
+ * Create an empty cache
+ *
+ * @returns {Object} The empty cache
+ */
+function createEmptyCache() {
+  return {
+    actionTargets: {},
+    actionTargetTemplates: {},
+    actionTypes: {},
+    eventSources: {},
+    eventTypes: {},
+    rules: {}
+  };
+}
+
+/**
+ * Evaluate a list of events against the rules with the cache of models
+ *
+ * @param cache The cache that contains the different models associated with the rules (action types, ...)
+ * @param rules The rules that must be evaluated
+ * @param events The events to evaluate
+ * @returns {{actions: Array, matched: Array}} The result of matching
+ */
+function evaluate(cache, rules, events) {
+  var data = {
+    actions: [],
+    matched: []
+  };
+
+  // Analyze each received events
+  _.each(_.isArray(events) ? events : [events], function (event) {
+    if (_.isUndefined(event) || _.isNull(event)) {
+      console.log('The event is null for a strange reason');
+      return;
+    }
+
+    var eventMatchingResults = {};
+
+    // Analyze each active rule
+    _.each(rules, function (rule) {
+      // Analyze each condition in the rule
+      _.each(rule.conditions, function (condition, conditionIndex) {
+        // Define the fields that can be evaluated
+        var matchingBy = {
+          conditionIndex: conditionIndex,
+          source: isEventSourceDefined(condition),
+          type: isEventTypeDefined(condition),
+          function: !_.isUndefined(condition.fn)
+        };
+
+        // Retrieve the evaluator function
+        var evaluationFn = eventMatchEngine[(matchingBy.source ? 's' : '') + (matchingBy.type ? 't' : '') + (matchingBy.function ? 'f' : '')];
+
+        // Evaluate the condition
+        if (evaluationFn(cache, condition, event)) {
+          // First match
+          if (!eventMatchingResults[rule.id]) {
+            event.matchedAt = timeService.timestamp();
+
+            eventMatchingResults[rule.id] = {
+              rule: clone(rule),
+              event: clone(event),
+              matchedConditions: [],
+              matchedActions: []
+            };
+          }
+
+          // Store match
+          eventMatchingResults[rule.id].matchedConditions.push({
+            matchingBy: matchingBy
+          });
+        }
+      }, this);
+    }, this);
+
+    // Evaluate the matches
+    _.each(eventMatchingResults, function (eventMatchingResult) {
+      // Evaluate the transformations
+      _.each(eventMatchingResult.rule.transformations, function (transformation, transformationIndex) {
+        // Define the fields that can be evaluated
+        var matchingBy = {
+          transformationIndex: transformationIndex,
+          targetAndType: true, // Mandatory evaluation
+          eventType: isEventTypeDefined(transformation)
+        };
+
+        // Evaluate the transformation
+        if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
+          var actionTarget = cache.actionTargets[transformation.actionTarget.generatedIdentifier];
+          var actionTargetTemplate = cache.actionTargetTemplates[actionTarget.get('action_target_template_id')];
+          var actionType = cache.actionTypes[transformation.actionType.type];
+
+          // Process the transformation of the event to the target format
+          var action;
+
+          // Only apply transformation if an expression is available
+          if (transformation.fn) {
+            action = transformation.fn.compiled(
+              event,
+              ruleEngineConverter.convertActionTarget(actionTarget),
+              ruleEngineConverter.convertActionType(actionType),
+              ruleEngineConverter.convertEventSource(event.source ? cache.eventSources[event.source] : null),
+              ruleEngineConverter.convertEventType(event.type ? cache.eventTypes[event.type] : null),
+              { json: JSON, console: console }
+            );
+          }
+          else {
+            action = _.pick(event, 'timestamp', 'source', 'type', 'properties');
+          }
+
+          // Store transformation
+          eventMatchingResult.matchedActions.push({
+            matchingBy: matchingBy,
+            actionBody: action
+          });
+
+          data.actions.push({
+            targetUrl: actionTargetTemplate.get('targetUrl'),
+            targetToken: actionTargetTemplate.get('targetToken'),
+            target: actionTarget.get('generatedIdentifier'),
+            type: actionType.get('type'),
+            properties: action
+          });
+        }
+      }, this);
+
+      // Save in elastic search the event matching result
+      data.matched.push(eventMatchingResult);
+    }, this);
+  }, this);
+
+  return data;
+}
 
 /**
  * Check if an event source is defined on a condition.
@@ -216,14 +276,14 @@ function isEventTypeDefined(condition) {
  * regarding of the data that are present in the condition.
  */
 var eventMatchEngine = {
-	f: function(condition, event) { return matchConditionFunction(condition, event); },
-	t: function(condition, event) { return matchConditionEventType(condition, event); },
-	s: function(condition, event) { return matchConditionEventSource(condition, event); },
-	sf: function(condition, event) { return matchConditionEventSource(condition, event) && matchConditionFunction(condition, event); },
-	tf: function(condition, event) { return matchConditionEventType(condition, event) && matchConditionFunction(condition, event); },
-	st: function(condition, event) { return matchConditionEventSource(condition, event) && matchConditionEventType(condition, event); },
-	stf: function(condition, event) { return matchConditionEventSource(condition, event) && matchConditionEventType(condition, event) && matchConditionFunction(condition, event); },
-	'': function(condition, event) { return false; }
+	f: function(cache, condition, event) { return matchConditionFunction(cache, condition, event); },
+	t: function(cache, condition, event) { return matchConditionEventType(condition, event); },
+	s: function(cache, condition, event) { return matchConditionEventSource(condition, event); },
+	sf: function(cache, condition, event) { return matchConditionEventSource(condition, event) && matchConditionFunction(cache, condition, event); },
+	tf: function(cache, condition, event) { return matchConditionEventType(condition, event) && matchConditionFunction(cache, condition, event); },
+	st: function(cache, condition, event) { return matchConditionEventSource(condition, event) && matchConditionEventType(condition, event); },
+	stf: function(cache, condition, event) { return matchConditionEventSource(condition, event) && matchConditionEventType(condition, event) && matchConditionFunction(cache, condition, event); },
+	'': function(cache, condition, event) { return false; }
 };
 
 /**
@@ -251,11 +311,12 @@ function matchConditionEventType(condition, event) {
 /**
  * Match an event with the condition based on the expression function.
  *
+ * @parma cache Cache that contains retrieved models
  * @param condition The condition to evaluate
  * @param event The event to evaluate
  * @returns {boolean} True if the function is correctly evaluated and return true.
  */
-function matchConditionFunction(condition, event) {
+function matchConditionFunction(cache, condition, event) {
 	return condition.fn.compiled(
 		event,
 		ruleEngineConverter.convertEventSource(cache.eventSources[event.source]),

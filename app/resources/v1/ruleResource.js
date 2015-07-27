@@ -229,7 +229,7 @@ router.route('/')
 					.createAndSave(newRuleDefinition, options.entities.organization, { transacting: options.t })
 					.then(function (ruleSaved) {
 						return ruleEngineService
-							.populate(ruleSaved)
+							.populate()
 							.then(function() {
 								return resourceService.location(res, 201, ruleSaved).end();
 							});
@@ -366,3 +366,31 @@ router.route('/:id')
 					});
 			})
 	});
+
+router.route('/:id/validate')
+  .post(function(req, res, next) {
+    return ruleEngineService
+      .validate(req.rule, req.body)
+      .then(function(data) {
+        // Check if there is matched event
+        if (data.matched.length > 0) {
+          // Conditions and transformations matched
+          if (data.matched[0].matchedConditions.length > 0 && data.matched[0].matchedActions.length > 0) {
+            return resourceService.ok(res, {
+              matchedConditions: data.matched[0].matchedConditions,
+              matchedActions: data.matched[0].matchedActions
+            }).end();
+          }
+          // No actions matched
+          else if (data.matched[0].matchedActions.length == 0) {
+            return resourceService.validationError(res, { message: 'The event has not produced any action.' }).end();
+          }
+        }
+        else {
+          return resourceService.validationError(res, { message: 'The event was not matched by the rule.' }).end();
+        }
+      })
+      .error(function(err) {
+        return resourceService.serverError(res, { message: err.message }).end();
+      });
+  });

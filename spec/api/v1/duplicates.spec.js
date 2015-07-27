@@ -13,9 +13,7 @@
  * linked to the organization where the user is a member or the models that are public.
  */
 
-var
-	helpers = require('./helpers/rules-helpers'),
-	baseTest = require('../base');
+var baseTest = require('../base');
 
 var testSuite = baseTest('Delete on resources');
 

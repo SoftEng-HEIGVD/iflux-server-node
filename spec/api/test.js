@@ -73,7 +73,20 @@ function compareExactJson(current, expected) {
 		}
 	}
 
-	// Expect an array
+	// Expect a boolean
+	else if (_.isBoolean(expected)) {
+		// Boolean is not defined in the current
+		if (!_.isBoolean(current)) {
+			return 'Expected to have the boolean: "' + expected + '" , got: ' + JSON.stringify(current);
+		}
+
+		// Check if the boolean is the same
+		else if (current !== expected) {
+			return 'Expected to have the boolean: "' + expected + '" , got the boolean: "' + current + '"';
+		}
+	}
+
+  // Expect an array
 	else if (_.isArray(expected)) {
 		// Array is not defined in current
 		if (!_.isArray(current)) {
@@ -93,6 +106,11 @@ function compareExactJson(current, expected) {
 				// If it expects a number, is present and is the same
 				else if (_.isNumber(value) && (!_.isNumber(current[idx]) || value !== current[idx])) {
 					arrayResult[idx] = 'Expected to have the number: "' + value + '" , got: ' + JSON.stringify(current[idx]);
+				}
+
+				// If it expects a boolean, is present and is the same
+				else if (_.isBoolean(value) && (!_.isBoolean(current[idx]) || value !== current[idx])) {
+					arrayResult[idx] = 'Expected to have the boolean: "' + value + '" , got: ' + JSON.stringify(current[idx]);
 				}
 
 				// If it expects an array, is an array
@@ -178,6 +196,19 @@ function compareContentJson(current, expected) {
 		}
 	}
 
+	// Expect a boolean
+	else if (_.isBoolean(expected)) {
+		// Boolean is not defined in the current
+		if (!_.isBoolean(current)) {
+			return 'Expected to have the boolean: "' + expected + '" , got: ' + JSON.stringify(current);
+		}
+
+		// Check if the boolean is the same
+		else if (current !== expected) {
+			return 'Expected to have the boolean: "' + expected + '" , got the boolean: "' + current + '"';
+		}
+	}
+
 	// Expect an array
 	else if (_.isArray(expected)) {
 		// Array is not defined in current
@@ -217,6 +248,20 @@ function compareContentJson(current, expected) {
 
 					if (!found) {
 						arrayResult[idx] = 'Expected to have the number: "' + value + '" , but not found in: ' + JSON.stringify(current);
+					}
+				}
+
+				// If it expects a boolean, is present and is the same
+				else if (_.isBoolean(value)) {
+					// Try to find the same boolean at any index in the current
+					_.each(current, function(currentValue) {
+						if (_.isBoolean(currentValue) && value == currentValue) {
+							found = true;
+						}
+					}, this);
+
+					if (!found) {
+						arrayResult[idx] = 'Expected to have the boolean: "' + value + '" , but not found in: ' + JSON.stringify(current);
 					}
 				}
 
@@ -865,7 +910,7 @@ module.exports = function(name) {
 						}
 
 						if (this.response.body) {
-							console.log(this.response.body);
+							console.log(JSON.stringify(this.response.body, null, 2));
 						}
 						console.log("##########################################".magenta);
 					});

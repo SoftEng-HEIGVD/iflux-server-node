@@ -1,6 +1,4 @@
-var
-	helpers = require('./helpers/rules-helpers'),
-	baseTest = require('../base');
+var baseTest = require('../base');
 
 var testSuite = baseTest('Delete on resources');
 
