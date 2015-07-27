@@ -9,8 +9,7 @@ var EventType = module.exports = bookshelf.Model.extend({
 	hasTimestamps: true,
 
 	validations: {
-		name: [ 'required', 'minLength:3', 'unique:event_types:[name, organization_id]:Name is already taken in this organization.' ],
-		eventTypeSchema: [ 'required' ]
+		name: [ 'required', 'minLength:3', 'unique:event_types:[name, organization_id]:Name is already taken in this organization.' ]
 	},
 
 	constructor: function() {

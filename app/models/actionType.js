@@ -9,8 +9,7 @@ var ActionType = module.exports = bookshelf.Model.extend({
 	hasTimestamps: true,
 
 	validations: {
-		name: [ 'required', 'minLength:3', 'unique:action_types:[name, organization_id]:Name is already taken in this organization.' ],
-		actionTypeSchema: [ 'required' ]
+		name: [ 'required', 'minLength:3', 'unique:action_types:[name, organization_id]:Name is already taken in this organization.' ]
 	},
 
 	constructor: function() {

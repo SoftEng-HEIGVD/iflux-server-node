@@ -458,6 +458,23 @@ testSuite
 	.expectLocationHeader('/v1/eventTypes/:id');
 
 testSuite
+	.describe('Create ET6 (private) event type for second user in his first organization without schema')
+	.post({ url: '/v1/eventTypes' }, function() {
+		return {
+			body: {
+				name: 'ET6',
+				description: 'Event type without schema to validate this is not mandatory.',
+				public: false,
+				type: 'http://iflux.io/schemas/eventTypes/6',
+				organizationId: this.getData('organizationId3'),
+			}
+		};
+	})
+	.storeLocationAs('eventType', 5)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventTypes/:id');
+
+testSuite
 	.describe('Retrieve all the public event types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/eventTypes?public' })
@@ -702,7 +719,7 @@ testSuite
 	.get({ url: '/v1/eventTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(5)
+	.expectJsonCollectionToHaveSize(6)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'ET1',
@@ -734,7 +751,13 @@ testSuite
 			public: true,
 			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1/duplicated',
 			organizationId: this.getData('organizationId2')
-		}];
+		}, {
+      name: 'ET6',
+      description: 'Event type without schema to validate this is not mandatory.',
+      public: false,
+      type: 'http://iflux.io/schemas/eventTypes/6',
+      organizationId: this.getData('organizationId3'),
+    }];
 	});
 
 testSuite

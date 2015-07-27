@@ -326,6 +326,23 @@ testSuite
 	.expectLocationHeader('/v1/actionTypes/:id');
 
 testSuite
+	.describe('Create AT6 (private) action type for second user in his first organization without schema')
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT6',
+				description: 'Action type without schema to validate this is not mandatory.',
+				type: 'http://iflux.io/schemas/actionTypes/6',
+				public: false,
+				organizationId: this.getData('organizationId3')
+			}
+		};
+	})
+	.storeLocationAs('actionType', 6)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id');
+
+testSuite
 	.describe('Retrieve all the public action types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/actionTypes?public' })
@@ -631,7 +648,7 @@ testSuite
 	.get({ url: '/v1/actionTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(5)
+	.expectJsonCollectionToHaveSize(6)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'AT1',
@@ -708,6 +725,12 @@ testSuite
 					}
 				}
 			}
+    }, {
+  			name: 'AT6',
+  			description: 'Action type without schema to validate this is not mandatory.',
+  			public: false,
+  			type: 'http://iflux.io/schemas/actionTypes/6',
+  			organizationId: this.getData('organizationId3')
 		}];
 	});
 
