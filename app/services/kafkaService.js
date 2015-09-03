@@ -3,6 +3,7 @@ var
 	config = require('../../config/config'),
 	kafka = require('kafka-node'),
 	Consumer = kafka.Consumer,
+  Offset = kafka.Offset,
 	elasticSearchService = require('../../lib/ioc').create('elasticSearchService'),
 	ruleEngineService = require('./ruleEngineService'),
 	timeService = require('./timeService');
@@ -40,10 +41,27 @@ function consumerErrorHandler(error) {
 	setTimeout(setup, 5000);
 }
 
-function consumerSetup() {
-	consumer = new Consumer(client, [{ topic: config.kafka.eventTopic }]);
-	consumer.on('message', messageHandler);
+function consumerSetup(offset) {
+	consumer = new Consumer(
+    client,
+    [{ topic: config.kafka.eventTopic, offset: offset }],
+    {
+      fromOffset: true
+    }
+  );
+
+  consumer.on('message', messageHandler);
 	consumer.on('error', consumerErrorHandler);
+}
+
+function offsetSetup() {
+  var offset = new Offset(client);
+
+  offset.on('ready', function() {
+    offset.fetch([{ topic: config.kafka.eventTopic, time: -1 }], function (err, data) {
+      consumerSetup(data[config.kafka.eventTopic][0][0]);
+    });
+  });
 }
 
 function setup() {
@@ -67,7 +85,7 @@ function setup() {
 
 	client = kafka.Client(config.kafka.connectionString, config.kafka.clientId);
 
-	consumerSetup();
+	offsetSetup();
 }
 
 
