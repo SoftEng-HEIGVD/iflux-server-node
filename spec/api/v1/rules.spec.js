@@ -29,7 +29,6 @@ testSuite
 				transformations: [{
 					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						expression: 'return "The new temperature is: " + event.properties.temperature;',
 						sample: {
@@ -88,8 +87,7 @@ testSuite
  				}],
  				transformations: [{
  					actionTargetId: this.getData('actionTargetId6'),
- 					actionTypeId: this.getData('actionTypeId4'),
-          eventTypeId: this.getData('eventTypeId4')
+ 					actionTypeId: this.getData('actionTypeId4')
  				}]
  			}
  		};
@@ -144,7 +142,7 @@ testSuite
 	.get({}, function() { return { url: '/v1/rules?organizationId=' + this.getData('organizationId1') }; })
 	.expectStatusCode(200)
 	.expectJsonCollectionToHaveSize(1)
-	.expectJsonToHavePath([ '0.conditions.0.eventSource', '0.conditions.0.eventSource.id', '0.conditions.0.eventSource.generatedIdentifier', '0.conditions.0.eventType', '0.transformations.0.actionTarget', '0.transformations.0.actionType', '0.transformations.0.eventType' ])
+	.expectJsonToHavePath([ '0.conditions.0.eventSource', '0.conditions.0.eventSource.id', '0.conditions.0.eventSource.generatedIdentifier', '0.conditions.0.eventType', '0.transformations.0.actionTarget', '0.transformations.0.actionType' ])
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('ruleId1'),
@@ -175,9 +173,6 @@ testSuite
 				},
 				actionType: {
 					id: this.getData('actionTypeId1')
-				},
-				eventType: {
-					id: this.getData('eventTypeId1'),
 				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
@@ -226,9 +221,6 @@ testSuite
 				},
 				actionType: {
 					id: this.getData('actionTypeId1')
-				},
-				eventType: {
-					id: this.getData('eventTypeId1')
 				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
@@ -293,9 +285,6 @@ testSuite
         },
         actionType: {
           id: this.getData('actionTypeId4')
-        },
-        eventType: {
-          id: this.getData('eventTypeId4')
         }
       }]
     }];
@@ -336,9 +325,6 @@ testSuite
 				},
 				actionType:{
 					id: this.getData('actionTypeId1')
-				},
-				eventType:{
-					id: this.getData('eventTypeId1')
 				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
@@ -393,9 +379,6 @@ testSuite
         },
         actionType: {
           id: this.getData('actionTypeId4')
-        },
-        eventType: {
-          id: this.getData('eventTypeId4')
         }
       }]
     }];
@@ -525,7 +508,7 @@ testSuite
 	.describe('First user retrieve his first rule.')
 	.get({}, function() { return { url: this.getData('locationRule1') }; })
 	.expectStatusCode(200)
-	.expectJsonToHavePath([ 'conditions.0.eventSource.generatedIdentifier', 'conditions.0.eventType', 'transformations.0.actionTarget.generatedIdentifier', 'transformations.0.actionType', 'transformations.0.eventType' ])
+	.expectJsonToHavePath([ 'conditions.0.eventSource.generatedIdentifier', 'conditions.0.eventType', 'transformations.0.actionTarget.generatedIdentifier', 'transformations.0.actionType' ])
 	.expectJsonToBeAtLeast(function() {
 		return {
 			id: this.getData('ruleId1'),
@@ -542,7 +525,7 @@ testSuite
 				},
 				fn: {
 					expression: 'return event.properties.temperature.old != event.properties.temperature.new',
-					sampleEvent: {
+        sampleEvent: {
 						temperature: {
 							old: 10,
 							new: 11
@@ -556,9 +539,6 @@ testSuite
 				},
 				actionType:{
 					id: this.getData('actionTypeId1')
-				},
-				eventType:{
-					id: this.getData('eventTypeId1')
 				},
 				fn: {
 					expression: 'return "The new temperature is: " + event.properties.temperature;',
@@ -586,8 +566,7 @@ testSuite
 				}],
 				transformations: [{
 					actionTargetId: this.getData('actionTargetId2'),
-					actionTypeId: this.getData('actionTypeId2'),
-					eventTypeId: this.getData('eventTypeId2')
+					actionTypeId: this.getData('actionTypeId2')
 				}]
 			}
 		};
@@ -620,9 +599,6 @@ testSuite
 				},
 				actionType:{
 					id: this.getData('actionTypeId2')
-				},
-				eventType:{
-					id: this.getData('eventTypeId2')
 				}
 			}]
 		};

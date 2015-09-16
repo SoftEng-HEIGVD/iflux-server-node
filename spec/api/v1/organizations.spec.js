@@ -89,7 +89,7 @@ testSuite
 			id: this.getData('organizationId1'),
 			name: 'Orga1 renamed',
 			deletable: false
-		}
+		};
 	});
 
 testSuite

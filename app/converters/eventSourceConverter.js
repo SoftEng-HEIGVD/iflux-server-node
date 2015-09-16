@@ -1,4 +1,6 @@
-var _ = require('underscore');
+var
+  _ = require('underscore'),
+  refCountService = require('../services/refCountService');
 
 module.exports = {
 	convert: function(model) {
@@ -9,7 +11,7 @@ module.exports = {
 			eventSourceTemplateId: model.get('event_source_template_id'),
 			organizationId: model.get('organization_id'),
       public: model.get('public'),
-      deletable: model.get('refCount') == 0
+      deletable: refCountService.isDeletable(model)
 		};
 
 		if (model.get('configuration')) {

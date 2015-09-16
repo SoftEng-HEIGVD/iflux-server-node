@@ -29,7 +29,6 @@ testSuite
 				transformations: [{
 					actionTargetId: this.getData('actionTargetId1'),
 					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId1'),
 					fn: {
 						expression: 'return "The new temperature is: " + event.properties.temperature;',
 						sample: {
@@ -449,40 +448,6 @@ testSuite
 	})
 	.expectStatusCode(422)
 	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}});
-
-testSuite
-	.describe('First user tries to update a rule with a transformation where the event type does not exist.')
-	.patch({}, function() {
-		return {
-			url: this.getData('locationRule1'),
-			body: {
-				transformations: [{
-					actionTargetId: this.getData('actionTargetId1'),
-					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId1') + 100
-				}]
-			}
-		};
-	})
-	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
-
-testSuite
-	.describe('First user tries to update a rule with a transformation with event type where user does not have access.')
-	.patch({}, function() {
-		return {
-			url: this.getData('locationRule1'),
-			body: {
-				transformations: [{
-					actionTargetId: this.getData('actionTargetId1'),
-					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId5')
-				}]
-			}
-		};
-	})
-	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
 
 testSuite
 	.describe('First user tries to update a rule with a transformation with wrong function.')

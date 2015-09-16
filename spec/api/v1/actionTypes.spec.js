@@ -668,7 +668,7 @@ testSuite
 		}, {
 			name: 'AT3',
 			description: 'Action to lock the thermostat.',
-			public: false,
+			public: true,
 			type: 'http://iflux.io/schemas/actionTypes/3',
 			organizationId: this.getData('organizationId2'),
 			schema: {

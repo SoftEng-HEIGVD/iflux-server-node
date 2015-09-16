@@ -1,4 +1,6 @@
-var _ = require('underscore');
+var
+  _ = require('underscore'),
+  refCountService = require('../services/refCountService');
 
 module.exports = {
 	convert: function(model) {
@@ -9,7 +11,7 @@ module.exports = {
 			name: model.get('name'),
 			description: model.get('description'),
 			organizationId: model.get('organization_id'),
-      deletable: model.get('refCount') == 0,
+      deletable: refCountService.isDeletable(model),
 			schema: model.get('actionTypeSchema')
 		};
 	}

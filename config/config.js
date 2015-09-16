@@ -62,7 +62,7 @@ var config = {
 			jwtSecret: process.env.IFLUX_SERVER_JWT_SECRET,
 			debug: process.env.DEBUG || false
     },
-    port: process.env.PORT || 3001,
+    port: process.env.PORT || 3002,
 	  host: process.env.HOST || 'localhost',
 	  mockServer: {
 		  serverPort: 1080

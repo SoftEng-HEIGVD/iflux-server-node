@@ -105,17 +105,6 @@ function populateTransformations(entities, rule, transformations) {
 			}
 		});
 
-		if (transformation.eventTypeId) {
-			var eventType = entities.eventTypes[transformation.eventTypeId];
-
-			realTransformation = _.extend(realTransformation, {
-				eventType: {
-					id: eventType.get('id'),
-					type: eventType.get('type')
-				}
-			});
-		}
-
 		if (transformation.fn) {
 			realTransformation = _.extend(realTransformation, {
 				fn: transformation.fn.expression,
@@ -288,7 +277,6 @@ router.route('/:id')
 			ruleProcessingChain = ruleProcessingChain
 				.checkActionTargets()
 				.checkActionTypes()
-				.checkEventTypes('transformations')
 				.checkTransformations();
 		}
 

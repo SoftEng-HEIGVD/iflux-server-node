@@ -78,15 +78,6 @@ module.exports = {
 				});
 			}
 
-			if (transformation.eventType) {
-				convertedTransformations = _.extend(convertedTransformations, {
-					eventType: {
-						id: transformation.eventType.id,
-						type: transformation.eventType.type
-					}
-				});
-			}
-
 			if (transformation.fn) {
 				convertedTransformations = _.extend(convertedTransformations, {
 					fn: {
@@ -201,19 +192,6 @@ module.exports = {
 					type: transformation.actionType.type
 				}
 			});
-
-			if (transformation.eventType && transformation.eventType.id) {
-				if (!cache.eventTypes[transformation.eventType.type] && !_.contains(eventTypeIds, transformation.eventType.id)) {
-					eventTypeIds.push(transformation.eventType.id);
-				}
-
-				convertedTransformations = _.extend(convertedTransformations, {
-					eventType: {
-						id: transformation.eventType.id,
-						type: transformation.eventType.type
-					}
-				});
-			}
 
 			if (transformation.fn) {
 				convertedTransformations = _.extend(convertedTransformations, {

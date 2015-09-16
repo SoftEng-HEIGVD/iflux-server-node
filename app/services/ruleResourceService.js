@@ -58,15 +58,14 @@ function createDummyEvent(eventSource, eventType, properties) {
  * Extract the different ids from a rule (conditions, transformations)
  *
  * @param rule The rule where to do the extraction
- * @returns {{actionTypes: Array, actionTargets: Array, transformationEventTypes: Array, conditionEventTypes: Array, eventSources: Array}} The ids extracted
+ * @returns {{actionTypes: Array, actionTargets: Array, transformationEventTypes: Array, eventTypes: Array, eventSources: Array}} The ids extracted
  */
 function extractIds(rule) {
 	var ids = {
 		actionTypes: [],
 		actionTargets: [],
-		transformationEventTypes: [],
 		eventSources: [],
-		conditionEventTypes: []
+		eventTypes: []
 	};
 
 	_.each(rule.get('conditions'), function(condition) {
@@ -76,8 +75,8 @@ function extractIds(rule) {
 	});
 
 	_.each(rule.get('conditions'), function(condition) {
-		if (condition.eventType && condition.eventType.id && !_.contains(ids.conditionEventTypes, condition.eventType.id)) {
-			ids.conditionEventTypes.push(condition.eventType.id);
+		if (condition.eventType && condition.eventType.id && !_.contains(ids.eventTypes, condition.eventType.id)) {
+			ids.eventTypes.push(condition.eventType.id);
 		}
 	});
 
@@ -92,16 +91,6 @@ function extractIds(rule) {
 			ids.actionTypes.push(condition.actionType.id);
 		}
 	});
-
-	_.each(rule.get('transformations'), function(condition) {
-		if (condition.eventType && condition.eventType.id && !_.contains(ids.transformationEventTypes, condition.eventType.id)) {
-			ids.transformationEventTypes.push(condition.eventType.id);
-		}
-	});
-
-	ids.conditionAndTransformationEventTypes = _.intersection(ids.conditionEventTypes, ids.transformationEventTypes);
-	ids.conditionEventTypes = _.difference(ids.conditionEventTypes, ids.conditionAndTransformationEventTypes);
-	ids.transformationEventTypes = _.difference(ids.transformationEventTypes, ids.conditionAndTransformationEventTypes);
 
 	return ids;
 }
@@ -487,7 +476,6 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 		return this
 			.checkActionTargets()
 			.checkActionTypes()
-			.checkEventTypes('transformations')
 			.checkTransformationExpressions();
 	},
 
@@ -621,18 +609,6 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 								})
 						});
 					});
-
-					// Reset the count for all the event types used only by transformations of the rule before update
-					_.each(gatheredIds.transformationEventTypes, function (eventTypeId) {
-						transactionPromise = transactionPromise.then(function () {
-							return eventTypeDao
-								.findById(eventTypeId)
-								.then(function (eventTypeFound) {
-									eventTypeFound.set('refCount', eventTypeFound.get('refCount') - 1);
-									return eventTypeFound.save(null, {transacting: t})
-								})
-						});
-					});
 				}
 
 				// Check if the conditions are updated
@@ -650,22 +626,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 					});
 
 					// Reset the count for all the event types only present in conditions of the rule before update
-					_.each(gatheredIds.conditionEventTypes, function (eventTypeId) {
-						transactionPromise = transactionPromise.then(function () {
-							return eventTypeDao
-								.findById(eventTypeId)
-								.then(function (eventTypeFound) {
-									eventTypeFound.set('refCount', eventTypeFound.get('refCount') - 1);
-									return eventTypeFound.save(null, {transacting: t})
-								})
-						});
-					});
-				}
-
-				// Check if the conditions and transformations are updated
-				if (payload.conditions && payload.transformations) {
-					// Reset the count for all the event types present both in conditions and transformations of the rule before update
-					_.each(gatheredIds.conditionAndTransformationEventTypes, function (eventTypeId) {
+					_.each(gatheredIds.eventTypes, function (eventTypeId) {
 						transactionPromise = transactionPromise.then(function () {
 							return eventTypeDao
 								.findById(eventTypeId)
@@ -699,24 +660,11 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 						eventSource.set('refCount', eventSource.get('refCount') + 1);
 						transactionPromise = transactionPromise.then(eventSource.save(null, {transacting: t}));
 					});
-				}
 
-				// Check if the condition or transformations are updated
-				if (payload.conditions || payload.transformations) {
-					_.each(entities.eventTypes, function (eventType) {
-						// Update the ref counts for event types if transformations and conditions are updated, or if conditions
-						// are updated but the event type not already present in transformations, or if transformations are updated
-						// but the event type not already present in conditions. It will ensure to update the ref count only once
-						// for an event type used multiple times in a rule.
-						if (
-							(payload.conditions && payload.transformations) ||
-							(payload.conditions && !_.contains(gatheredIds.conditionAndTransformationEventTypes, eventType.get('id'))) ||
-							(payload.transformations && !_.contains(gatheredIds.conditionAndTransformationEventTypes, eventType.get('id')))
-						) {
-							eventType.set('refCount', eventType.get('refCount') + 1);
-							transactionPromise = transactionPromise.then(eventType.save(null, {transacting: t}));
-						}
-					});
+          _.each(entities.eventTypes, function (eventType) {
+            eventType.set('refCount', eventType.get('refCount') + 1);
+            transactionPromise = transactionPromise.then(eventType.save(null, {transacting: t}));
+          });
 				}
 
 				return transactionPromise
@@ -775,7 +723,7 @@ RuleProcessingChain.prototype = _.extend(RuleProcessingChain.prototype, {
 					});
 				});
 
-				_.each(_.union(gatheredIds.conditionEventTypes, gatheredIds.conditionAndTransformationEventTypes, gatheredIds.transformationEventTypes), function(eventTypeId) {
+				_.each(gatheredIds.eventTypes, function(eventTypeId) {
 					transactionPromise = transactionPromise.then(function() {
 						return eventTypeDao
 							.findById(eventTypeId)

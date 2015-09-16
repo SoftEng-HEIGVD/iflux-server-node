@@ -495,52 +495,6 @@ testSuite
 	.expectJsonToBe({ transformations: { 0: { actionTypeId: [ 'Action type not found.' ] }}});
 
 testSuite
-	.describe('First user tries to create a rule with a transformation where the event type does not exist.')
-	.post({ url: '/v1/rules'}, function() {
-		return {
-			body: {
-				name: 'First rule',
-				active: true,
-				organizationId: this.getData('organizationId1'),
-				conditions: [{
-					eventSourceId: this.getData('eventSourceId1'),
-					eventTypeId: this.getData('eventTypeId1')
-				}],
-				transformations: [{
-					actionTargetId: this.getData('actionTargetId1'),
-					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId1') + 100
-				}]
-			}
-		};
-	})
-	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
-
-testSuite
-	.describe('First user tries to create a rule with a transformation with event type where user does not have access.')
-	.post({ url: '/v1/rules'}, function() {
-		return {
-			body: {
-				name: 'First rule',
-				active: true,
-				organizationId: this.getData('organizationId1'),
-				conditions: [{
-					eventSourceId: this.getData('eventSourceId1'),
-					eventTypeId: this.getData('eventTypeId1')
-				}],
-				transformations: [{
-					actionTargetId: this.getData('actionTargetId1'),
-					actionTypeId: this.getData('actionTypeId1'),
-					eventTypeId: this.getData('eventTypeId5')
-				}]
-			}
-		};
-	})
-	.expectStatusCode(422)
-	.expectJsonToBe({ transformations: { 0: { eventTypeId: [ 'Event type not found.' ] }}});
-
-testSuite
 	.describe('First user tries to create a rule with a transformation with wrong function.')
 	.post({ url: '/v1/rules'}, function() {
 		return {

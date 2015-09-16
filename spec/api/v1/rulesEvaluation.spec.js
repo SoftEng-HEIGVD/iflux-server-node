@@ -996,8 +996,7 @@ testSuite
       matchedActions: [{
         matchingBy: {
           transformationIndex: 0,
-          targetAndType: true,
-          eventType: false
+          targetAndType: true
         },
         actionBody: {
           timestamp: new Date(),
@@ -1032,8 +1031,7 @@ testSuite
       matchedActions: [{
         matchingBy: {
           transformationIndex: 0,
-          targetAndType: true,
-          eventType: true
+          targetAndType: true
         },
         actionBody: {
           timestamp: new Date(),
@@ -1068,8 +1066,7 @@ testSuite
       matchedActions: [{
         matchingBy: {
           transformationIndex: 0,
-          targetAndType: true,
-          eventType: false
+          targetAndType: true
         },
         actionBody: {
           result: 1
@@ -1099,8 +1096,7 @@ testSuite
       matchedActions: [{
         matchingBy: {
           transformationIndex: 0,
-          targetAndType: true,
-          eventType: true
+          targetAndType: true
         },
         actionBody: {
           result: 1
@@ -1108,23 +1104,5 @@ testSuite
       }]
     };
   });
-
-testSuite
-  .describe('Validation of Rule12 - No Match - ES - AT + FN + ET - Wrong ET')
- 	.post({}, function() {
-    return {
-      url: this.getData('locationRule12') + '/validate',
-      body: {
-        timestamp: new Date(),
-        source: this.getData('eventSourceGID1'),
-        type: this.getData('eventTypeType1') + 'a',
-        properties: {
-          test: 1
-        }
-      }
-    };
-  })
- 	.expectStatusCode(422)
- 	.expectJsonToBeAtLeast({ message: 'The event has not produced any action.' });
 
 module.exports = testSuite;

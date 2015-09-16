@@ -199,48 +199,45 @@ function evaluate(cache, rules, events) {
         // Define the fields that can be evaluated
         var matchingBy = {
           transformationIndex: transformationIndex,
-          targetAndType: true, // Mandatory evaluation
-          eventType: isEventTypeDefined(transformation)
+          targetAndType: true // Mandatory evaluation
         };
 
         // Evaluate the transformation
-        if (!matchingBy.eventType || matchTransformationEventType(transformation, event)) {
-          var actionTarget = cache.actionTargets[transformation.actionTarget.generatedIdentifier];
-          var actionTargetTemplate = cache.actionTargetTemplates[actionTarget.get('action_target_template_id')];
-          var actionType = cache.actionTypes[transformation.actionType.type];
+        var actionTarget = cache.actionTargets[transformation.actionTarget.generatedIdentifier];
+        var actionTargetTemplate = cache.actionTargetTemplates[actionTarget.get('action_target_template_id')];
+        var actionType = cache.actionTypes[transformation.actionType.type];
 
-          // Process the transformation of the event to the target format
-          var action;
+        // Process the transformation of the event to the target format
+        var action;
 
-          // Only apply transformation if an expression is available
-          if (transformation.fn) {
-            action = transformation.fn.compiled(
-              event,
-              ruleEngineConverter.convertActionTarget(actionTarget),
-              ruleEngineConverter.convertActionType(actionType),
-              ruleEngineConverter.convertEventSource(event.source ? cache.eventSources[event.source] : null),
-              ruleEngineConverter.convertEventType(event.type ? cache.eventTypes[event.type] : null),
-              { json: JSON, console: console }
-            );
-          }
-          else {
-            action = _.pick(event, 'timestamp', 'source', 'type', 'properties');
-          }
-
-          // Store transformation
-          eventMatchingResult.matchedActions.push({
-            matchingBy: matchingBy,
-            actionBody: action
-          });
-
-          data.actions.push({
-            targetUrl: actionTargetTemplate.get('targetUrl'),
-            targetToken: actionTargetTemplate.get('targetToken'),
-            target: actionTarget.get('generatedIdentifier'),
-            type: actionType.get('type'),
-            properties: action
-          });
+        // Only apply transformation if an expression is available
+        if (transformation.fn) {
+          action = transformation.fn.compiled(
+            event,
+            ruleEngineConverter.convertActionTarget(actionTarget),
+            ruleEngineConverter.convertActionType(actionType),
+            ruleEngineConverter.convertEventSource(event.source ? cache.eventSources[event.source] : null),
+            ruleEngineConverter.convertEventType(event.type ? cache.eventTypes[event.type] : null),
+            { json: JSON, console: console }
+          );
         }
+        else {
+          action = _.pick(event, 'timestamp', 'source', 'type', 'properties');
+        }
+
+        // Store transformation
+        eventMatchingResult.matchedActions.push({
+          matchingBy: matchingBy,
+          actionBody: action
+        });
+
+        data.actions.push({
+          targetUrl: actionTargetTemplate.get('targetUrl'),
+          targetToken: actionTargetTemplate.get('targetToken'),
+          target: actionTarget.get('generatedIdentifier'),
+          type: actionType.get('type'),
+          properties: action
+        });
       }, this);
 
       // Save in elastic search the event matching result
@@ -323,15 +320,4 @@ function matchConditionFunction(cache, condition, event) {
 		ruleEngineConverter.convertEventType(cache.eventTypes[event.type]),
 		{ json: JSON, console: console }
 	);
-}
-
-/**
- * Match an event with the transformation based on the event type.
- *
- * @param transformation The transformation to evaluate
- * @param event The event to evaluate
- * @returns {boolean} True if the event type match with the event
- */
-function matchTransformationEventType(transformation, event) {
-	return transformation.eventType.type === event.type;
 }
