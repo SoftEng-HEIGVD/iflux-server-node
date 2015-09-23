@@ -470,7 +470,24 @@ testSuite
 			}
 		};
 	})
-	.storeLocationAs('eventType', 5)
+	.storeLocationAs('eventType', 6)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventTypes/:id');
+
+testSuite
+	.describe('Create ET7 (public) event type for second user in his first organization without schema')
+	.post({ url: '/v1/eventTypes' }, function() {
+		return {
+			body: {
+				name: 'ET7',
+				description: 'Public event type',
+				public: true,
+				type: 'http://iflux.io/schemas/eventTypes/7',
+				organizationId: this.getData('organizationId3')
+			}
+		};
+	})
+	.storeLocationAs('eventType', 7)
 	.expectStatusCode(201)
 	.expectLocationHeader('/v1/eventTypes/:id');
 
@@ -480,7 +497,7 @@ testSuite
 	.get({ url: '/v1/eventTypes?public' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(4)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'ET1',
@@ -501,12 +518,17 @@ testSuite
 			type: 'http://iflux.io/schemas/eventTypes/4',
 			organizationId: this.getData('organizationId3')
 		}, {
-		}, {
 			name: 'ET1',
 			description: 'Represent an increase in the temperature.',
 			public: true,
 			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1/duplicated',
 			organizationId: this.getData('organizationId2')
+    }, {
+      name: 'ET7',
+      description: 'Public event type',
+      public: true,
+      type: 'http://iflux.io/schemas/eventTypes/7',
+      organizationId: this.getData('organizationId3')
 		}];
 	});
 
@@ -719,7 +741,7 @@ testSuite
 	.get({ url: '/v1/eventTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(6)
+	.expectJsonCollectionToHaveSize(7)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'ET1',
@@ -757,6 +779,12 @@ testSuite
       public: false,
       type: 'http://iflux.io/schemas/eventTypes/6',
       organizationId: this.getData('organizationId3'),
+    }, {
+      name: 'ET7',
+      description: 'Public event type',
+      public: true,
+      type: 'http://iflux.io/schemas/eventTypes/7',
+      organizationId: this.getData('organizationId3')
     }];
 	});
 
@@ -780,7 +808,7 @@ testSuite
 	.get({ url: '/v1/eventTypes?public' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(4)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'ET1',
@@ -807,6 +835,12 @@ testSuite
 			public: true,
 			type: 'http://' + config.host + ':' + config.port + '/v1/schemas/eventTypes/1/duplicated',
 			organizationId: this.getData('organizationId2')
+    }, {
+      name: 'ET7',
+      description: 'Public event type',
+      public: true,
+      type: 'http://iflux.io/schemas/eventTypes/7',
+      organizationId: this.getData('organizationId3')
 		}];
 	});
 
@@ -847,6 +881,16 @@ testSuite
 			organizationId: this.getData('organizationId2')
 		}];
 	});
+
+testSuite
+	.describe('First user retrieves public event type where the user is not member of the organization')
+	.get({}, function() { return { url: this.getData('locationEventType7') }; })
+	.expectStatusCode(200);
+
+testSuite
+	.describe('First user tries to retrieve private event type where the user is not member of the organization')
+	.get({}, function() { return { url: this.getData('locationEventType6') }; })
+	.expectStatusCode(403);
 
 testSuite
 	.describe('Try to retrieve event type where the user is not member of the organization')
@@ -997,7 +1041,7 @@ testSuite
 
 testSuite
  	.describe('First user tries to delete ET4 in an organization where he is not a member.')
- 	.get({}, function() { return { url: this.getData('locationEventType4') }; })
+ 	.delete({}, function() { return { url: this.getData('locationEventType4') }; })
  	.expectStatusCode(403);
 
 module.exports = testSuite;

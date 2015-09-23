@@ -575,10 +575,21 @@ testSuite
 	});
 
 testSuite
+	.describe('First user retrieve a public action target template from an organization where he is not a member')
+	.get({}, function() { return { url: this.getData('locationActionTargetTemplate4') }; })
+	.expectStatusCode(200);
+
+testSuite
+	.describe('First user retrieve a private action target template from an organization where he is not a member')
+	.get({}, function() { return { url: this.getData('locationActionTargetTemplate5') }; })
+	.expectStatusCode(403);
+
+testSuite
 	.describe('Try to retrieve action target templates where the user is not member of the organization')
 	.get({}, function() { return { url: this.getData('locationActionTargetTemplate1') + '100' }; })
-	.expectStatusCode(403)
+	.expectStatusCode(403);
 
+testSuite
 	.describe('First user updates one of his action target template')
 	.patch({}, function() {
 		return {
@@ -702,7 +713,7 @@ testSuite
 
 testSuite
  	.describe('First user tries to delete ATT4 in an organization where he is not a member.')
- 	.get({}, function() { return { url: this.getData('locationActionTargetTemplate4') }; })
+ 	.delete({}, function() { return { url: this.getData('locationActionTargetTemplate4') }; })
  	.expectStatusCode(403);
 
 module.exports = testSuite;

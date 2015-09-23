@@ -16,8 +16,15 @@ module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
 	router.param('id', function (req, res, next) {
-		return eventTypeDao
-			.findByIdAndUser(req.params.id, req.userModel)
+    var promise;
+      if (req.method == 'GET') {
+        promise = eventTypeDao.findByIdAndUserOrPublic(req.params.id, req.userModel);
+      }
+      else {
+        promise = eventTypeDao.findByIdAndUser(req.params.id, req.userModel);
+      }
+
+    return promise
 			.then(function(eventType) {
 				req.eventType = eventType;
 				return next();

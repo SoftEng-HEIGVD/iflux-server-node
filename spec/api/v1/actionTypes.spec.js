@@ -343,12 +343,29 @@ testSuite
 	.expectLocationHeader('/v1/actionTypes/:id');
 
 testSuite
+	.describe('Create AT7 (public) action type for second user in his first organization without schema')
+	.post({ url: '/v1/actionTypes' }, function() {
+		return {
+			body: {
+				name: 'AT7',
+				description: 'Public action type',
+				type: 'http://iflux.io/schemas/actionTypes/7',
+				public: true,
+				organizationId: this.getData('organizationId3')
+			}
+		};
+	})
+	.storeLocationAs('actionType', 7)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/actionTypes/:id');
+
+testSuite
 	.describe('Retrieve all the public action types for first user')
 	.jwtAuthentication(function() { return this.getData('token1'); })
 	.get({ url: '/v1/actionTypes?public' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(4)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'AT1',
@@ -410,6 +427,12 @@ testSuite
 					}
 				}
 			}
+    }, {
+      name: 'AT7',
+      description: 'Public action type',
+      type: 'http://iflux.io/schemas/actionTypes/7',
+      public: true,
+      organizationId: this.getData('organizationId3')
 		}];
 	});
 
@@ -648,7 +671,7 @@ testSuite
 	.get({ url: '/v1/actionTypes' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(6)
+	.expectJsonCollectionToHaveSize(7)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'AT1',
@@ -726,11 +749,17 @@ testSuite
 				}
 			}
     }, {
-  			name: 'AT6',
-  			description: 'Action type without schema to validate this is not mandatory.',
-  			public: false,
-  			type: 'http://iflux.io/schemas/actionTypes/6',
-  			organizationId: this.getData('organizationId3')
+      name: 'AT6',
+      description: 'Action type without schema to validate this is not mandatory.',
+      public: false,
+      type: 'http://iflux.io/schemas/actionTypes/6',
+      organizationId: this.getData('organizationId3')
+    }, {
+      name: 'AT7',
+      description: 'Public action type',
+      type: 'http://iflux.io/schemas/actionTypes/7',
+      public: true,
+      organizationId: this.getData('organizationId3')
 		}];
 	});
 
@@ -763,7 +792,7 @@ testSuite
 	.get({ url: '/v1/actionTypes?public' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '0.name', '0.public', '0.organizationId', '1.id', '1.name', '1.public', '1.organizationId' ])
-	.expectJsonCollectionToHaveSize(4)
+	.expectJsonCollectionToHaveSize(5)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			name: 'AT1',
@@ -825,6 +854,12 @@ testSuite
 					}
 				}
 			}
+    }, {
+      name: 'AT7',
+      description: 'Public action type',
+      type: 'http://iflux.io/schemas/actionTypes/7',
+      public: true,
+      organizationId: this.getData('organizationId3')
 		}];
 	});
 
@@ -893,7 +928,17 @@ testSuite
 	});
 
 testSuite
-	.describe('Try to retrieve action type where the user is not member of the organization')
+	.describe('First user retrieves public action type where the user is not member of the organization')
+	.get({}, function() { return { url: this.getData('locationActionType7') }; })
+	.expectStatusCode(200);
+
+testSuite
+	.describe('First user tries to retrieve private action type where the user is not member of the organization')
+	.get({}, function() { return { url: this.getData('locationActionType6') }; })
+	.expectStatusCode(403);
+
+testSuite
+	.describe('Try to retrieve action type that does not exists')
 	.get({}, function() { return { url: this.getData('locationActionType1') + '100' }; })
 	.expectStatusCode(403);
 
@@ -1041,7 +1086,7 @@ testSuite
 
 testSuite
   .describe('First user tries to delete AT4 in an organization where he is not a member.')
-  .get({}, function() { return { url: this.getData('locationActionType4') }; })
+  .delete({}, function() { return { url: this.getData('locationActionType4') }; })
   .expectStatusCode(403);
 
 module.exports = testSuite;

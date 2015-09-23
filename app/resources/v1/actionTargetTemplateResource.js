@@ -14,8 +14,15 @@ module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
 	router.param('id', function (req, res, next) {
-		return actionTargetTemplateDao
-			.findByIdAndUser(req.params.id, req.userModel)
+    var promise;
+      if (req.method == 'GET') {
+        promise = actionTargetTemplateDao.findByIdAndUserOrPublic(req.params.id, req.userModel);
+      }
+      else {
+        promise = actionTargetTemplateDao.findByIdAndUser(req.params.id, req.userModel);
+      }
+
+    return promise
 			.then(function(actionTargetTemplate) {
 				req.actionTargetTemplate = actionTargetTemplate;
 				next();

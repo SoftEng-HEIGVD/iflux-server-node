@@ -351,10 +351,29 @@ testSuite
 	});
 
 testSuite
+	.describe('Second user creates ES7 event source which is priavate.')
+	.post({ url: '/v1/eventSources' }, function() {
+		return {
+			body: {
+				name: 'ES7',
+        public: false,
+				organizationId: this.getData('organizationId3'),
+				eventSourceTemplateId: this.getData('eventSourceTemplateId1'),
+				configuration: {
+					sensorId: 'sensorIdForES7'
+				}
+			}
+		};
+	})
+	.storeLocationAs('eventSource', 7)
+	.expectStatusCode(201)
+	.expectLocationHeader('/v1/eventSources/:id');
+
+testSuite
   .describe('Second user retrieve all event sources that he has access.')
  	.get({ url: '/v1/eventSources' })
  	.expectStatusCode(200)
-  .expectJsonCollectionToHaveSize(4)
+  .expectJsonCollectionToHaveSize(5)
   .expectJsonToBeAtLeast(function() {
     return [{
       id: this.getData('eventSourceId1'),
@@ -374,6 +393,11 @@ testSuite
     }, {
       id: this.getData('eventSourceId6'),
       name: 'ES6',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId7'),
+      name: 'ES7',
       organizationId: this.getData('organizationId3'),
       eventSourceTemplateId: this.getData('eventSourceTemplateId1')
     }];
@@ -699,7 +723,7 @@ testSuite
 	.get({ url: '/v1/eventSources?allOrganizations' })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(4)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('eventSourceId4'),
@@ -716,6 +740,11 @@ testSuite
 			name: 'ES6',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId7'),
+      name: 'ES7',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	});
 
@@ -724,7 +753,7 @@ testSuite
 	.get({}, function() { return { url: '/v1/eventSources?organizationId=' + this.getData('organizationId3') }; })
 	.expectStatusCode(200)
 	.expectJsonToHavePath([ '0.id', '1.id', '0.name', '1.name', '0.organizationId', '0.eventSourceTemplateId' ])
-	.expectJsonCollectionToHaveSize(3)
+	.expectJsonCollectionToHaveSize(4)
 	.expectJsonToBeAtLeast(function() {
 		return [{
 			id: this.getData('eventSourceId4'),
@@ -741,6 +770,11 @@ testSuite
 			name: 'ES6',
 			organizationId: this.getData('organizationId3'),
 			eventSourceTemplateId: this.getData('eventSourceTemplateId1')
+    }, {
+      id: this.getData('eventSourceId7'),
+      name: 'ES7',
+      organizationId: this.getData('organizationId3'),
+      eventSourceTemplateId: this.getData('eventSourceTemplateId1')
 		}];
 	});
 
@@ -766,8 +800,13 @@ testSuite
 	.expectStatusCode(403);
 
 testSuite
-	.describe('First user tries to retrieve an event source from an organization where he is not a member.')
+	.describe('First user tries to retrieve a public event source from an organization where he is not a member.')
 	.get({}, function() { return { url: this.getData('locationEventSource4') }; })
+	.expectStatusCode(200);
+
+testSuite
+	.describe('First user tries to retrieve a private event source from an organization where he is not a member.')
+	.get({}, function() { return { url: this.getData('locationEventSource7') }; })
 	.expectStatusCode(403);
 
 testSuite
@@ -1115,7 +1154,7 @@ testSuite
 
 testSuite
  	.describe('First user tries to delete ES4 in an organization where he is not a member.')
- 	.get({}, function() { return { url: this.getData('locationEventSource4') }; })
+ 	.delete({}, function() { return { url: this.getData('locationEventSource4') }; })
  	.expectStatusCode(403);
 
 module.exports = testSuite;

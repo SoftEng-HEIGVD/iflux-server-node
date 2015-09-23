@@ -16,8 +16,15 @@ module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
 	router.param('id', function (req, res, next) {
-		return actionTypeDao
-			.findByIdAndUser(req.params.id, req.userModel)
+    var promise;
+      if (req.method == 'GET') {
+        promise = actionTypeDao.findByIdAndUserOrPublic(req.params.id, req.userModel);
+      }
+      else {
+        promise = actionTypeDao.findByIdAndUser(req.params.id, req.userModel);
+      }
+
+    return promise
 			.then(function(actionType) {
 				req.actionType = actionType;
 				return next();

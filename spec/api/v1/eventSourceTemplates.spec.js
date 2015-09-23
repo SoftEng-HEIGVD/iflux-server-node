@@ -442,8 +442,13 @@ testSuite
 	});
 
 testSuite
-	.describe('Try to retrieve event source templates where the user is not member of the organization')
-	.get({}, function() { return { url: this.getData('locationEventSourceTemplate1') + '100' }; })
+	.describe('First user retrieves a public event source templates from an organization where he is not a member')
+	.get({}, function() { return { url: this.getData('locationEventSourceTemplate4') }; })
+	.expectStatusCode(200);
+
+testSuite
+  .describe('First user retrieves a private event source templates from an organization where he is not a member')
+	.get({}, function() { return { url: this.getData('locationEventSourceTemplate5') }; })
 	.expectStatusCode(403);
 
 testSuite
@@ -553,7 +558,7 @@ testSuite
 
 testSuite
  	.describe('First user tries to delete EST4 in an organization where he is not a member.')
- 	.get({}, function() { return { url: this.getData('locationEventSourceTemplate4') }; })
+ 	.delete({}, function() { return { url: this.getData('locationEventSourceTemplate4') }; })
  	.expectStatusCode(403);
 
 module.exports = testSuite;

@@ -14,8 +14,15 @@ module.exports = function (app) {
   app.use(resourceService.basePath, router);
 
 	router.param('id', function (req, res, next) {
-		return eventSourceTemplateDao
-			.findByIdAndUser(req.params.id, req.userModel)
+    var promise;
+      if (req.method == 'GET') {
+        promise = eventSourceTemplateDao.findByIdAndUserOrPublic(req.params.id, req.userModel);
+      }
+      else {
+        promise = eventSourceTemplateDao.findByIdAndUser(req.params.id, req.userModel);
+      }
+
+    return promise
 			.then(function(eventSourceTemplate) {
 				req.eventSourceTemplate = eventSourceTemplate;
 				next();
