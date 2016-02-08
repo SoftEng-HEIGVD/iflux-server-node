@@ -50,6 +50,7 @@
     "random-string": "^0.1.2",
     "require-directory": "^2.1.0",
     "serve-favicon": "~2.2.0",
+    "sleep": "^3.0.1",
     "underscore": "^1.8.2",
     "underscore.string": "^3.0.3",
     "valid-url": "^1.0.9"

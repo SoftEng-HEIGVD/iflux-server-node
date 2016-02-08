@@ -1,6 +1,7 @@
 var
 	_ = require('underscore'),
 	config = require('../../config/config'),
+  sleep = require('sleep'),
 	kafka = require('kafka-node'),
 	Consumer = kafka.Consumer,
   Offset = kafka.Offset,
@@ -58,9 +59,28 @@ function offsetSetup() {
   var offset = new Offset(client);
 
   offset.on('ready', function() {
-    offset.fetch([{ topic: config.kafka.eventTopic, time: -1 }], function (err, data) {
+    recurseOffsetSetup(offset, 1);
+  });
+}
+
+function recurseOffsetSetup(offset, time) {
+  offset.fetch([{ topic: config.kafka.eventTopic, time: -1 }], function (err, data) {
+    if (err) {
+      if (time > 256) {
+        console.log('Too many attempts to connect to: ' + config.kafka.eventTopic + '. Iflux will stop now.');
+        throw new Error(err);
+      }
+
+      console.log('Unable to connect to: ' + config.kafka.eventTopic + '. Retry in ' + time + 's.');
+
+      sleep.sleep(time);
+
+      recurseOffsetSetup(offset, time * 2);
+    }
+    else {
+      console.log('Connection to: ' + config.kafka.eventTopic + ' established.');
       consumerSetup(data[config.kafka.eventTopic][0][0]);
-    });
+    }
   });
 }
 
