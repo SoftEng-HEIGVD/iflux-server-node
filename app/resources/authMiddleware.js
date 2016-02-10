@@ -10,7 +10,8 @@ module.exports = function (app) {
 		.use(expressJwt({ secret: config.app.jwtSecret })
 		.unless({ path: [
 			'/v1/auth/signin',
-			'/v1/auth/register'
+			'/v1/auth/register',
+      '/v1/events'
 		]}));
 
 		app.use(function(req, res, next) {

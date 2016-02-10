@@ -6,33 +6,13 @@ var
 	Consumer = kafka.Consumer,
   Offset = kafka.Offset,
 	elasticSearchService = require('../../lib/ioc').create('elasticSearchService'),
-	ruleEngineService = require('./ruleEngineService'),
-	timeService = require('./timeService');
+  eventService = require('./eventService');
 
 var client, consumer, producer;
 
 function messageHandler(message) {
-	var time = timeService.timestamp();
 	var events = JSON.parse(message.value);
-
-	if (!_.isArray(events)) {
-		events = [ events ];
-	}
-
-	console.log('Received %s event(s).', events.length);
-
-	_.each(events, function(event) {
-		if (event) {
-			event.receivedAt = time;
-			elasticSearchService.saveEvent(event);
-		}
-		else {
-			console.log('Something strange happens to the event: %s', event);
-			console.log(events);
-		}
-	});
-
-	ruleEngineService.match(events);
+  eventService.eventsHandler(events);
 }
 
 function consumerErrorHandler(error) {

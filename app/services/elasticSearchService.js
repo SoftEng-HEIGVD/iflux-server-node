@@ -43,8 +43,11 @@ module.exports = function(elasticsearch, clone, print) {
 
 				client.create(esItem, function (error, response) {
 					if (!_.isUndefined(error)) {
-						print(error);
-						print(response);
+            print('Unable to save event to ElasticSearch');
+            print(error);
+            if (!_.isUndefined(response)) {
+              print(response);
+            }
 					}
 					else {
 						print('Saved event in Elastic Search with id: %s', esItem.id);
@@ -67,8 +70,11 @@ module.exports = function(elasticsearch, clone, print) {
 
 				client.create(esItem, function (error, response) {
 					if (!_.isUndefined(error)) {
+            print('Unable to save rule match to ElasticSearch');
 						print(error);
-						print(response);
+            if (!_.isUndefined(response)) {
+              print(response);
+            }
 					}
 					else {
 						print('Saved matched event in Elastic Search with id: %s.', esItem.id);

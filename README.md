@@ -9,6 +9,7 @@ Create a `.env` file in the root directory of the project and put the following 
 IFLUX_SERVER_JWT_SECRET=<LongRandomStringThatMustBeSecret>
 
 # Kakfa
+KAFKA_ENABLE=true
 KAFKA_ZOOKEEPER_HOST=<Boot2Docker IP>
 KAFKA_ZOOKEEPER_PORT=2181
 
@@ -30,10 +31,13 @@ It's highly recommended to use `Docker` to simplify your environment setup. Refe
 | Name                       | Description                               |
 | -------------------------- | ----------------------------------------- |
 | IFLUX_SERVER_JWT_SECRET    | Must be a random string that will be used to cipher the JSON Web Tokens. |
+| KAFKA_ENABLE               | Enable/Disable Kafka service. Useful for dev mode |
 | KAFKA_ZOOKEEPER_HOST       | Should be the Docker host IP (boot2docker IP, Vagrant VM IP, ...) or the IP of your host if you have installed Kafka manually. |
 | KAFKA_ZOOKEEPER_PORT       | Default port is 2181. |
 | ELASTICSEARCH_HOST         | Should be the Docker host IP (boot2docker IP, Vagrant VM IP, ...) or the IP of your host if you have installed ElasticSearch manually. |
 | ELASTICSEARCH_PORT         | Default port is 9200. |
+
+**Remark**: When Kafka is disable, a route /events is available on the iflux server. 
 
 ### Optional
 

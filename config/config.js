@@ -25,7 +25,7 @@ var config = {
 		  port: process.env.ELASTICSEARCH_PORT
 	  },
 	  kafka: {
-		  enable: true,
+		  enable: process.env.KAFKA_ENABLE === 'true',
 		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
 		  clientId: 'iflux-kafka',
 		  eventTopic: 'iflux-events'
@@ -116,7 +116,7 @@ var config = {
 		  port: process.env.ELASTICSEARCH_PORT
 	  },
 	  kafka: {
-		  enable: true,
+		  enable: process.env.KAFKA_ENABLE === 'true',
 		  connectionString: process.env.KAFKA_ZOOKEEPER_HOST + ':' + process.env.KAFKA_ZOOKEEPER_PORT,
 		  clientId: 'iflux-kafka',
       eventTopic: 'iflux-events'
@@ -159,7 +159,7 @@ var config = {
 		  port: process.env.ES_PORT_9200_TCP_PORT
 	  },
 		kafka: {
-			enable: true,
+			enable: process.env.KAFKA_ENABLE === 'true',
 		  connectionString: process.env.ZK_PORT_2181_TCP_ADDR + ':' + process.env.ZK_PORT_2181_TCP_PORT,
 		  clientId: 'iflux-kafka',
       eventTopic: 'iflux-events'
