@@ -90,7 +90,7 @@ module.exports = function(Bookshelf) {
 					options.mode = 'create';
 				}
 
-				var validation = checkit(this[options.mode + 'Validations']);
+				var validation = new checkit(this[options.mode + 'Validations']);
 
 				_.each(this[options.mode + 'ConditionalValidations'], function(conditionalValidations) {
 					validation = validation.maybe(conditionalValidations.validations, conditionalValidations.handler);
