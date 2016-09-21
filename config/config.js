@@ -155,20 +155,20 @@ var config = {
 		host: process.env.HOST || 'localhost',
 		elasticSearch: {
 			enable: true,
-		  host: process.env.ES_PORT_9200_TCP_ADDR,
-		  port: process.env.ES_PORT_9200_TCP_PORT
+		  host: process.env.COMPOSE_PROJECT_NAME + '_elasticsearch',
+		  port: 9200
 	  },
 		kafka: {
 			enable: process.env.KAFKA_ENABLE === 'true',
-		  connectionString: process.env.ZK_PORT_2181_TCP_ADDR + ':' + process.env.ZK_PORT_2181_TCP_PORT,
+		  connectionString: process.env.COMPOSE_PROJECT_NAME + '_zookeeper:2181',
 		  clientId: 'iflux-kafka',
       eventTopic: 'iflux-events'
 	  },
 		knex: {
 			client: 'pg',
 			connection: 	{
-				host: process.env.POSTGRESQL_PORT_5432_TCP_ADDR,
-				port: process.env.POSTGRESQL_PORT_5432_TCP_PORT,
+				host: process.env.COMPOSE_PROJECT_NAME + '_postgresql',
+				port: 5432,
 				user: process.env.IFLUX_PG_DB_USER,
 				password: process.env.IFLUX_PG_DB_PASS,
 				database: process.env.IFLUX_PG_DB_NAME,
